@@ -1,0 +1,342 @@
+Three higest bits is used (undocumented!) for Shared Bits from Win32 CreateFile call
+
+diff -u cifs-orig148/cifs_debug.c cifs/cifs_debug.c
+--- cifs-orig148/cifs_debug.c	2007-04-05 02:11:56 +0400
++++ cifs/cifs_debug.c	2007-06-05 12:24:45 +0400
+@@ -456,6 +456,9 @@
+ static read_proc_t linuxExtensionsEnabled_read;
+ static write_proc_t linuxExtensionsEnabled_write;
+ 
++static read_proc_t etersoft_read;
++static write_proc_t etersoft_write;
++
+ void
+ cifs_proc_init(void)
+ {
+@@ -519,6 +522,12 @@
+ 	if (pde)
+ 		pde->write_proc = lookupFlag_write;
+ 
++	pde =
++	create_proc_read_entry("Etersoft", 0, proc_fs_cifs,
++				etersoft_read, NULL);
++	if (pde)
++		pde->write_proc = etersoft_write;
++
+ /*	pde =
+ 	    create_proc_read_entry("NTLMV2Enabled", 0, proc_fs_cifs,
+ 				ntlmv2_enabled_read, NULL);
+@@ -552,6 +561,7 @@
+ 	remove_proc_entry("LinuxExtensionsEnabled",proc_fs_cifs);
+ 	remove_proc_entry("Experimental",proc_fs_cifs);
+ 	remove_proc_entry("LookupCacheEnabled",proc_fs_cifs);
++	remove_proc_entry("Etersoft",proc_fs_cifs);
+ 	remove_proc_entry("cifs", proc_root_fs);
+ }
+ 
+@@ -981,4 +991,43 @@
+ } */
+ 
+ 
++static int
++etersoft_read(char *page, char **start, off_t off,
++		     int count, int *eof, void *data)
++{
++	int len;
++
++	len = sprintf(page, "%d\n", etersoft_flag);
++
++	len -= off;
++	*start = page + off;
++
++	if (len > count)
++		len = count;
++	else
++		*eof = 1;
++
++	if (len < 0)
++		len = 0;
++
++	return len;
++}
++static int
++etersoft_write(struct file *file, const char __user *buffer,
++		      unsigned long count, void *data)
++{
++	char c;
++	int rc;
++
++	rc = get_user(c, buffer);
++	if (rc)
++		return rc;
++	if (c == '0' || c == 'n' || c == 'N')
++		etersoft_flag = 0;
++	else if (c == '1' || c == 'y' || c == 'Y')
++		etersoft_flag = 1;
++
++	return count;
++}
++
+ #endif
+diff -u cifs-orig148/cifsfs.c cifs/cifsfs.c
+--- cifs-orig148/cifsfs.c	2007-04-05 02:11:56 +0400
++++ cifs/cifsfs.c	2007-06-05 12:26:04 +0400
+@@ -60,6 +60,7 @@
+ int cifsFYI = 0;
+ int cifsERROR = 1;
+ int traceSMB = 0;
++unsigned int etersoft_flag = 1;
+ unsigned int oplockEnabled = 1;
+ unsigned int experimEnabled = 0;
+ unsigned int linuxExtEnabled = 1;
+diff -u cifs-orig148/cifsglob.h cifs/cifsglob.h
+--- cifs-orig148/cifsglob.h	2007-04-05 02:11:56 +0400
++++ cifs/cifsglob.h	2007-06-05 12:26:38 +0400
+@@ -592,6 +592,8 @@
+ GLOBAL_EXTERN atomic_t midCount;
+ 
+ /* Misc globals */
++GLOBAL_EXTERN unsigned int etersoft_flag; /* if enabled allows extended shared modes in open */
++
+ GLOBAL_EXTERN unsigned int multiuser_mount; /* if enabled allows new sessions
+ 				to be established on existing mount if we
+ 				have the uid/password or Kerberos credential 
+
+
+diff -u cifs-orig148/cifsproto.h cifs/cifsproto.h
+--- cifs-orig148/cifsproto.h	2007-04-05 02:11:56 +0400
++++ cifs/cifsproto.h	2007-05-17 15:54:32 +0400
+@@ -263,7 +263,7 @@
+ 
+ extern int CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
+ 			const char *fileName, const int disposition,
+-			const int access_flags, const int omode,
++			const int access_flags, const int share_flags, const int omode,
+ 			__u16 * netfid, int *pOplock, FILE_ALL_INFO *,
+ 			const struct nls_table *nls_codepage, int remap);
+ extern int SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
+
+diff -u cifs-orig148/cifssmb.c cifs/cifssmb.c
+--- cifs-orig148/cifssmb.c	2007-04-05 02:11:56 +0400
++++ cifs/cifssmb.c	2007-06-05 12:33:04 +0400
+@@ -972,6 +972,11 @@
+ 	int name_len;
+ 	__u16 count;
+ 
++	if (etersoft_flag) {
++		printk("Etersoft: Do not use SMBLegacyOpen!\n");
++		return rc;
++	}
++
+ OldOpenRetry:
+ 	rc = smb_init(SMB_COM_OPEN_ANDX, 15, tcon, (void **) &pSMB,
+ 		      (void **) &pSMBr);
+@@ -1075,7 +1080,7 @@
+ int
+ CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
+ 	    const char *fileName, const int openDisposition,
+-	    const int access_flags, const int create_options, __u16 * netfid,
++	    const int access_flags, const int share_flags, const int create_options, __u16 * netfid,
+ 	    int *pOplock, FILE_ALL_INFO * pfile_info, 
+ 	    const struct nls_table *nls_codepage, int remap)
+ {
+@@ -1134,7 +1139,7 @@
+ 	/*  Above line causes problems due to vfs splitting create into two
+ 		pieces - need to set mode after file created not while it is
+ 		being created */
+-	pSMB->ShareAccess = cpu_to_le32(FILE_SHARE_ALL);
++	pSMB->ShareAccess = cpu_to_le32(share_flags);
+ 	pSMB->CreateDisposition = cpu_to_le32(openDisposition);
+ 	pSMB->CreateOptions = cpu_to_le32(create_options & CREATE_OPTIONS_MASK);
+ 	/* BB Expirement with various impersonation levels and verify */
+
+diff -u cifs-orig148/dir.c cifs/dir.c
+--- cifs-orig148/dir.c	2007-04-05 02:11:56 +0400
++++ cifs/dir.c	2007-05-17 15:54:32 +0400
+@@ -207,7 +207,7 @@
+ 	}
+ 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS) 
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
+-			 desiredAccess, CREATE_NOT_DIR,
++			 desiredAccess, FILE_SHARE_ALL, CREATE_NOT_DIR,
+ 			 &fileHandle, &oplock, buf, cifs_sb->local_nls,
+ 			 cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 	else
+@@ -408,6 +408,7 @@
+ 					  WRITE_OWNER | WRITE_DAC be better? */,
+ 					 /* Create a file and set the
+ 					    file attribute to SYSTEM */
++					FILE_SHARE_ALL,
+ 					 CREATE_NOT_DIR | CREATE_OPTION_SPECIAL,
+ 					 &fileHandle, &oplock, buf,
+ 					 cifs_sb->local_nls,
+
+diff -u cifs-orig148/fcntl.c cifs/fcntl.c
+--- cifs-orig148/fcntl.c	2007-04-05 02:11:56 +0400
++++ cifs/fcntl.c	2007-05-17 15:54:32 +0400
+@@ -93,7 +93,7 @@
+ 	} else {
+ 		cFYI(1,("dir notify on file %s Arg 0x%lx",full_path,arg));
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, 
+-			GENERIC_READ | SYNCHRONIZE, 0 /* create options */,
++			GENERIC_READ | SYNCHRONIZE, FILE_SHARE_ALL, 0 /* create options */,
+ 			&netfid, &oplock,NULL, cifs_sb->local_nls,
+ 			cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 		/* BB fixme - add this handle to a notify handle list */
+
+diff -u cifs-orig148/file.c cifs/file.c
+--- cifs-orig148/file.c	2007-04-05 02:11:56 +0400
++++ cifs/file.c	2007-06-05 13:37:31 +0400
+@@ -106,6 +106,14 @@
+ 		return FILE_OPEN;
+ }
+ 
++static inline int cifs_get_share_flags(unsigned int flags)
++{
++	if (!etersoft_flag)
++		return FILE_SHARE_ALL;
++	return ((~(flags>>29))&7);
++}
++
++
+ /* all arguments to this function must be checked for validity in caller */
+ static inline int cifs_open_inode_helper(struct inode *inode, struct file *file,
+ 	struct cifsInodeInfo *pCifsInode, struct cifsFileInfo *pCifsFile,
+@@ -190,6 +196,7 @@
+ 	struct list_head *tmp;
+ 	char *full_path = NULL;
+ 	int desiredAccess;
++	int desiredShare;
+ 	int disposition;
+ 	__u16 netfid;
+ 	FILE_ALL_INFO *buf = NULL;
+@@ -238,6 +245,7 @@
+ 	cFYI(1, (" inode = 0x%p file flags are 0x%x for %s",
+ 		 inode, file->f_flags, full_path));
+ 	desiredAccess = cifs_convert_flags(file->f_flags);
++	desiredShare = cifs_get_share_flags(file->f_flags);
+ 
+ /*********************************************************************
+  *  open flag mapping table:
+@@ -287,7 +295,7 @@
+ 
+ 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS)
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, 
+-			 desiredAccess, CREATE_NOT_DIR, &netfid, &oplock, buf,
++			 desiredAccess, desiredShare, CREATE_NOT_DIR, &netfid, &oplock, buf,
+ 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags
+ 				 & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 	else
+@@ -371,6 +379,7 @@
+ 	struct cifsInodeInfo *pCifsInode;
+ 	char *full_path = NULL;
+ 	int desiredAccess;
++	int desiredShare;
+ 	int disposition = FILE_OPEN;
+ 	__u16 netfid;
+ 
+@@ -411,6 +420,7 @@
+ 	cFYI(1, (" inode = 0x%p file flags are 0x%x for %s",
+ 		 inode, file->f_flags,full_path));
+ 	desiredAccess = cifs_convert_flags(file->f_flags);
++	desiredShare = cifs_get_share_flags(file->f_flags);
+ 
+ 	if (oplockEnabled)
+ 		oplock = REQ_OPLOCK;
+@@ -430,7 +440,7 @@
+ 		FreeXid(xid);
+ 		return -ENOMEM;
+ 	} */
+-	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess,
++	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess, desiredShare,
+ 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags & 
+ 				CIFS_MOUNT_MAP_SPECIAL_CHR);
+
+diff -u cifs-orig148/inode.c cifs/inode.c
+--- cifs-orig148/inode.c	2007-04-05 02:11:56 +0400
++++ cifs/inode.c	2007-05-17 15:54:32 +0400
+@@ -231,7 +231,7 @@
+ 		return -EINVAL;	 /* EOPNOTSUPP? */
+ 	}
+ 		
+-	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ,
++	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
+ 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 			 cifs_sb->local_nls,
+ 			 cifs_sb->mnt_cifs_flags &
+@@ -629,8 +629,8 @@
+ 		int oplock = FALSE;
+ 		__u16 netfid;
+ 
+-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE,
+-				 CREATE_NOT_DIR | CREATE_DELETE_ON_CLOSE,
++		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE, FILE_SHARE_ALL,
++				 CREATE_NOT_DIR | CREATE_DELETE_ON_CLOSE, 
+ 				 &netfid, &oplock, NULL, cifs_sb->local_nls,
+ 				 cifs_sb->mnt_cifs_flags & 
+ 					CIFS_MOUNT_MAP_SPECIAL_CHR);
+@@ -674,7 +674,7 @@
+ 			   and pass in pid of opener to function */
+ 				rc = CIFSSMBOpen(xid, pTcon, full_path,
+ 						 FILE_OPEN, SYNCHRONIZE |
+-						 FILE_WRITE_ATTRIBUTES, 0,
++						 FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL, 0,
+ 						 &netfid, &oplock, NULL,
+ 						 cifs_sb->local_nls,
+ 						 cifs_sb->mnt_cifs_flags & 
+@@ -701,7 +701,7 @@
+ 				__u16 netfid;
+ 
+ 				rc = CIFSSMBOpen(xid, pTcon, full_path,
+-						 FILE_OPEN, DELETE,
++						 FILE_OPEN, DELETE, FILE_SHARE_ALL,
+ 						 CREATE_NOT_DIR |
+ 						 CREATE_DELETE_ON_CLOSE,
+ 						 &netfid, &oplock, NULL,
+@@ -963,7 +963,7 @@
+ 		/* if renaming directory - we should not say CREATE_NOT_DIR,
+ 		   need to test renaming open directory, also GENERIC_READ
+ 		   might not right be right access to request */
+-		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ,
++		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL, 
+ 				 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 				 cifs_sb_source->local_nls, 
+ 				 cifs_sb_source->mnt_cifs_flags & 
+@@ -1428,7 +1428,7 @@
+ 			/* BB we could scan to see if we already have it open
+ 			   and pass in pid of opener to function */
+ 			rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
+-					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
++					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL,
+ 					 CREATE_NOT_DIR, &netfid, &oplock,
+ 					 NULL, cifs_sb->local_nls,
+ 					 cifs_sb->mnt_cifs_flags &
+
+diff -u cifs-orig148/link.c cifs/link.c
+--- cifs-orig148/link.c	2007-04-05 02:11:56 +0400
++++ cifs/link.c	2007-05-17 15:56:02 +0400
+@@ -289,7 +289,7 @@
+ 		/* add open and read as in fs/cifs/inode.c */
+ 	
+ 	} else {
+-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, GENERIC_READ,
++		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
+ 				OPEN_REPARSE_POINT,&fid, &oplock, NULL, 
+ 				cifs_sb->local_nls, 
+ 				cifs_sb->mnt_cifs_flags & 
+
+
+Fix detecting overlaps completely (use end??)
+--- cifs-orig148/file.c	2007-04-05 02:11:56 +0400
++++ cifs/file.c	2007-06-11 19:40:36 +0400
+@@ -788,7 +804,7 @@
+ 			down(&fid->lock_sem);
+ 			list_for_each_entry_safe(li, tmp, &fid->llist, llist) {
+ 				if (pfLock->fl_start <= li->offset &&
+-						length >= li->length) {
++						pfLock->fl_start+length >= li->offset+li->length) {
+ 					stored_rc = CIFSSMBLock(xid, pTcon, netfid,
+ 							li->length, li->offset,
+ 							1, 0, li->type, FALSE);
+

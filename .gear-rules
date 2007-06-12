@@ -1,0 +1,2 @@
+tar.bz2: cifs-bld-tmp name=cifs-@version@ base=cifs-bld-tmp
+tar.bz2: linux-cifs

@@ -1,0 +1,37 @@
+#!/bin/sh
+# 2007 (c) Etersoft http://etersoft.ru
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# GNU Public License
+
+# Build kernel modules for all kernel and all platforms
+
+fatal()
+{
+	echo $@
+	exit 1
+}
+
+
+DISTR_VENDOR=/usr/bin/distr_vendor
+test -x $DISTR_VENDOR || fatal "Can't find distr_vendor"
+
+get_sd()
+{
+	# Ищем в нашем списке где искать файлы ядра в этой системе
+	BASE_KERNEL_SOURCES_DIR=`grep -i $1 kernel_src.list | head -n1 | cut -d" " -f 2 2>/dev/null`
+}
+
+get_src_dir()
+{
+	# Проверяем два раза: по полному имени и по краткому
+	get_sd `$DISTR_VENDOR -e`
+	[ -z "$BASE_KERNEL_SOURCES_DIR" ] && get_sd `$DISTR_VENDOR -d`
+	[ -z "$BASE_KERNEL_SOURCES_DIR" ] && { echo "Unknown `$DISTR_VENDOR -d`, use Generic" ; get_sd Generic ; }
+	[ -z "$BASE_KERNEL_SOURCES_DIR" ] && return 1
+	return 0
+}
+# Должно работать везде:
+#/lib/modules/$(shell uname -r)/build
+
+#fatal "Errror in func"
+
