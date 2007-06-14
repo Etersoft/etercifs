@@ -1,5 +1,6 @@
 # Etersoft (c) 2007
 # Multiplatform spec for autobuild system
+
 # in kernel build dir you can have gcc_version.inc file with export GCC_VERSION=x.xx
 
 # For build install,
@@ -12,7 +13,7 @@
 
 Name: linux-cifs
 Version: 1.48a
-%define relnum 1
+%define relnum 2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -30,12 +31,19 @@ Source1: http://pserver.samba.org/samba/ftp/cifs-cvs/cifs-%version.tar.bz2
 Release: alt%relnum
 BuildRequires: rpm-build-compat >= 0.7
 BuildRequires: kernel-build-tools
+BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-wks-smp kernel-headers-modules-ovz-smp
+%ifarch x86_64
+# Don't know if ifnarch exist
+BuildRequires: kernel-headers-modules-std-smp
+%else
+BuildRequires: kernel-headers-modules-std-pae
+%endif
 %else
 Release: eter%relnum%_vendor
 BuildRequires: rpm-build-altlinux-compat >= 0.7
 %endif
 
-# ifndef broken in Ubuntu
+# FIXME: ifndef broken in Ubuntu
 #ifndef buildroot
 %if %{undefined buildroot}
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
@@ -54,27 +62,30 @@ ExclusiveOS: Linux
 %description
 The CIFS VFS is a virtual file system for Linux to allow access to
 servers and storage appliances compliant with the SNIA CIFS Specification
-version 1.0 or later.    Popular servers such as Samba, Windows 2000,
-Windows XP and many others support CIFS by default.   The CIFS VFS
-provides some support for older servers based on the more primitive SMB
-(Server Message Block) protocol (you also can use the Linux file system
-smbfs as an alternative for accessing these).   CIFS VFS is designed to
-take advantage of advanced network file system features such as locking,
-Unicode (advanced internationalization), hardlinks, dfs (hierarchical,
-replicated name space), distributed caching and uses native TCP names
-(rather than RFC1001, Netbios names).  Unlike some other network
-file systems all key network function including authentication is
-provided in kernel (and changes to mount and/or a mount helper file
-are not required in order to enable the CIFS VFS). With the addition
-of upcoming improvements to the mount helper (mount.cifs) the CIFS VFS
-will be able to take advantage of the new CIFS URL specification though.
+version 1.0 or later.
+Popular servers such as Samba, Windows 2000, Windows XP and many others
+support CIFS by default.
+The CIFS VFS provides some support for older servers based on the more
+primitive SMB (Server Message Block) protocol (you also can use the Linux
+file system smbfs as an alternative for accessing these).
+CIFS VFS is designed to take advantage of advanced network file system
+features such as locking, Unicode (advanced internationalization),
+hardlinks, dfs (hierarchical, replicated name space), distributed caching
+and uses native TCP names (rather than RFC1001, Netbios names).
 
-This package has Etersoft's patches for sharing access support.
+Unlike some other network file systems all key network function including
+authentication is provided in kernel (and changes to mount and/or a mount
+helper file are not required in order to enable the CIFS VFS). With the
+addition of upcoming improvements to the mount helper (mount.cifs) the
+CIFS VFS will be able to take advantage of the new CIFS URL specification
+though.
+
+This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %prep
 %setup -q
-tar xvfj %SOURCE1
-patch -p1 -d cifs-bld-tmp/fs/cifs <%name-shared.patch
+tar xfj %SOURCE1
+patch -s -p1 -d cifs-bld-tmp/fs/cifs <%name-shared.patch
 
 %install
 #export KBUILD_VERBOSE=1
@@ -97,5 +108,8 @@ MAN_DIR=%buildroot%_mandir/ INIT_DIR=%buildroot%_initdir/ SBIN_DIR=%buildroot%_s
 /usr/src/%name/
 
 %changelog
+* Tue Jun 12 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt2
+- WINE@Etersoft 1.0.7 alpha
+
 * Fri Jun 08 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt1
 - initial build for WINE@Etersoft project

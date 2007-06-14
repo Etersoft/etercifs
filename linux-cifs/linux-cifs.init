@@ -11,7 +11,12 @@
 #
 
 MODULENAME=cifs
-DEFMODULEPATH=`echo /lib/modules/linux-cifs/$(uname -r)/$MODULENAME.ko 2>/dev/null`
+
+# current module or manually built
+DEFMODULEPATH=/lib/modules/linux-cifs/$(uname -r)/$MODULENAME.ko
+MANMODULEPATH=/lib/modules/linux-cifs/$MODULENAME.ko
+[ -r "$DEFMODULEPATH" ] || DEFMODULEPATH=$MANMODULEPATH
+
 OUTFORMAT=/etc/init.d/outformat
 [ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/linux-cifs.outformat
 
@@ -86,13 +91,14 @@ load_module()
          rmmod $MODULENAME || { failure ; return ; }
     fi
 
+    # Preload module dependencies
+    modprobe nls_base || { echo -n "nls_base is not loaded" ; failure ; } 
     echo -n "Loading CIFS kernel module... "
     if [ -r "$DEFMODULEPATH" ] ; then
-	    insmod $DEFMODULEPATH && { echo -n -e "\n\tvia insmod from $DEFMODULEPATH" ; success ; return ; }
-	    echo -n "Your system: " ; uname -a ; dmesg | tail -n2
-    else
-            echo -n " $MODULENAME from Etersoft is not found, you can try compile it with 'service linux-cifs build' command "
+	    insmod $DEFMODULEPATH && { echo -n -e "\n\tinsmod $DEFMODULEPATH" ; success ; return ; }
+	    echo -n "Incorrect module. Your system: " ; uname -a ; dmesg | tail -n2
     fi
+    echo -n "$MODULENAME from Etersoft is not found,\nyou can try compile it with 'service linux-cifs build' command."
     failure
 }
 
@@ -121,21 +127,22 @@ stop()
 
 status()
 {
+	local PRECOMP
 	echo "CIFS module status:"
+	if [ "$DEFMODULEPATH" = "$MANMODULEPATH" ] ; then
+		PRECOMP="manually built"
+	else
+		PRECOMP="precompiled"
+	fi
 	if is_moduled ; then
-            echo -e "\tkernel module $MODULENAME is loaded"
+            echo -e "\tkernel module $MODULENAME is loaded ($PRECOMP)"
             echo -n "Etersoft extensions for CIFS enabled..."
             test `cat /proc/fs/cifs/Etersoft` = "1" && success || failure
             echo -n "Linux extensions for CIFS disabled..."
             test `cat /proc/fs/cifs/LinuxExtensionsEnabled` = "1" && failure || success
         else
-            echo -e "\tkernel module $MODULENAME is not loaded"
+            echo -e "\tkernel module $MODULENAME is not loaded ($PRECOMP)"
         fi
-	if diff $DEFMODULEPATH /usr/src/linux-cifs/cifs.ko 2>/dev/null >/dev/null ; then
-		echo "Module built manually"
-	else
-		echo "Precompiled module"
-	fi
 }
 
 restart()
@@ -162,6 +169,8 @@ case "$1" in
         status
         ;;
     condrestart)
+        # remove manual built module
+        rm -f $MANMODULEPATH
         if [ "`cat /proc/fs/cifs/Etersoft 2>/dev/null`" = "1" ] ; then
             restart
         else

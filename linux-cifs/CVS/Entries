@@ -3,9 +3,10 @@
 /linux-cifs.outformat/1.1/Sat Jun  9 19:27:46 2007//
 /linux-cifs.release.sh/1.1/Sat Jun  9 18:26:48 2007//
 /linux-cifs_depmod.sh/1.1/Fri Mar 16 18:14:13 2007//
-/linux-cifs-shared.patch/1.6/Tue Jun 12 17:06:10 2007//
-/build.sh/1.10/Tue Jun 12 17:48:52 2007//
-/linux-cifs.spec/1.7/Tue Jun 12 17:50:23 2007//
-/buildmodule.sh/1.6/Tue Jun 12 17:58:18 2007//
-/linux-cifs.init/1.10/Tue Jun 12 18:05:16 2007//
+/linux-cifs.spec/1.11/Tue Jun 12 22:09:52 2007//
+/linux-cifs-shared.patch/1.16/Thu Jun 14 14:54:53 2007//
+/build.sh/1.16/Thu Jun 14 14:55:14 2007//
+/buildmodule.sh/1.8/Thu Jun 14 14:54:48 2007//
+/TODO/1.2/Thu Jun 14 14:55:23 2007//
+/linux-cifs.init/1.14/Thu Jun 14 16:23:52 2007//
 D

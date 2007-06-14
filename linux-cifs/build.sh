@@ -5,8 +5,9 @@
 
 # Build kernel modules for all kernel and all platforms
 
-. functions.sh
+. ./functions.sh
 
+echo "All kernel build script. (c) 2007 Etersoft. $Id: build.sh,v 1.16 2007/06/14 14:55:14 lav Exp $"
 PACKNAME=linux-cifs
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
@@ -14,6 +15,7 @@ get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
 BUILDDIR=`pwd`/cifs-bld-tmp/fs/cifs
 BUILTLIST=
 
+# SMP build
 [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
 [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
 
@@ -39,7 +41,7 @@ detect_kernel()
 	fi
 }
 
-# install sources
+echo "Install sources to $SBIN_DIR/../src/linux-cifs/"
 install -m755 -d $SBIN_DIR/../src/linux-cifs/
 install -m644 $BUILDDIR/* $SBIN_DIR/../src/linux-cifs/ || exit 1
 install -m644 buildmodule.sh $SBIN_DIR/../src/linux-cifs/ || exit 1
@@ -65,7 +67,8 @@ for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	KERVER=$(echo $KERNELVERSION | cut -b 1-3)
 
 
-	# Build and check
+	# Clean, build and check
+	make $USEGCC -C $KERNEL_SOURCE here=$BUILDDIR SUBDIRS=$BUILDDIR clean
 	make $USEGCC -C $KERNEL_SOURCE here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 	MODULENAME=cifs
 	#[ "$KERVER" = "2.4" ] && MODULENAME=$(echo $MODULENAME.o) || MODULENAME=$(echo $MODULENAME.?o)
@@ -74,7 +77,7 @@ for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	#echo "$KERNELVERSION $MODULENAME to $INSTALL_MOD_PATH"
 	strip --strip-debug --discard-all $BUILDDIR/$MODULENAME
 
-	mkdir -p $INSTALL_MOD_PATH/$KERNELVERSION/ $INSTALL_MOD_PATH/$PACKNAME/ || fatal "broken path"
+	mkdir -p $INSTALL_MOD_PATH/$KERNELVERSION/ || fatal "broken path"
 	cp -fv $BUILDDIR/$MODULENAME $INSTALL_MOD_PATH/$KERNELVERSION/ || fatal "copy error"
 	# copy last as default
 	#cp -f $BUILDDIR/$MODULENAME $INSTALL_MOD_PATH/$PACKNAME/
