@@ -15,7 +15,8 @@ MODULENAME=cifs
 # current module or manually built
 DEFMODULEPATH=/lib/modules/linux-cifs/$(uname -r)/$MODULENAME.ko
 MANMODULEPATH=/lib/modules/linux-cifs/$MODULENAME.ko
-[ -r "$DEFMODULEPATH" ] || DEFMODULEPATH=$MANMODULEPATH
+# use manually build if exists
+[ -r "$MANMODULEPATH" ] && DEFMODULEPATH=$MANMODULEPATH
 
 OUTFORMAT=/etc/init.d/outformat
 [ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/linux-cifs.outformat
@@ -30,6 +31,7 @@ else
 	SETCOLOR_NORMAL(){ :; }
 fi
 
+# TODO: use printf?
 success()
 {
 	MOVE_TO_COL
@@ -37,7 +39,7 @@ success()
 	SETCOLOR_SUCCESS
 	echo -n 'DONE'
 	SETCOLOR_NORMAL
-	echo -e ' ]\r'
+	echo ' ]'
 }
 
 failure()
@@ -47,7 +49,7 @@ failure()
 	SETCOLOR_FAILURE
 	echo -n 'FAILED'
 	SETCOLOR_NORMAL
-	echo -e ']\r'
+	echo ']'
 }
 
 passed()
@@ -57,7 +59,7 @@ passed()
 	SETCOLOR_WARNING
 	echo -n 'PASSED'
 	SETCOLOR_NORMAL
-	echo -e ']\r'
+	echo ']'
 }
 
 get_pid()
@@ -82,23 +84,43 @@ is_moduled()
     lsmod | grep $MODULENAME > /dev/null
 }
 
+umount_cifs()
+{
+	WASCIFS=
+	if mount | grep cifs 2>/dev/null ; then
+		WASCIFS=1
+	fi
+	echo -n "Unmounting CIFS resources... "
+	umount -t cifs -a || { failure ; return ; }
+}
+
+mount_cifs()
+{
+	echo -n "Mounting CIFS resources... "
+	mount -t cifs -a || { failure ; return ; }
+}
+
 load_module()
 {
     local i
     if is_moduled ; then
          #test -r /proc/fs/cifs/Etersoft && { passed ; return ; }
+         umount_cifs
          echo -n "Removing CIFS kernel module... "
          rmmod $MODULENAME || { failure ; return ; }
     fi
 
     # Preload module dependencies
-    modprobe nls_base || { echo -n "nls_base is not loaded" ; failure ; } 
+    modprobe nls_base 2>/dev/null
+    # kernel depends
+    # || { echo -n "nls_base is not loaded" ; failure ; } 
     echo -n "Loading CIFS kernel module... "
     if [ -r "$DEFMODULEPATH" ] ; then
-	    insmod $DEFMODULEPATH && { echo -n -e "\n\tinsmod $DEFMODULEPATH" ; success ; return ; }
+	    insmod $DEFMODULEPATH && { echo ; echo -n "    insmod $DEFMODULEPATH" ; success ; return ; }
 	    echo -n "Incorrect module. Your system: " ; uname -a ; dmesg | tail -n2
     fi
-    echo -n "$MODULENAME from Etersoft is not found,\nyou can try compile it with 'service linux-cifs build' command."
+    echo -n "$MODULENAME from Etersoft is not found,"
+    echo -n "you can try compile it with 'service linux-cifs build' command."
     failure
 }
 
@@ -106,11 +128,12 @@ start()
 {
     load_module
     if is_moduled ; then
-        test -r /proc/fs/cifs/Etersoft || { echo -n "Check CIFS for Etersoft extensions... " ; failure ; return ; }
+        test -r /proc/fs/cifs/Etersoft 2>/dev/null || { echo -n "Check CIFS for Etersoft extensions... " ; failure ; return ; }
         echo -n "Enable Etersoft extensions for CIFS..."
         echo 1 > /proc/fs/cifs/Etersoft && success || failure
         echo -n "Disable Linux extensions for CIFS..."
         echo 0 > /proc/fs/cifs/LinuxExtensionsEnabled && success || failure
+	test -n "$WASCIFS" && mount_cifs
     else
         failure
     fi
@@ -119,8 +142,9 @@ start()
 stop()
 {
     echo -n "Unloading CIFS kernel module... "
+    umount_cifs
     is_moduled || { passed ; return ; }
-    rmmod $MODULENAME || { failure ; return ; }
+    rmmod $MODULENAME || { failure ; echo "You have to umount all CIFS resources."; return ; }
     success
 
 }
@@ -129,26 +153,23 @@ status()
 {
 	local PRECOMP
 	echo "CIFS module status:"
-	if [ "$DEFMODULEPATH" = "$MANMODULEPATH" ] ; then
-		PRECOMP="manually built"
-	else
-		PRECOMP="precompiled"
-	fi
+	# FIXME
+	#if [ "$DEFMODULEPATH" = "$MANMODULEPATH" ] ; then
+	#	PRECOMP="manually built"
+	#else
+	#	PRECOMP="precompiled"
+	#fi
 	if is_moduled ; then
-            echo -e "\tkernel module $MODULENAME is loaded ($PRECOMP)"
+            #echo "    kernel module $MODULENAME is loaded ($PRECOMP)"
+            test -d /proc/fs/cifs/ 2>/dev/null || { echo -n "Can't locale /proc/fs/cifs... " ; failure ; }
+            echo "    kernel module $MODULENAME is loaded"
             echo -n "Etersoft extensions for CIFS enabled..."
-            test `cat /proc/fs/cifs/Etersoft` = "1" && success || failure
-            echo -n "Linux extensions for CIFS disabled..."
-            test `cat /proc/fs/cifs/LinuxExtensionsEnabled` = "1" && failure || success
+            test "`cat /proc/fs/cifs/Etersoft 2>/dev/null`" = "1" && success || failure
+            echo -n "Unix extensions for CIFS disabled..."
+            test "`cat /proc/fs/cifs/LinuxExtensionsEnabled 2>/dev/null`" = "1" && failure || success
         else
-            echo -e "\tkernel module $MODULENAME is not loaded ($PRECOMP)"
+            echo "    kernel module $MODULENAME is not loaded ($PRECOMP)"
         fi
-}
-
-restart()
-{
-    stop
-    start
 }
 
 case "$1" in
@@ -159,11 +180,12 @@ case "$1" in
         stop
         ;;
     restart)
-        restart
+        stop
+        start
         ;;
     build)
         cd /usr/src/linux-cifs
-	bash buildmodule.sh
+	sh buildmodule.sh
         ;;
     status)
         status
@@ -172,7 +194,8 @@ case "$1" in
         # remove manual built module
         rm -f $MANMODULEPATH
         if [ "`cat /proc/fs/cifs/Etersoft 2>/dev/null`" = "1" ] ; then
-            restart
+            stop
+            start
         else
             echo -n "Etersoft CIFS module..." && passed
         fi

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Output formatting functions.
-# $Id: linux-cifs.outformat,v 1.1 2007/06/09 19:27:46 lav Exp $
+# $Id: linux-cifs.outformat,v 1.3 2007/07/27 11:55:53 lav Exp $
 #
 # Copyright (C) 2002 Ivan Zakharyaschev <imz@altlinux.ru>.
 # Copyright (C) 2002 Dmitry V. Levin <ldv@altlinux.org>.

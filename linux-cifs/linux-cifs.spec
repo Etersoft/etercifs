@@ -13,7 +13,7 @@
 
 Name: linux-cifs
 Version: 1.48a
-%define relnum 2
+%define relnum 7
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -108,6 +108,33 @@ MAN_DIR=%buildroot%_mandir/ INIT_DIR=%buildroot%_initdir/ SBIN_DIR=%buildroot%_s
 /usr/src/%name/
 
 %changelog
+* Fri Jul 27 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt7
+- fix build on 2.6.22 kernels
+- fix scripts for Debian/Ubuntu
+
+* Tue Jun 26 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt6
+- WINE@Etersoft 1.0.7 bugfix release
+- some start script fixes, install manually build first
+- fix build for kernels in symlinked build dir
+- fix build on ASP Linux 2.6.9-55 kernels
+
+* Tue Jun 19 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt5
+- WINE@Etersoft 1.0.7 release
+- fix build on ALT ovz-smp
+- fix build with 2.6.9 and older kernel
+- fix build on ALT Linux 2.4
+- fix caching after oplock break (eterbug #477)
+- fix build with 2.6.18 on CentOS/5 and Fedora
+
+* Sun Jun 17 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt4
+- WINE@Etersoft 1.0.7 rc1
+- script fixes
+
+* Thu Jun 14 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt3
+- WINE@Etersoft 1.0.7 beta
+- fix inode revalidate for read requests
+- fix build module scripts
+
 * Tue Jun 12 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt2
 - WINE@Etersoft 1.0.7 alpha
 

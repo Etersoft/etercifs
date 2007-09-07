@@ -1,4 +1,7 @@
 #!/bin/sh
+# 2007 (c) Etersoft http://etersoft.ru
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# GNU Public License
 
 # Build kernel module in installed system
 
@@ -28,9 +31,9 @@ if [ ! -f $KERNSRC/include/linux/version.h ]; then
 Error: no kernel headers found at $KERNSRC
 Please install package
  	kernel-headers-modules-XXXX for ALT Linux
- 	kernel-devel-XXXX for FCx / ASP Linux
+ 	kernel-XXXX-devel for FCx / ASP Linux
  	kernel-source-stripped-XXXX for Mandriva 2007
- 	linux-headers for Debian / Ubuntu
+ 	linux-headers-XXXX for Debian / Ubuntu
  	kernel-source-XXXX for SuSe
  	kernel-source-XXXX for Slackware / MOPSLinux
 or use KERNSRC variable to set correct location
@@ -40,7 +43,19 @@ EOF
 fi
 
 # set GCC version if needed
-test -f $KERNSRC/gcc_version.inc && . $KERNSRC/gcc_version.inc && echo "We in ALT Linux, use GCC $GCC_VERSION" && export USEGCC="CC=gcc-$GCC_VERSION"
+if [ -f $KERNSRC/gcc_version.inc ] ; then
+	. $KERNSRC/gcc_version.inc
+	echo "We in ALT Linux, use GCC $GCC_VERSION"
+	export GCCNAME=gcc-$GCC_VERSION
+	export USEGCC="CC=$GCCNAME"
+else
+	export GCCNAME=gcc
+fi
+
+if ! which $GCCNAME ; then
+	echo "GCC compiler have not found. Please install gcc package."
+	exit 1
+fi
 
 # Clean, build and check
 rm -f $BUILDDIR/$MODULENAME

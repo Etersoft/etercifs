@@ -23,7 +23,7 @@ build_rpms_name $SPECNAME
 test -z "$BASENAME" && fatal "BASENAME is empty"
 #NAMEVER=$BASENAME-$VERSION
 
-rpmbb $SPECNAME || fatal "Can't build"
+#rpmbb $SPECNAME || fatal "Can't build"
 
 if [ -n "$WINEPUB_PATH" -a $USER = "lav" ] ; then
 	# Path to local publishing

@@ -7,7 +7,7 @@
 
 . ./functions.sh
 
-echo "All kernel build script. (c) 2007 Etersoft. $Id: build.sh,v 1.16 2007/06/14 14:55:14 lav Exp $"
+echo "All kernel build script. (c) 2007 Etersoft. $Id: build.sh,v 1.23 2007/07/03 06:26:08 lav Exp $"
 PACKNAME=linux-cifs
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
@@ -47,7 +47,7 @@ install -m644 $BUILDDIR/* $SBIN_DIR/../src/linux-cifs/ || exit 1
 install -m644 buildmodule.sh $SBIN_DIR/../src/linux-cifs/ || exit 1
 
 for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
-	[ -L $KERNEL_SOURCE ] && continue
+	[ -L $KERNEL_SOURCE ] && [ `basename $KERNEL_SOURCE` != "build" ] && continue
 	#[ -f $KERNEL_SOURCE/Makefile ] || continue
 	# .config in Linux 2.6 only?
 	[ -f $KERNEL_SOURCE/.config ] || continue
@@ -65,7 +65,6 @@ for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	fi
 	BUILTLIST="$BUILTLIST $KERNELVERSION"
 	KERVER=$(echo $KERNELVERSION | cut -b 1-3)
-
 
 	# Clean, build and check
 	make $USEGCC -C $KERNEL_SOURCE here=$BUILDDIR SUBDIRS=$BUILDDIR clean
@@ -85,11 +84,12 @@ for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	BUILTLIST="$BUILTLIST---DONE"
 done
 #cd -
-test -z "$BUILTLIST" && fatal "build nothing"
+# Lav: We can has package without binary modules
+#test -z "$BUILTLIST" && fatal "build nothing"
 echo
 echo "========================================================================"
 echo "CIFS Linux kernel module built for follow kernels (marked as ---DONE):"
-for i in $BUILTLIST ; do echo -e "\t$i" ; done
+for i in $BUILTLIST ; do echo "    $i" ; done
 echo
 mkdir -p $SBIN_DIR $INIT_DIR
 #install -m755 linux-cifs_depmod.sh $INSTALL_MOD_PATH/$PACKNAME/

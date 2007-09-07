@@ -373,9 +373,21 @@ Force revalidate for inode
  	.write = do_sync_write,
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
  	.readv = generic_file_readv,
+@@ -989,6 +1002,10 @@
+ 				to server still is disconnected since oplock 
+ 				already released by the server in that case */
+ 				if(pTcon->tidStatus != CifsNeedReconnect) {
++					/* PV: disable caching if oplock missed  */
++					CIFS_I(inode)->clientCanCacheRead = FALSE;
++					CIFS_I(inode)->clientCanCacheAll = FALSE;
++
+ 				    rc = CIFSSMBLock(0, pTcon, netfid,
+ 					    0 /* len */ , 0 /* offset */, 0, 
+ 					    0, LOCKING_ANDX_OPLOCK_RELEASE,
 
---- cifs/inode.c 2007-06-12 22:05:31 +0400
-+++ cifs/inode.c 2007-06-14 16:03:51 +0400
+
+--- cifs/inode.c	2007-06-12 22:05:31 +0400
++++ cifs/inode.c	2007-06-14 21:42:57 +0400
 @@ -1027,7 +1027,7 @@
  		 direntry->d_inode->i_count.counter, direntry,
  		 direntry->d_time, jiffies));
@@ -385,14 +397,16 @@ Force revalidate for inode
  		/* was set to zero previously to force revalidate */
  	} else if (time_before(jiffies, cifsInode->time + HZ) &&
  		   lookupCacheEnabled) {
-@@ -1070,17 +1070,17 @@
+@@ -1069,18 +1069,18 @@
+ 	/* if not oplocked, we invalidate inode pages if mtime or file size
  	   had changed on server */
  
- 	if (timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
+-	if (timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
 -	    (local_size == direntry->d_inode->i_size)) {
 -		cFYI(1, ("cifs_revalidate - inode unchanged"));
-+	    (local_size == direntry->d_inode->i_size) &&
-+		!cifsInode->needForceInvalidate ) {
++	if (!cifsInode->needForceInvalidate &&
++		timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
++	    (local_size == direntry->d_inode->i_size) ) {
 +		cFYI(1, ("***************************** cifs_revalidate - inode unchanged"));
  	} else {
  		/* file may have changed on server */
@@ -407,8 +421,12 @@ Force revalidate for inode
  	}
  
  	/* can not grab this sem since kernel filesys locking documentation
-@@ -1101,8 +1101,13 @@
+@@ -1099,10 +1099,17 @@
+ /*		if(S_ISDIR(direntry->d_inode->i_mode)) 
+ 			shrink_dcache_parent(direntry); */
  		if (S_ISREG(direntry->d_inode->i_mode)) {
++			/* (pv): Зачем здесь второй вызов filemap_fdatawait
++				Ведь мы выше уже вызывали эту функцию. */
  			if (direntry->d_inode->i_mapping)
  				filemap_fdatawait(direntry->d_inode->i_mapping);
 +
@@ -434,3 +452,191 @@ Force revalidate for inode
  #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0)
  	struct inode vfs_inode;
  #endif
+
+Correct build for ovz-kernels
+Надо по этому патчу внести изменения в исходный код, чтобы условие было на наличие utsname, а не на версию ядра
+--- cifs/connect.c	2007-06-17 22:44:40 +0400
++++ cifs/connect.c	2007-06-17 23:01:57 +0400
+@@ -39,6 +39,7 @@
+ #endif
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
++#include <linux/autoconf.h>
+ #include "cifspdu.h"
+ #include "cifsglob.h"
+ #include "cifsproto.h"
+@@ -826,7 +827,7 @@
+ 	separator[1] = 0; 
+ 
+ 	memset(vol->source_rfc1001_name,0x20,15);
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 	for(i=0;i < strnlen(utsname()->nodename,15);i++) {
+ 		/* does not have to be a perfect mapping since the field is
+ 		informational, only used for servers that do not support
+@@ -2248,7 +2249,7 @@
+ 				  32, nls_codepage);
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 			cifs_strtoUCS((__le16 *)bcc_ptr, utsname()->release,
+                                   32, nls_codepage);
+ 
+@@ -2281,7 +2282,7 @@
+ 		}
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+                 strcpy(bcc_ptr, utsname()->release);
+                 bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+@@ -2551,7 +2552,7 @@
+ 				  32, nls_codepage);
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		    cifs_strtoUCS((__le16 *)bcc_ptr, utsname()->release, 32,
+ 				nls_codepage);
+ 
+@@ -2574,7 +2575,7 @@
+ 	} else {		/* ASCII */
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		strcpy(bcc_ptr, utsname()->release);
+ 		bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+@@ -2954,7 +2955,7 @@
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+ 
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+                                   nls_codepage);
+ #else
+@@ -3011,7 +3012,7 @@
+ 
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		strcpy(bcc_ptr, utsname()->release);
+ 		bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+
+--- cifs/sess.c.orig	2007-06-17 22:44:45 +0400
++++ cifs/sess.c	2007-06-17 23:02:33 +0400
+@@ -30,6 +30,7 @@
+ #include "ntlmssp.h"
+ #include "nterr.h"
+ #include <linux/utsname.h>
++#include <linux/autoconf.h>
+ 
+ extern void SMBNTencrypt(unsigned char *passwd, unsigned char *c8,
+                          unsigned char *p24);
+@@ -117,7 +118,7 @@
+ 	bytes_ret = cifs_strtoUCS((__le16 *)bcc_ptr, "Linux version ", 32,
+ 				  nls_cp);
+ 	bcc_ptr += 2 * bytes_ret;
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 	bytes_ret = cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release,
+ 				  32, nls_cp);
+ #else
+@@ -167,7 +168,7 @@
+ 
+ 	strcpy(bcc_ptr, "Linux version ");
+ 	bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 	strcpy(bcc_ptr, utsname()->release);
+ 	bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+
+Fix compiling for 2.6.9 and older
+--- cifs/inode.c.orig	2007-06-12 22:05:31 +0400
++++ cifs/inode.c	2007-06-18 23:18:59 +0400
+@@ -1178,7 +1185,11 @@
+ 	goto out_truncate;
+ 
+ do_expand:
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,9)
+ 	limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
++#else
++	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
++#endif
+ 	if (limit != RLIM_INFINITY && offset > limit) {
+ 		spin_unlock(&inode->i_lock);
+ 		goto out_sig;
+
+Fin compiling for 2.6.18 in Fedora 7 and CentOS 5
+--- cifs/cifsfs.c.orig	2007-06-19 00:05:21 +0400
++++ cifs/cifsfs.c	2007-06-20 23:13:10 +0400
+@@ -294,7 +294,7 @@
+ 	file data or metadata */
+ 	cifs_inode->clientCanCacheRead = FALSE;
+ 	cifs_inode->clientCanCacheAll = FALSE;
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ 	cifs_inode->vfs_inode.i_blksize = CIFS_MAX_MSGSIZE;
+ #endif
+ 	cifs_inode->vfs_inode.i_blkbits = 14;  /* 2**14 = CIFS_MAX_MSGSIZE */
+
+--- cifs/asn1.c.orig	2007-06-22 22:53:02 +0400
++++ cifs/asn1.c	2007-06-22 22:53:05 +0400
+@@ -26,7 +26,7 @@
+ #include "cifsglob.h"
+ #include "cifs_debug.h"
+ #include "cifsproto.h"
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <linux/config.h>
+ #endif
+ 
+
+--- cifs-smp-o/cifsfs.c	2007-06-05 12:26:04 +0400
++++ cifs/cifsfs.c	2007-07-03 11:40:34 +0400
+@@ -184,7 +184,7 @@
+ }
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
+-void * kzalloc(size_t size, unsigned flgs)
++void * kzalloc(size_t size, int flgs)
+ {
+ 	void * buf;
+ 	buf = kmalloc(size, flgs);
+
+--- cifs-smp-o/cifsproto.h	2007-05-17 15:54:32 +0400
++++ cifs/cifsproto.h	2007-07-03 11:40:19 +0400
+@@ -366,6 +366,6 @@
+ extern int CIFSGetExtAttr(const int xid, struct cifsTconInfo *tcon,
+                 const int netfid, __u64 * pExtAttrBits, __u64 *pMask);
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
+-extern void * kzalloc(size_t size, unsigned flgs);
++extern void * kzalloc(size_t size, int flgs);
+ #endif
+ #endif			/* _CIFSPROTO_H */
+
+
+В 2.6.22 их больше нет?
+--- cifs/cifsfs.c.orig	2007-04-05 02:11:56 +0400
++++ cifs/cifsfs.c	2007-07-27 20:23:34 +0400
+@@ -782,11 +782,8 @@
+ {
+ 	struct cifsInodeInfo *cifsi = inode;
+ 
+-	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
+-	    SLAB_CTOR_CONSTRUCTOR) {
+-		inode_init_once(&cifsi->vfs_inode);
+-		INIT_LIST_HEAD(&cifsi->lockList);
+-	}
++	inode_init_once(&cifsi->vfs_inode);
++	INIT_LIST_HEAD(&cifsi->lockList);
+ }
+ 
+ static int
