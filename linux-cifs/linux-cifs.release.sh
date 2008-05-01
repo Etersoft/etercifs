@@ -18,17 +18,19 @@ update_from_cvs
 SPECNAME=linux-cifs.spec
 prepare_tarball
 
-
+echo "build_srpm"
 build_rpms_name $SPECNAME
 test -z "$BASENAME" && fatal "BASENAME is empty"
 #NAMEVER=$BASENAME-$VERSION
 
 #rpmbb $SPECNAME || fatal "Can't build"
 
-if [ -n "$WINEPUB_PATH" -a $USER = "lav" ] ; then
+if [ -n "$WINEPUB_PATH" ] ; then
+#-a $USER = "lav" ] ; then
 	# Path to local publishing
 	ETERDESTSRPM=$WINEPUB_PATH/sources
 	cp -f $RPMSOURCEDIR/$TARNAME $ETERDESTSRPM/tarball/
+echo "publish_srpm"
 	publish_srpm
 fi
 
@@ -43,3 +45,20 @@ fi
 #cd gentoo
 #./release_port.sh
 #cd -
+
+
+SPECNAME=dkms-linux-cifs.spec
+prepare_tarball
+
+echo "build_srpm"
+build_rpms_name $SPECNAME
+test -z "$BASENAME" && fatal "BASENAME is empty"
+
+if [ -n "$WINEPUB_PATH" ] ; then
+	# Path to local publishing
+	ETERDESTSRPM=$WINEPUB_PATH/sources
+	cp -f $RPMSOURCEDIR/$TARNAME $ETERDESTSRPM/tarball/
+echo "publish_srpm"
+	publish_srpm
+fi
+

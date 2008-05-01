@@ -5,8 +5,8 @@
 
 # Build kernel module in installed system
 
-MODULENAME=cifs.ko
-BUILDDIR=/usr/src/linux-cifs
+MODULEFILENAME=etercifs.ko
+BUILDDIR=$(pwd)
 KERNELVERSION=$(uname -r)
 
 # SMP build
@@ -19,8 +19,8 @@ if [ -z "$KERNSRC" ]; then
 	KERNSRC=/lib/modules/$KERNELVERSION/build
 fi
 if [ -z "$INSTALL_MOD_PATH" ]; then
-	#INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/extra
-	INSTALL_MOD_PATH=/lib/modules/linux-cifs
+	INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/fs/cifs
+	#INSTALL_MOD_PATH=/lib/modules/linux-cifs
 fi
 
 echo 
@@ -32,7 +32,7 @@ Error: no kernel headers found at $KERNSRC
 Please install package
  	kernel-headers-modules-XXXX for ALT Linux
  	kernel-XXXX-devel for FCx / ASP Linux
- 	kernel-source-stripped-XXXX for Mandriva 2007
+ 	dkms-linux-cifs for Mandriva 2008
  	linux-headers-XXXX for Debian / Ubuntu
  	kernel-source-XXXX for SuSe
  	kernel-source-XXXX for Slackware / MOPSLinux
@@ -58,17 +58,17 @@ if ! which $GCCNAME ; then
 fi
 
 # Clean, build and check
-rm -f $BUILDDIR/$MODULENAME
+rm -f $BUILDDIR/$MODULEFILENAME
 make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
 make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 
 #[ "$KERVER" = "2.4" ] && MODULENAME=$MODULENAME.o || MODULENAME=$MODULENAME.ko
-test -r "$BUILDDIR/$MODULENAME" || { echo "can't locate built module $MODULENAME, continue" ; exit 1 ; }
-strip --strip-debug --discard-all $BUILDDIR/$MODULENAME
+test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME, continue" ; exit 1 ; }
+strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
 
 echo "Copying built module to $INSTALL_MOD_PATH"
 mkdir -p $INSTALL_MOD_PATH
-install -m 644 -o root -g root $BUILDDIR/$MODULENAME $INSTALL_MOD_PATH/ || exit 1
-#depmod -ae || exit 1
+install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
+depmod -ae || exit 1
 #echo "$MODULENAME build correctly"
 exit 0

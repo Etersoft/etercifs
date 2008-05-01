@@ -1,5 +1,5 @@
 #!/bin/sh
-# 2006, 2007 (c) Etersoft http://etersoft.ru
+# 2006, 2007, 2008 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License
 
@@ -7,18 +7,21 @@
 
 . ./functions.sh
 
-echo "All kernel build script. (c) 2007 Etersoft. $Id: build.sh,v 1.23 2007/07/03 06:26:08 lav Exp $"
+echo "All kernel build script. (c) 2007, 2008 Etersoft. $Id: build.sh,v 1.26 2008/01/27 16:54:11 lav Exp $"
 PACKNAME=linux-cifs
+MODULENAME=etercifs
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
 
-BUILDDIR=`pwd`/cifs-bld-tmp/fs/cifs
+[ -n "$BUILDDIR" ] || BUILDDIR=`pwd`/new-cifs-backport
+
 BUILTLIST=
 
 # SMP build
 [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
 [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
 
+# Heuristic
 detect_kernel()
 {
 	# Detect kernel version
@@ -41,10 +44,11 @@ detect_kernel()
 	fi
 }
 
-echo "Install sources to $SBIN_DIR/../src/linux-cifs/"
-install -m755 -d $SBIN_DIR/../src/linux-cifs/
-install -m644 $BUILDDIR/* $SBIN_DIR/../src/linux-cifs/ || exit 1
-install -m644 buildmodule.sh $SBIN_DIR/../src/linux-cifs/ || exit 1
+[ -z "$DESTDIR$SRC_DIR" ] && exit 1
+echo "Install sources to $DESTDIR/$SRC_DIR"
+install -m755 -d $DESTDIR/$SRC_DIR
+install -m644 $BUILDDIR/* $DESTDIR/$SRC_DIR || exit 1
+install -m644 buildmodule.sh $DESTDIR/$SRC_DIR || exit 1
 
 for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	[ -L $KERNEL_SOURCE ] && [ `basename $KERNEL_SOURCE` != "build" ] && continue
@@ -69,15 +73,14 @@ for KERNEL_SOURCE in `echo $BASE_KERNEL_SOURCES_DIR` ; do
 	# Clean, build and check
 	make $USEGCC -C $KERNEL_SOURCE here=$BUILDDIR SUBDIRS=$BUILDDIR clean
 	make $USEGCC -C $KERNEL_SOURCE here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
-	MODULENAME=cifs
 	#[ "$KERVER" = "2.4" ] && MODULENAME=$(echo $MODULENAME.o) || MODULENAME=$(echo $MODULENAME.?o)
-	[ "$KERVER" = "2.4" ] && MODULENAME=$MODULENAME.o || MODULENAME=$MODULENAME.ko
-	test -r "$BUILDDIR/$MODULENAME" || { echo "can't locate built module $MODULENAME, continue" ; continue ; }
+	[ "$KERVER" = "2.4" ] && MODULEFILENAME=$MODULEFILENAME.o || MODULEFILENAME=$MODULENAME.ko
+	test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME, continue" ; continue ; }
 	#echo "$KERNELVERSION $MODULENAME to $INSTALL_MOD_PATH"
-	strip --strip-debug --discard-all $BUILDDIR/$MODULENAME
+	strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
 
-	mkdir -p $INSTALL_MOD_PATH/$KERNELVERSION/ || fatal "broken path"
-	cp -fv $BUILDDIR/$MODULENAME $INSTALL_MOD_PATH/$KERNELVERSION/ || fatal "copy error"
+	mkdir -p $INSTALL_MOD_PATH/$KERNELVERSION/kernel/fs/cifs || fatal "broken path"
+	cp -fv $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/$KERNELVERSION/kernel/fs/cifs || fatal "copy error"
 	# copy last as default
 	#cp -f $BUILDDIR/$MODULENAME $INSTALL_MOD_PATH/$PACKNAME/
 	#make -C $KERNEL_SOURCE here=`pwd`/ SUBDIRS=`pwd`/ modules_install
@@ -94,7 +97,8 @@ echo
 mkdir -p $SBIN_DIR $INIT_DIR
 #install -m755 linux-cifs_depmod.sh $INSTALL_MOD_PATH/$PACKNAME/
 
-install -m755 -D $PACKNAME.init $INIT_DIR/$PACKNAME
+sed -e "s|@SRC_DIR@|$SRC_DIR|g" < $PACKNAME.init > $PACKNAME.init.repl
+install -m755 -D $PACKNAME.init.repl $INIT_DIR/$PACKNAME
 install -m755 $PACKNAME.outformat $INIT_DIR/
 
 

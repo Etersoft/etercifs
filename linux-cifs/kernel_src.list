@@ -4,6 +4,7 @@ ASPLinux /usr/src/kernels/*
 ASPLinux/10 /lib/modules/*/build
 RedHat /usr/src/kernels/*
 RHEL /usr/src/kernels/*
+CentOS /usr/src/kernels/*
 LinuxXP /usr/src/kernels/*
 Scientific /usr/src/kernels/*
 FedoraCore /usr/src/kernels/*

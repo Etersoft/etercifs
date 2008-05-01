@@ -1,0 +1,649 @@
+diff -Naur -k-orig150 cifs-orig150/asn1.c cifs/asn1.c
+--- cifs-orig150/asn1.c	2007-09-14 14:45:12 +0400
++++ cifs/asn1.c	2007-09-14 15:48:01 +0400
+@@ -26,7 +26,7 @@
+ #include "cifsglob.h"
+ #include "cifs_debug.h"
+ #include "cifsproto.h"
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <linux/config.h>
+ #endif
+ 
+diff -Naur -k-orig150 cifs-orig150/cifs_debug.c cifs/cifs_debug.c
+--- cifs-orig150/cifs_debug.c	2007-09-14 14:45:12 +0400
++++ cifs/cifs_debug.c	2007-09-14 14:49:18 +0400
+@@ -460,6 +460,8 @@
+ static write_proc_t experimEnabled_write;
+ static read_proc_t linuxExtensionsEnabled_read;
+ static write_proc_t linuxExtensionsEnabled_write;
++static read_proc_t etersoft_read;
++static write_proc_t etersoft_write;
+ 
+ void
+ cifs_proc_init(void)
+@@ -524,6 +526,12 @@
+ 	if (pde)
+ 		pde->write_proc = lookupFlag_write;
+ 
++	pde =
++	create_proc_read_entry("Etersoft", 0, proc_fs_cifs,
++				etersoft_read, NULL);
++	if (pde)
++		pde->write_proc = etersoft_write;
++
+ /*	pde =
+ 	    create_proc_read_entry("NTLMV2Enabled", 0, proc_fs_cifs,
+ 				ntlmv2_enabled_read, NULL);
+@@ -557,6 +565,7 @@
+ 	remove_proc_entry("LinuxExtensionsEnabled", proc_fs_cifs);
+ 	remove_proc_entry("Experimental", proc_fs_cifs);
+ 	remove_proc_entry("LookupCacheEnabled", proc_fs_cifs);
++	remove_proc_entry("Etersoft",proc_fs_cifs);
+ 	remove_proc_entry("cifs", proc_root_fs);
+ }
+ 
+@@ -910,4 +919,44 @@
+ 	/* BB should we turn on MAY flags for other MUST options? */
+ 	return count;
+ }
++
++static int
++etersoft_read(char *page, char **start, off_t off,
++		     int count, int *eof, void *data)
++{
++	int len;
++
++	len = sprintf(page, "%d\n", etersoft_flag);
++
++	len -= off;
++	*start = page + off;
++
++	if (len > count)
++		len = count;
++	else
++		*eof = 1;
++
++	if (len < 0)
++		len = 0;
++
++	return len;
++}
++static int
++etersoft_write(struct file *file, const char __user *buffer,
++		      unsigned long count, void *data)
++{
++	char c;
++	int rc;
++
++	rc = get_user(c, buffer);
++	if (rc)
++		return rc;
++	if (c == '0' || c == 'n' || c == 'N')
++		etersoft_flag = 0;
++	else if (c == '1' || c == 'y' || c == 'Y')
++		etersoft_flag = 1;
++
++	return count;
++}
++
+ #endif
+diff -Naur -k-orig150 cifs-orig150/cifsfs.c cifs/cifsfs.c
+--- cifs-orig150/cifsfs.c	2007-09-14 14:45:12 +0400
++++ cifs/cifsfs.c	2007-09-14 15:50:36 +0400
+@@ -61,6 +61,7 @@
+ int cifsFYI = 0;
+ int cifsERROR = 1;
+ int traceSMB = 0;
++unsigned int etersoft_flag = 1;
+ unsigned int oplockEnabled = 1;
+ unsigned int experimEnabled = 0;
+ unsigned int linuxExtEnabled = 1;
+@@ -190,7 +191,7 @@
+ }
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 15)
+-void * kzalloc(size_t size, unsigned flgs)
+++void * kzalloc(size_t size, int flgs)
+ {
+ 	void * buf;
+ 	buf = kmalloc(size, flgs);
+@@ -627,6 +628,19 @@
+ 	return written;
+ }
+ 
++static ssize_t cifs_file_read(struct file *file, char *user, size_t cnt, loff_t *pos)
++{
++	if( file!=NULL && file->f_dentry!=NULL && CIFS_I(file->f_dentry->d_inode)!=NULL ) {
++		int retval = 0;
++		CIFS_I(file->f_dentry->d_inode)->needForceInvalidate = 1;
++		retval = cifs_revalidate(file->f_dentry);
++		if( retval < 0 )
++			return (ssize_t)retval;
++	}
++
++	return do_sync_read(file,user,cnt,pos);
++}
++
+ static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
+ {
+ 	/* origin == SEEK_END => we must revalidate the cached file length */
+@@ -715,7 +729,7 @@
+ };
+ 
+ const struct file_operations cifs_file_ops = {
+-	.read = do_sync_read,
++	.read = cifs_file_read,
+ 	.write = do_sync_write,
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
+ 	.readv = generic_file_readv,
+@@ -1057,6 +1071,10 @@
+ 				to server still is disconnected since oplock
+ 				already released by the server in that case */
+ 				if (pTcon->tidStatus != CifsNeedReconnect) {
++					/* PV: disable caching if oplock missed  */
++					CIFS_I(inode)->clientCanCacheRead = FALSE;
++					CIFS_I(inode)->clientCanCacheAll = FALSE;
++
+ 				    rc = CIFSSMBLock(0, pTcon, netfid,
+ 					    0 /* len */ , 0 /* offset */, 0,
+ 					    0, LOCKING_ANDX_OPLOCK_RELEASE,
+diff -Naur -k-orig150 cifs-orig150/cifsglob.h cifs/cifsglob.h
+--- cifs-orig150/cifsglob.h	2007-09-14 14:45:12 +0400
++++ cifs/cifsglob.h	2007-09-14 15:33:30 +0400
+@@ -363,6 +363,7 @@
+ 	unsigned clientCanCacheRead:1; /* read oplock */
+ 	unsigned clientCanCacheAll:1;  /* read and writebehind oplock */
+ 	unsigned oplockPending:1;
++	unsigned needForceInvalidate:1; 
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0)
+ 	struct inode vfs_inode;
+ #endif
+@@ -611,6 +612,8 @@
+ GLOBAL_EXTERN atomic_t midCount;
+ 
+ /* Misc globals */
++GLOBAL_EXTERN unsigned int etersoft_flag; /* if enabled allows extended shared modes in open */
++
+ GLOBAL_EXTERN unsigned int multiuser_mount; /* if enabled allows new sessions
+ 				to be established on existing mount if we
+ 				have the uid/password or Kerberos credential
+diff -Naur -k-orig150 cifs-orig150/cifsproto.h cifs/cifsproto.h
+--- cifs-orig150/cifsproto.h	2007-09-14 14:45:12 +0400
++++ cifs/cifsproto.h	2007-09-14 15:49:51 +0400
+@@ -269,7 +269,7 @@
+ 
+ extern int CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
+ 			const char *fileName, const int disposition,
+-			const int access_flags, const int omode,
++			const int access_flags, const int share_flags, const int omode,
+ 			__u16 * netfid, int *pOplock, FILE_ALL_INFO *,
+ 			const struct nls_table *nls_codepage, int remap);
+ extern int SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
+@@ -377,6 +377,6 @@
+ extern int CIFSGetExtAttr(const int xid, struct cifsTconInfo *tcon,
+ 			const int netfid, __u64 * pExtAttrBits, __u64 *pMask);
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
+-extern void * kzalloc(size_t size, unsigned flgs);
++extern void * kzalloc(size_t size, int flgs);
+ #endif
+ #endif			/* _CIFSPROTO_H */
+diff -Naur -k-orig150 cifs-orig150/cifssmb.c cifs/cifssmb.c
+--- cifs-orig150/cifssmb.c	2007-09-14 14:45:12 +0400
++++ cifs/cifssmb.c	2007-09-14 14:55:45 +0400
+@@ -1188,6 +1188,11 @@
+ 	int name_len;
+ 	__u16 count;
+ 
++	if (etersoft_flag) {
++		printk("Etersoft: Do not use SMBLegacyOpen!\n");
++		return rc;
++	}
++
+ OldOpenRetry:
+ 	rc = smb_init(SMB_COM_OPEN_ANDX, 15, tcon, (void **) &pSMB,
+ 		      (void **) &pSMBr);
+@@ -1292,7 +1297,7 @@
+ int
+ CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
+ 	    const char *fileName, const int openDisposition,
+-	    const int access_flags, const int create_options, __u16 * netfid,
++	    const int access_flags, const int share_flags, const int create_options, __u16 * netfid,
+ 	    int *pOplock, FILE_ALL_INFO * pfile_info,
+ 	    const struct nls_table *nls_codepage, int remap)
+ {
+@@ -1351,7 +1356,7 @@
+ 	/*  Above line causes problems due to vfs splitting create into two
+ 		pieces - need to set mode after file created not while it is
+ 		being created */
+-	pSMB->ShareAccess = cpu_to_le32(FILE_SHARE_ALL);
++	pSMB->ShareAccess = cpu_to_le32(share_flags);
+ 	pSMB->CreateDisposition = cpu_to_le32(openDisposition);
+ 	pSMB->CreateOptions = cpu_to_le32(create_options & CREATE_OPTIONS_MASK);
+ 	/* BB Expirement with various impersonation levels and verify */
+diff -Naur -k-orig150 cifs-orig150/connect.c cifs/connect.c
+--- cifs-orig150/connect.c	2007-09-14 14:45:12 +0400
++++ cifs/connect.c	2007-09-14 15:43:20 +0400
+@@ -40,6 +40,7 @@
+ #include <linux/kthread.h>
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
++#include <linux/autoconf.h>
+ #include "cifspdu.h"
+ #include "cifsglob.h"
+ #include "cifsproto.h"
+@@ -837,7 +838,8 @@
+ 	if (Local_System_Name[0] != 0)
+ 		memcpy(vol->source_rfc1001_name, Local_System_Name, 15);
+ 	else {
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++// проверить надо в оригинальном патче другой код дальше
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		char *nodename = utsname()->nodename;
+ #else
+ 		char *nodename = system_utsname.nodename;
+@@ -2412,7 +2414,7 @@
+ 				  32, nls_codepage);
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 			cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release,
+ 					32, nls_codepage);
+ #else
+@@ -2444,7 +2446,7 @@
+ 		}
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		strcpy(bcc_ptr, utsname()->release);
+ 		bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+@@ -2733,7 +2735,7 @@
+ 				  32, nls_codepage);
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+ 				  nls_codepage);
+ #else
+@@ -2755,7 +2757,7 @@
+ 	} else {		/* ASCII */
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		strcpy(bcc_ptr, utsname()->release);
+ 		bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+@@ -3142,7 +3144,7 @@
+ 				  32, nls_codepage);
+ 		bcc_ptr += 2 * bytes_returned;
+ 		bytes_returned =
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+ 				  nls_codepage);
+ #else
+@@ -3199,7 +3201,7 @@
+ 
+ 		strcpy(bcc_ptr, "Linux version ");
+ 		bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 		strcpy(bcc_ptr, utsname()->release);
+ 		bcc_ptr += strlen(utsname()->release) + 1;
+ #else
+diff -Naur -k-orig150 cifs-orig150/dir.c cifs/dir.c
+--- cifs-orig150/dir.c	2007-09-14 14:45:12 +0400
++++ cifs/dir.c	2007-09-14 14:57:05 +0400
+@@ -209,7 +209,7 @@
+ 	}
+ 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS)
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
+-			 desiredAccess, CREATE_NOT_DIR,
++			 desiredAccess, FILE_SHARE_ALL, CREATE_NOT_DIR,
+ 			 &fileHandle, &oplock, buf, cifs_sb->local_nls,
+ 			 cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 	else
+@@ -419,6 +419,7 @@
+ 					  WRITE_OWNER | WRITE_DAC be better? */,
+ 					 /* Create a file and set the
+ 					    file attribute to SYSTEM */
++					 FILE_SHARE_ALL,
+ 					 CREATE_NOT_DIR | CREATE_OPTION_SPECIAL,
+ 					 &fileHandle, &oplock, buf,
+ 					 cifs_sb->local_nls,
+diff -Naur -k-orig150 cifs-orig150/fcntl.c cifs/fcntl.c
+--- cifs-orig150/fcntl.c	2007-09-14 14:45:12 +0400
++++ cifs/fcntl.c	2007-09-14 14:58:08 +0400
+@@ -98,7 +98,7 @@
+ 	} else {
+ 		cFYI(1, ("dir notify on file %s Arg 0x%lx", full_path, arg));
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
+-			GENERIC_READ | SYNCHRONIZE, 0 /* create options */,
++			GENERIC_READ | SYNCHRONIZE, FILE_SHARE_ALL, 0 /* create options */,
+ 			&netfid, &oplock, NULL, cifs_sb->local_nls,
+ 			cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 		/* BB fixme - add this handle to a notify handle list */
+diff -Naur -k-orig150 cifs-orig150/file.c cifs/file.c
+--- cifs-orig150/file.c	2007-09-14 14:45:12 +0400
++++ cifs/file.c	2007-09-14 15:24:22 +0400
+@@ -108,6 +108,15 @@
+ 	else
+ 		return FILE_OPEN;
+ }
++ 
++static inline int cifs_get_share_flags(unsigned int flags)
++{
++	if (!etersoft_flag)
++		return FILE_SHARE_ALL;
++	return ((~(flags>>29))&7);
++}
++
++
+ 
+ /* all arguments to this function must be checked for validity in caller */
+ static inline int cifs_open_inode_helper(struct inode *inode, struct file *file,
+@@ -221,6 +230,7 @@
+ 	struct list_head *tmp;
+ 	char *full_path = NULL;
+ 	int desiredAccess;
++	int desiredShare;
+ 	int disposition;
+ 	__u16 netfid;
+ 	FILE_ALL_INFO *buf = NULL;
+@@ -277,6 +287,7 @@
+ 	cFYI(1, ("inode = 0x%p file flags are 0x%x for %s",
+ 		 inode, file->f_flags, full_path));
+ 	desiredAccess = cifs_convert_flags(file->f_flags);
++	desiredShare = cifs_get_share_flags(file->f_flags);
+ 
+ /*********************************************************************
+  *  open flag mapping table:
+@@ -326,7 +337,7 @@
+ 
+ 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS)
+ 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
+-			 desiredAccess, CREATE_NOT_DIR, &netfid, &oplock, buf,
++			 desiredAccess, desiredShare, CREATE_NOT_DIR, &netfid, &oplock, buf,
+ 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags
+ 				 & CIFS_MOUNT_MAP_SPECIAL_CHR);
+ 	else
+@@ -414,6 +425,7 @@
+ 	struct inode *inode;
+ 	char *full_path = NULL;
+ 	int desiredAccess;
++	int desiredShare;
+ 	int disposition = FILE_OPEN;
+ 	__u16 netfid;
+ 
+@@ -489,7 +501,8 @@
+ 
+ 	cFYI(1, ("inode = 0x%p file flags 0x%x for %s",
+ 		 inode, file->f_flags, full_path));
+ 	desiredAccess = cifs_convert_flags(file->f_flags);
++	desiredShare = cifs_get_share_flags(file->f_flags);
+ 
+ 	if (oplockEnabled)
+ 		oplock = REQ_OPLOCK;
+@@ -502,7 +514,7 @@
+ 	   and server version of file size can be stale. If we knew for sure
+ 	   that inode was not dirty locally we could do this */
+ 
+-	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess,
++	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess, desiredShare,
+ 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags &
+ 				CIFS_MOUNT_MAP_SPECIAL_CHR);
+
+diff -Naur -k-orig150 cifs-orig150/inode.c cifs/inode.c
+--- cifs-orig150/inode.c	2007-09-14 14:45:12 +0400
++++ cifs/inode.c	2007-09-14 15:45:41 +0400
+@@ -256,7 +256,7 @@
+ 		return -EINVAL;	 /* EOPNOTSUPP? */
+ 	}
+ 
+-	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ,
++	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
+ 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 			 cifs_sb->local_nls,
+ 			 cifs_sb->mnt_cifs_flags &
+@@ -665,8 +665,8 @@
+ 		int oplock = FALSE;
+ 		__u16 netfid;
+ 
+-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE,
+-				 CREATE_NOT_DIR | CREATE_DELETE_ON_CLOSE,
++		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE, FILE_SHARE_ALL,
++				 CREATE_NOT_DIR | CREATE_DELETE_ON_CLOSE, 
+ 				 &netfid, &oplock, NULL, cifs_sb->local_nls,
+ 				 cifs_sb->mnt_cifs_flags &
+ 					CIFS_MOUNT_MAP_SPECIAL_CHR);
+@@ -708,8 +709,7 @@
+ 			/* BB could scan to see if we already have it open
+ 			   and pass in pid of opener to function */
+ 				rc = CIFSSMBOpen(xid, pTcon, full_path,
+-						 FILE_OPEN, SYNCHRONIZE |
+-						 FILE_WRITE_ATTRIBUTES, 0,
++						 FILE_OPEN, SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL, 0,
+ 						 &netfid, &oplock, NULL,
+ 						 cifs_sb->local_nls,
+ 						 cifs_sb->mnt_cifs_flags &
+@@ -736,7 +736,7 @@
+ 				__u16 netfid;
+ 
+ 				rc = CIFSSMBOpen(xid, pTcon, full_path,
+-						 FILE_OPEN, DELETE,
++						 FILE_OPEN, DELETE, FILE_SHARE_ALL,
+ 						 CREATE_NOT_DIR |
+ 						 CREATE_DELETE_ON_CLOSE,
+ 						 &netfid, &oplock, NULL,
+@@ -1200,7 +1200,7 @@
+ 		/* if renaming directory - we should not say CREATE_NOT_DIR,
+ 		   need to test renaming open directory, also GENERIC_READ
+ 		   might not right be right access to request */
+-		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ,
++		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL, 
+ 				 CREATE_NOT_DIR, &netfid, &oplock, NULL,
+ 				 cifs_sb_source->local_nls,
+ 				 cifs_sb_source->mnt_cifs_flags &
+@@ -1264,7 +1264,7 @@
+ 		 direntry->d_inode->i_count.counter, direntry,
+ 		 direntry->d_time, jiffies));
+ 
+-	if (cifsInode->time == 0) {
++	if (cifsInode->time == 0 || cifsInode->needForceInvalidate ) {
+ 		/* was set to zero previously to force revalidate */
+ 	} else if (time_before(jiffies, cifsInode->time + HZ) &&
+ 		   lookupCacheEnabled) {
+@@ -1306,18 +1306,19 @@
+ 	/* if not oplocked, we invalidate inode pages if mtime or file size
+ 	   had changed on server */
+ 
+-	if (timespec_equal(&local_mtime, &direntry->d_inode->i_mtime) &&
+-	    (local_size == direntry->d_inode->i_size)) {
+-		cFYI(1, ("cifs_revalidate - inode unchanged"));
++	if (!cifsInode->needForceInvalidate &&
++		timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
++	    (local_size == direntry->d_inode->i_size) ) {
++		cFYI(1, ("***************************** cifs_revalidate - inode unchanged"));
+ 	} else {
+ 		/* file may have changed on server */
+ 		if (cifsInode->clientCanCacheRead) {
+ 			/* no need to invalidate inode pages since we were the
+ 			   only ones who could have modified the file and the
+ 			   server copy is staler than ours */
+-		} else {
++		} else 
+ 			invalidate_inode = TRUE;
+-		}
++		
+ 	}
+ 
+ 	/* can not grab this sem since kernel filesys locking documentation
+@@ -1336,10 +1337,17 @@
+ /*		if (S_ISDIR(direntry->d_inode->i_mode))
+ 			shrink_dcache_parent(direntry); */
+ 		if (S_ISREG(direntry->d_inode->i_mode)) {
++			/* (pv): Зачем здесь второй вызов filemap_fdatawait
++				Ведь мы выше уже вызывали эту функцию. */
+ 			if (direntry->d_inode->i_mapping)
+ 				filemap_fdatawait(direntry->d_inode->i_mapping);
++
++			if( cifsInode->needForceInvalidate ) {
++				cFYI(1, ("Force invalidating."));
++ 				invalidate_remote_inode(direntry->d_inode);
++				cifsInode->needForceInvalidate = 0;
+ 			/* may eventually have to do this for open files too */
+-			if (list_empty(&(cifsInode->openFileList))) {
++			} else if (list_empty(&(cifsInode->openFileList))) {
+ 				/* changed on server - flush read ahead pages */
+ 				cFYI(1, ("Invalidating read ahead data on "
+ 					 "closed file"));
+@@ -1665,7 +1677,7 @@
+ 			/* BB we could scan to see if we already have it open
+ 			   and pass in pid of opener to function */
+ 			rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
+-					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
++					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL,
+ 					 CREATE_NOT_DIR, &netfid, &oplock,
+ 					 NULL, cifs_sb->local_nls,
+ 					 cifs_sb->mnt_cifs_flags &
+diff -Naur -k-orig150 cifs-orig150/link.c cifs/link.c
+--- cifs-orig150/link.c	2007-09-14 14:45:12 +0400
++++ cifs/link.c	2007-09-14 15:22:17 +0400
+@@ -298,7 +298,7 @@
+ 		cERROR(1, ("SFU style symlinks not implemented yet"));
+ 		/* add open and read as in fs/cifs/inode.c */
+ 	} else {
+-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, GENERIC_READ,
++		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
+ 				OPEN_REPARSE_POINT, &fid, &oplock, NULL,
+ 				cifs_sb->local_nls,
+ 				cifs_sb->mnt_cifs_flags &
+diff -Naur -k-orig150 cifs-orig150/sess.c cifs/sess.c
+--- cifs-orig150/sess.c	2007-09-14 14:45:12 +0400
++++ cifs/sess.c	2007-09-14 15:44:32 +0400
+@@ -30,6 +30,7 @@
+ #include "ntlmssp.h"
+ #include "nterr.h"
+ #include <linux/utsname.h>
++#include <linux/autoconf.h>
+ 
+ extern void SMBNTencrypt(unsigned char *passwd, unsigned char *c8,
+ 			 unsigned char *p24);
+@@ -118,7 +119,7 @@
+ 	bytes_ret = cifs_strtoUCS((__le16 *)bcc_ptr, "Linux version ", 32,
+ 				  nls_cp);
+ 	bcc_ptr += 2 * bytes_ret;
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 	bytes_ret = cifs_strtoUCS((__le16 *) bcc_ptr, init_utsname()->release,
+ 				  32, nls_cp);
+ #else
+@@ -168,7 +169,7 @@
+ 
+ 	strcpy(bcc_ptr, "Linux version ");
+ 	bcc_ptr += strlen("Linux version ");
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+ 	strcpy(bcc_ptr, init_utsname()->release);
+ 	bcc_ptr += strlen(init_utsname()->release) + 1;
+ #else
+
+--- cifs/cifsfs.c.orig	2007-12-28 22:06:19 +0300
++++ cifs/cifsfs.c	2007-12-28 23:13:36 +0300
+@@ -201,7 +201,8 @@ cifs_put_super(struct super_block *sb)
+ }
+ #endif
+ 
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 17)
++/* Hack for too updated SUSE kernel 2.6.16.46 */
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 17)) || defined (CONFIG_SLE_SP)
+ static int
+ cifs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ {
+# against warning
+diff -up new-cifs-backport.old/connect.c new-cifs-backport/connect.c
+--- new-cifs-backport.old/connect.c	2007-12-21 23:16:18 +0300
++++ new-cifs-backport/connect.c	2007-12-21 23:18:33 +0300
+@@ -1832,16 +1832,17 @@ void reset_cifs_unix_caps(int xid, struc
+ 			cFYI(1, ("very large write cap"));
+ #endif /* CIFS_DEBUG2 */
+ 		if (CIFSSMBSetFSUnixInfo(xid, tcon, cap)) {
+-			if (vol_info == NULL)
++			if (vol_info == NULL) {
+ 				cFYI(1, ("resetting capabilities failed"));
+-			else
++			}
++			else {
+ 				cERROR(1, ("Negotiating Unix capabilities "
+ 					   "with the server failed.  Consider "
+ 					   "mounting with the Unix Extensions\n"
+ 					   "disabled, if problems are found, "
+ 					   "by specifying the nounix mount "
+ 					   "option."));
+-
++			}
+ 		}
+ 	}
+ }
+
+
+# use independent module name
+--- new-cifs-backport/Makefile.orig	2007-07-14 09:27:36 +0400
++++ new-cifs-backport/Makefile	2008-01-27 18:39:37 +0300
+@@ -1,6 +1,6 @@
+ #
+ # Makefile for Linux CIFS VFS client 
+ #
+-obj-$(CONFIG_CIFS) += cifs.o
++obj-$(CONFIG_CIFS) += etercifs.o
+ 
+-cifs-objs := cifsfs.o cifssmb.o cifs_debug.o connect.o dir.o file.o inode.o link.o misc.o netmisc.o smbdes.o smbencrypt.o transport.o asn1.o md4.o md5.o cifs_unicode.o nterr.o xattr.o cifsencrypt.o fcntl.o readdir.o ioctl.o sess.o export.o
++etercifs-objs := cifsfs.o cifssmb.o cifs_debug.o connect.o dir.o file.o inode.o link.o misc.o netmisc.o smbdes.o smbencrypt.o transport.o asn1.o md4.o md5.o cifs_unicode.o nterr.o xattr.o cifsencrypt.o fcntl.o readdir.o ioctl.o sess.o export.o
+
+
+# change name due backport to 2.6.18 some newest functions
+/usr/src/kernels/2.6.18-53.1.6.el5-PAE-i686
+/home/lav/RPM/BUILD/linux-cifs-1.50c/new-cifs-backport/inode.c:46: ошибка: redefinition of inc_nlink
+include/linux/fs.h:1203: ошибка: previous definition of inc_nlink was here
+
+--- new-cifs-backport/inode.c.orig	2008-01-27 18:38:40 +0300
++++ new-cifs-backport/inode.c	2008-01-31 13:48:00 +0300
+@@ -41,12 +41,12 @@ static inline void drop_nlink(struct ino
+ {
+ 	inode->i_nlink--;
+ }
++#endif
+ 
+-static inline void inc_nlink(struct inode *inode)
++static inline void fc8_inc_nlink(struct inode *inode)
+ {
+ 	inode->i_nlink++;
+ }
+-#endif
+ 
+ 
+ int cifs_get_inode_info_unix(struct inode **pinode,
+@@ -958,7 +958,7 @@ int cifs_mkdir(struct inode *inode, stru
+ 			}
+ /*BB check (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID ) to see if need
+ 	to set uid/gid */
+-			inc_nlink(inode);
++			fc8_inc_nlink(inode);
+ 			if (pTcon->nocase)
+ 				direntry->d_op = &cifs_ci_dentry_ops;
+ 			else
+@@ -1008,7 +1008,7 @@ mkdir_retry_old:
+ 		d_drop(direntry);
+ 	} else {
+ mkdir_get_info:
+-		inc_nlink(inode);
++		fc8_inc_nlink(inode);
+ 		if (pTcon->unix_ext)
+ 			rc = cifs_get_inode_info_unix(&newinode, full_path,
+ 						      inode->i_sb, xid);

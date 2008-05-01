@@ -1,6 +1,6 @@
 #!/bin/sh
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# 2006, 2007 Public domain
+# 2006, 2007, 2008 Public domain
 # Multiplatform init script
 # linux-cifs - CIFS support for Linux kernel
 #
@@ -9,14 +9,15 @@
 #               
 # modulename: cifs
 #
+RMMOD=/sbin/rmmod
+MODPROBE=/sbin/modprobe
+INSMOD=/sbin/insmod
 
-MODULENAME=cifs
+ORIGMODULENAME=cifs
+MODULENAME=etercifs
 
 # current module or manually built
-DEFMODULEPATH=/lib/modules/linux-cifs/$(uname -r)/$MODULENAME.ko
-MANMODULEPATH=/lib/modules/linux-cifs/$MODULENAME.ko
-# use manually build if exists
-[ -r "$MANMODULEPATH" ] && DEFMODULEPATH=$MANMODULEPATH
+#MODULEPATH=`echo /lib/modules/$(uname -r)/kernel/fs/cifs/$MODULENAME.*`
 
 OUTFORMAT=/etc/init.d/outformat
 [ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/linux-cifs.outformat
@@ -71,17 +72,23 @@ get_pid()
 	else
 		dpid="$(ps axh | grep $1 | grep -v grep | sed -e 's/ *\(.*\)/\1/' -e 's/ \+/ /g' | grep -v " /bin/sh " | grep -v "^$$ " |  cut -f1 -d\  | head -1)"
 	fi
+	return $dpid
 }
 
 is_loaded()
 {
-    get_pid $1
-    test -n "$dpid"
+	get_pid $1
+	test -n "$dpid"
 }
 
 is_moduled()
 {
-    lsmod | grep $MODULENAME > /dev/null
+	lsmod | grep "^$MODULENAME" > /dev/null
+}
+
+is_origmoduled()
+{
+	lsmod | grep "^$ORIGMODULENAME" > /dev/null
 }
 
 umount_cifs()
@@ -91,34 +98,37 @@ umount_cifs()
 		WASCIFS=1
 	fi
 	echo -n "Unmounting CIFS resources... "
-	umount -t cifs -a || { failure ; return ; }
+	umount -t cifs -a || { failure ; return 1; }
+	success
 }
 
 mount_cifs()
 {
 	echo -n "Mounting CIFS resources... "
-	mount -t cifs -a || { failure ; return ; }
+	mount -t cifs -a || { failure ; return 1; }
+	success
 }
 
 load_module()
 {
     local i
-    if is_moduled ; then
+    if is_origmoduled ; then
          #test -r /proc/fs/cifs/Etersoft && { passed ; return ; }
          umount_cifs
          echo -n "Removing CIFS kernel module... "
-         rmmod $MODULENAME || { failure ; return ; }
+         $RMMOD $ORIGMODULENAME || { failure ; return ; }
     fi
 
     # Preload module dependencies
-    modprobe nls_base 2>/dev/null
+    #$MODPROBE nls_base 2>/dev/null
     # kernel depends
     # || { echo -n "nls_base is not loaded" ; failure ; } 
     echo -n "Loading CIFS kernel module... "
-    if [ -r "$DEFMODULEPATH" ] ; then
-	    insmod $DEFMODULEPATH && { echo ; echo -n "    insmod $DEFMODULEPATH" ; success ; return ; }
-	    echo -n "Incorrect module. Your system: " ; uname -a ; dmesg | tail -n2
-    fi
+    $MODPROBE $MODULENAME && { success ; return ; }
+    #if [ -r "$MODULEPATH" ] ; then
+    #        $INSMOD $MODULEPATH && { echo ; echo -n "    insmod $MODULEPATH" ; success ; return ; }
+    #        echo -n "Incorrect module. Your system: " ; uname -a ; dmesg | tail -n2
+    #fi
     echo -n "$MODULENAME from Etersoft is not found,"
     echo -n "you can try compile it with 'service linux-cifs build' command."
     failure
@@ -133,7 +143,7 @@ start()
         echo 1 > /proc/fs/cifs/Etersoft && success || failure
         echo -n "Disable Linux extensions for CIFS..."
         echo 0 > /proc/fs/cifs/LinuxExtensionsEnabled && success || failure
-	test -n "$WASCIFS" && mount_cifs
+	test -n "$WASCIFS" && mount_cifs || :
     else
         failure
     fi
@@ -141,10 +151,10 @@ start()
 
 stop()
 {
-    echo -n "Unloading CIFS kernel module... "
     umount_cifs
+    echo -n "Unloading CIFS kernel module... "
     is_moduled || { passed ; return ; }
-    rmmod $MODULENAME || { failure ; echo "You have to umount all CIFS resources."; return ; }
+    $RMMOD $MODULENAME || { failure ; echo "You have to umount all CIFS resources."; return ; }
     success
 
 }
@@ -159,6 +169,9 @@ status()
 	#else
 	#	PRECOMP="precompiled"
 	#fi
+	if is_origmoduled ; then
+            echo "    origin kernel module $ORIGMODULENAME loaded, Etersoft extensions missed"
+	fi
 	if is_moduled ; then
             #echo "    kernel module $MODULENAME is loaded ($PRECOMP)"
             test -d /proc/fs/cifs/ 2>/dev/null || { echo -n "Can't locale /proc/fs/cifs... " ; failure ; }
@@ -168,8 +181,21 @@ status()
             echo -n "Unix extensions for CIFS disabled..."
             test "`cat /proc/fs/cifs/LinuxExtensionsEnabled 2>/dev/null`" = "1" && failure || success
         else
-            echo "    kernel module $MODULENAME is not loaded ($PRECOMP)"
+            echo "    kernel module $MODULENAME is not loaded"
         fi
+}
+
+build_module()
+{
+	#DKMS=/sbin/dkms
+	# && [ -x $DKMS ]
+	# Need name-version for it
+	if [ -r @SRC_DIR/dkms.conf ] ; then
+		echo "TODO: use dkms build/install for build"
+	else
+	        cd @SRC_DIR@
+		sh buildmodule.sh
+	fi
 }
 
 case "$1" in
@@ -184,15 +210,14 @@ case "$1" in
         start
         ;;
     build)
-        cd /usr/src/linux-cifs
-	sh buildmodule.sh
+	build_module
         ;;
     status)
         status
         ;;
     condrestart)
         # remove manual built module
-        rm -f $MANMODULEPATH
+        # rm -f $MANMODULEPATH
         if [ "`cat /proc/fs/cifs/Etersoft 2>/dev/null`" = "1" ] ; then
             stop
             start
@@ -201,6 +226,6 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Usage: linux-cifs {start|stop|restart|condrestart|condstop|status}"
+        echo "Usage: linux-cifs {start|stop|restart|build|condrestart|condstop|status}"
 esac
 

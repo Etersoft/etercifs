@@ -1,0 +1,2 @@
+tar.bz2: new-cifs-backport name=cifs-@version@ base=new-cifs-backport
+tar.bz2: linux-cifs

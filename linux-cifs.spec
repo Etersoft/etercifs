@@ -1,4 +1,4 @@
-# Etersoft (c) 2007
+# Etersoft (c) 2007, 2008
 # Multiplatform spec for autobuild system
 
 # in kernel build dir you can have gcc_version.inc file with export GCC_VERSION=x.xx
@@ -12,8 +12,8 @@
 # 	kernel-source-XXXX for Slackware / MOPSLinux
 
 Name: linux-cifs
-Version: 1.48a
-%define relnum 7
+Version: 1.50c
+Release: alt4
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -26,27 +26,19 @@ Url: http://linux-cifs.samba.org/
 Source: ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/sources/tarball/%name-%version.tar.bz2
 Source1: http://pserver.samba.org/samba/ftp/cifs-cvs/cifs-%version.tar.bz2
 
+BuildRequires: rpm-build-compat >= 0.97
+
 # Spec part for ALT Linux
 %if %_vendor == "alt"
-Release: alt%relnum
-BuildRequires: rpm-build-compat >= 0.7
 BuildRequires: kernel-build-tools
-BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-wks-smp kernel-headers-modules-ovz-smp
+BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-std-def
+# do not work?
 %ifarch x86_64
 # Don't know if ifnarch exist
 BuildRequires: kernel-headers-modules-std-smp
 %else
 BuildRequires: kernel-headers-modules-std-pae
 %endif
-%else
-Release: eter%relnum%_vendor
-BuildRequires: rpm-build-altlinux-compat >= 0.7
-%endif
-
-# FIXME: ifndef broken in Ubuntu
-#ifndef buildroot
-%if %{undefined buildroot}
-BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 %endif
 
 %if %_vendor == "suse"
@@ -82,32 +74,56 @@ though.
 
 This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
+#cifs-bld-tmp/fs/cifs
+%define intdir new-cifs-backport
+
 %prep
 %setup -q
 tar xfj %SOURCE1
-patch -s -p1 -d cifs-bld-tmp/fs/cifs <%name-shared.patch
+patch -s -p1 -d  %intdir <%name-shared-%version.patch
 
 %install
 #export KBUILD_VERBOSE=1
-MAN_DIR=%buildroot%_mandir/ INIT_DIR=%buildroot%_initdir/ SBIN_DIR=%buildroot%_sbindir/ INSTALL_MOD_PATH=%buildroot%module_dir ./build.sh
+MAN_DIR=%buildroot%_mandir/ INIT_DIR=%buildroot%_initdir/ SBIN_DIR=%buildroot%_sbindir/ \
+	INSTALL_MOD_PATH=%buildroot/lib/modules BUILDDIR=`pwd`/%intdir  \
+	DESTDIR=%buildroot SRC_DIR=%_usrsrc/%name-%version ./build.sh
 
-# Debian, Suse, Slackware do not have command service
-# start service if first time install
 %post
 %post_service %name
-[ "$1" = "1" ] && %_initdir/%name start || :
+%start_service %name
 
 %preun
 %preun_service %name
 
 %files
-%defattr(-,root,root)
 %_initdir/%name
 %_initdir/%name.outformat
-%module_dir/
-/usr/src/%name/
+/lib/modules/*
+%_usrsrc/%name-%version/
 
 %changelog
+* Thu Jan 31 2008 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt4
+- fix build on Fedora 8 (2.6.18-53)
+
+* Sun Jan 27 2008 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt3
+- move modules placement
+- move src files to name-version for dkms compatibility
+- change module name to etercifs.ko
+
+* Fri Dec 28 2007 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt2
+- add fix for SLED10 kernel 2.6.16.46
+- fix warnings, add missed access setting in reopen file func
+
+* Tue Nov 06 2007 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt1
+- update version
+- fix spec according to Korinf build system
+
+* Fri Oct 12 2007 Vitaly Lipatov <lav@altlinux.ru> 1.50-alt1
+- update version
+
+* Fri Sep 14 2007 Sergey Lebedev <barabashka@altlinux.ru> 1.50-alt0
+- new version cifs 1.50
+
 * Fri Jul 27 2007 Vitaly Lipatov <lav@altlinux.ru> 1.48a-alt7
 - fix build on 2.6.22 kernels
 - fix scripts for Debian/Ubuntu
