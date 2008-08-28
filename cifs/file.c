@@ -109,6 +109,13 @@ static inline int cifs_get_disposition(unsigned int flags)
 		return FILE_OPEN;
 }
 
+static inline int cifs_get_share_flags(unsigned int flags)
+{
+	if (!etersoft_flag)
+		return FILE_SHARE_ALL;
+	return ((~(flags>>29))&7);
+}
+
 /* all arguments to this function must be checked for validity in caller */
 static inline int cifs_open_inode_helper(struct inode *inode, struct file *file,
 	struct cifsInodeInfo *pCifsInode, struct cifsFileInfo *pCifsFile,
@@ -221,6 +228,7 @@ int cifs_open(struct inode *inode, struct file *file)
 	struct list_head *tmp;
 	char *full_path = NULL;
 	int desiredAccess;
+	int desiredShare;
 	int disposition;
 	__u16 netfid;
 	FILE_ALL_INFO *buf = NULL;
@@ -277,6 +285,7 @@ int cifs_open(struct inode *inode, struct file *file)
 	cFYI(1, ("inode = 0x%p file flags are 0x%x for %s",
 		 inode, file->f_flags, full_path));
 	desiredAccess = cifs_convert_flags(file->f_flags);
+	desiredShare = cifs_get_share_flags(file->f_flags);
 
 /*********************************************************************
  *  open flag mapping table:
@@ -326,7 +335,7 @@ int cifs_open(struct inode *inode, struct file *file)
 
 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS)
 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
-			 desiredAccess, CREATE_NOT_DIR, &netfid, &oplock, buf,
+			 desiredAccess, desiredShare, CREATE_NOT_DIR, &netfid, &oplock, buf,
 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags
 				 & CIFS_MOUNT_MAP_SPECIAL_CHR);
 	else
@@ -414,6 +423,7 @@ static int cifs_reopen_file(struct file *file, int can_flush)
 	struct inode *inode;
 	char *full_path = NULL;
 	int desiredAccess;
+	int desiredShare;
 	int disposition = FILE_OPEN;
 	__u16 netfid;
 
@@ -490,6 +500,7 @@ reopen_error_exit:
 	cFYI(1, ("inode = 0x%p file flags 0x%x for %s",
 		 inode, file->f_flags, full_path));
 	desiredAccess = cifs_convert_flags(file->f_flags);
+	desiredShare = cifs_get_share_flags(file->f_flags);
 
 	if (oplockEnabled)
 		oplock = REQ_OPLOCK;
@@ -502,7 +513,7 @@ reopen_error_exit:
 	   and server version of file size can be stale. If we knew for sure
 	   that inode was not dirty locally we could do this */
 
-	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess,
+	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess, desiredShare,
 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
 			 cifs_sb->local_nls, cifs_sb->mnt_cifs_flags &
 				CIFS_MOUNT_MAP_SPECIAL_CHR);

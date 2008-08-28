@@ -61,6 +61,7 @@ extern struct export_operations cifs_export_ops;
 int cifsFYI = 0;
 int cifsERROR = 1;
 int traceSMB = 0;
+unsigned int etersoft_flag = 1;
 unsigned int oplockEnabled = 1;
 unsigned int experimEnabled = 0;
 unsigned int linuxExtEnabled = 1;
@@ -190,7 +191,7 @@ cifs_put_super(struct super_block *sb)
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 15)
-void * kzalloc(size_t size, unsigned flgs)
+void * kzalloc(size_t size, int flgs)
 {
 	void * buf;
 	buf = kmalloc(size, flgs);
@@ -511,7 +512,8 @@ static void cifs_umount_begin(struct super_block * sblock)
 }
 
 #ifdef CONFIG_CIFS_STATS2
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 17)
+/* Hack for too updated SUSE kernel 2.6.16.46 */
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 17)) || defined (CONFIG_SLE_SP)
 static int cifs_show_stats(struct seq_file *s, struct vfsmount *mnt)
 {
 	/* BB FIXME */
@@ -627,6 +629,19 @@ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const char __user *buf,
 	return written;
 }
 
+static ssize_t cifs_file_read(struct file *file, char *user, size_t cnt, loff_t *pos)
+{
+	if( file!=NULL && file->f_dentry!=NULL && CIFS_I(file->f_dentry->d_inode)!=NULL ) {
+		int retval = 0;
+		CIFS_I(file->f_dentry->d_inode)->needForceInvalidate = 1;
+		retval = cifs_revalidate(file->f_dentry);
+		if( retval < 0 )
+			return (ssize_t)retval;
+	}
+
+	return do_sync_read(file,user,cnt,pos);
+}
+
 static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
 {
 	/* origin == SEEK_END => we must revalidate the cached file length */
@@ -715,7 +730,7 @@ const struct inode_operations cifs_symlink_inode_ops = {
 };
 
 const struct file_operations cifs_file_ops = {
-	.read = do_sync_read,
+	.read = cifs_file_read,
 	.write = do_sync_write,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
 	.readv = generic_file_readv,
@@ -1058,6 +1073,10 @@ static int cifs_oplock_thread(void *dummyarg)
 				to server still is disconnected since oplock
 				already released by the server in that case */
 				if (pTcon->tidStatus != CifsNeedReconnect) {
+					/* PV: disable caching if oplock missed  */
+					CIFS_I(inode)->clientCanCacheRead = FALSE;
+					CIFS_I(inode)->clientCanCacheAll = FALSE;
+
 				    rc = CIFSSMBLock(0, pTcon, netfid,
 					    0 /* len */ , 0 /* offset */, 0,
 					    0, LOCKING_ANDX_OPLOCK_RELEASE,

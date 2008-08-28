@@ -11,33 +11,43 @@
 # 	kernel-source-XXXX for SuSe
 # 	kernel-source-XXXX for Slackware / MOPSLinux
 
+%define src_package_name kernel-source-etercifs-legacy
+%define src_package_version 1.50c
+
 Name: linux-cifs
-Version: 1.50c
-Release: alt4
+Version: 1.0
+Release: alt1
+Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
-Packager: Vitaly Lipatov <lav@altlinux.ru>
+Packager: Konstantin Baev <kipruss@altlinux.org>
 
-License: GPL 2
+License: GPLv2
 Group: System/Kernel and hardware
-Url: http://linux-cifs.samba.org/
+Url: http://git.etersoft.ru/
 
-Source: ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/sources/tarball/%name-%version.tar.bz2
-Source1: http://pserver.samba.org/samba/ftp/cifs-cvs/cifs-%version.tar.bz2
+BuildArch: noarch
+
+#Source: ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/sources/tarball/%name-%version.tar.bz2
+#Source1: http://pserver.samba.org/samba/ftp/cifs-cvs/cifs-%version.tar.bz2
+
+Source: %name-%version.tar.bz2
+Source1: %src_package_name-%src_package_version.tar.bz2
 
 BuildRequires: rpm-build-compat >= 0.97
 
 # Spec part for ALT Linux
 %if %_vendor == "alt"
 BuildRequires: kernel-build-tools
-BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-std-def
+BuildRequires: kernel-headers-modules-std-def
+#BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-std-def
 # do not work?
 %ifarch x86_64
 # Don't know if ifnarch exist
 BuildRequires: kernel-headers-modules-std-smp
 %else
-BuildRequires: kernel-headers-modules-std-pae
+#BuildRequires: kernel-headers-modules-std-pae
 %endif
 %endif
 
@@ -49,7 +59,6 @@ AutoReq: no
 %define module_dir /lib/modules/%name
 
 ExclusiveOS: Linux
-#ExclusiveArch: i586
 
 %description
 The CIFS VFS is a virtual file system for Linux to allow access to
@@ -77,31 +86,51 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 #cifs-bld-tmp/fs/cifs
 %define intdir new-cifs-backport
 
+%package -n %src_package_name
+Version: %src_package_version
+Summary: Advanced Common Internet File System for Linux with Etersoft extension - module sources
+Group: Development/Kernel
+BuildArch: noarch
+
+%description -n %src_package_name
+The CIFS VFS is a virtual file system for Linux to allow access to
+servers and storage appliances compliant with the SNIA CIFS Specification
+version 1.0 or later.
+Popular servers such as Samba, Windows 2000, Windows XP and many others
+support CIFS by default.
+The CIFS VFS provides some support for older servers based on the more
+primitive SMB (Server Message Block) protocol (you also can use the Linux
+file system smbfs as an alternative for accessing these).
+CIFS VFS is designed to take advantage of advanced network file system
+features such as locking, Unicode (advanced internationalization),
+hardlinks, dfs (hierarchical, replicated name space), distributed caching
+and uses native TCP names (rather than RFC1001, Netbios names).
+
+Unlike some other network file systems all key network function including
+authentication is provided in kernel (and changes to mount and/or a mount
+helper file are not required in order to enable the CIFS VFS). With the
+addition of upcoming improvements to the mount helper (mount.cifs) the
+CIFS VFS will be able to take advantage of the new CIFS URL specification
+though.
+
+This package has Etersoft's patches for WINE@Etersoft sharing access support.
+
 %prep
 %setup -q
-tar xfj %SOURCE1
-patch -s -p1 -d  %intdir <%name-shared-%version.patch
 
 %install
-#export KBUILD_VERBOSE=1
-MAN_DIR=%buildroot%_mandir/ INIT_DIR=%buildroot%_initdir/ SBIN_DIR=%buildroot%_sbindir/ \
-	INSTALL_MOD_PATH=%buildroot/lib/modules BUILDDIR=`pwd`/%intdir  \
-	DESTDIR=%buildroot SRC_DIR=%_usrsrc/%name-%version ./build.sh
-
-%post
-%post_service %name
-%start_service %name
-
-%preun
-%preun_service %name
+mkdir -p %kernel_srcdir
+cp %SOURCE1 %kernel_srcdir/%src_package_name-%src_package_version.tar.bz2
 
 %files
-%_initdir/%name
-%_initdir/%name.outformat
-/lib/modules/*
-%_usrsrc/%name-%version/
+
+%files -n %src_package_name
+%attr(0644,root,root) %kernel_src/%src_package_name-%src_package_version.tar.bz2
 
 %changelog
+* Thu Aug 28 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
+- fix build on Fedora 8 (2.6.18-53)
+
 * Thu Jan 31 2008 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt4
 - fix build on Fedora 8 (2.6.18-53)
 

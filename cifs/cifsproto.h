@@ -269,7 +269,7 @@ extern int CIFSSMBQueryReparseLinkInfo(const int xid,
 
 extern int CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
 			const char *fileName, const int disposition,
-			const int access_flags, const int omode,
+			const int access_flags, const int share_flags, const int omode,
 			__u16 * netfid, int *pOplock, FILE_ALL_INFO *,
 			const struct nls_table *nls_codepage, int remap);
 extern int SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
@@ -377,6 +377,6 @@ extern int CIFSSMBSetPosixACL(const int xid, struct cifsTconInfo *tcon,
 extern int CIFSGetExtAttr(const int xid, struct cifsTconInfo *tcon,
 			const int netfid, __u64 * pExtAttrBits, __u64 *pMask);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 16)
-extern void * kzalloc(size_t size, unsigned flgs);
+extern void * kzalloc(size_t size, int flgs);
 #endif
 #endif			/* _CIFSPROTO_H */

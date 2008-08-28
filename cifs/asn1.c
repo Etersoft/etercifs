@@ -26,7 +26,7 @@
 #include "cifsglob.h"
 #include "cifs_debug.h"
 #include "cifsproto.h"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
 #include <linux/config.h>
 #endif
 

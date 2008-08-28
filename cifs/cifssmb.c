@@ -1187,6 +1187,11 @@ SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
 	int name_len;
 	__u16 count;
 
+	if (etersoft_flag) {
+		printk("Etersoft: Do not use SMBLegacyOpen!\n");
+		return rc;
+	}
+
 OldOpenRetry:
 	rc = smb_init(SMB_COM_OPEN_ANDX, 15, tcon, (void **) &pSMB,
 		      (void **) &pSMBr);
@@ -1291,7 +1296,7 @@ OldOpenRetry:
 int
 CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
 	    const char *fileName, const int openDisposition,
-	    const int access_flags, const int create_options, __u16 * netfid,
+	    const int access_flags, const int share_flags, const int create_options, __u16 * netfid,
 	    int *pOplock, FILE_ALL_INFO * pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
@@ -1349,7 +1354,7 @@ openRetry:
 	/*  Above line causes problems due to vfs splitting create into two
 		pieces - need to set mode after file created not while it is
 		being created */
-	pSMB->ShareAccess = cpu_to_le32(FILE_SHARE_ALL);
+	pSMB->ShareAccess = cpu_to_le32(share_flags);
 	pSMB->CreateDisposition = cpu_to_le32(openDisposition);
 	pSMB->CreateOptions = cpu_to_le32(create_options & CREATE_OPTIONS_MASK);
 	/* BB Expirement with various impersonation levels and verify */

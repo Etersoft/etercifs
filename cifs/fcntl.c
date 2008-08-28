@@ -98,7 +98,7 @@ int cifs_dir_notify(struct file *file, unsigned long arg)
 	} else {
 		cFYI(1, ("dir notify on file %s Arg 0x%lx", full_path, arg));
 		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
-			GENERIC_READ | SYNCHRONIZE, 0 /* create options */,
+			GENERIC_READ | SYNCHRONIZE, FILE_SHARE_ALL, 0 /* create options */,
 			&netfid, &oplock, NULL, cifs_sb->local_nls,
 			cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
 		/* BB fixme - add this handle to a notify handle list */

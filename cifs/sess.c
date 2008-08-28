@@ -30,6 +30,7 @@
 #include "ntlmssp.h"
 #include "nterr.h"
 #include <linux/utsname.h>
+#include <linux/autoconf.h>
 
 extern void SMBNTencrypt(unsigned char *passwd, unsigned char *c8,
 			 unsigned char *p24);
@@ -117,7 +118,7 @@ static void unicode_ssetup_strings(char **pbcc_area, struct cifsSesInfo *ses,
 	bytes_ret = cifs_strtoUCS((__le16 *)bcc_ptr, "Linux version ", 32,
 				  nls_cp);
 	bcc_ptr += 2 * bytes_ret;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 	bytes_ret = cifs_strtoUCS((__le16 *) bcc_ptr, init_utsname()->release,
 				  32, nls_cp);
 #else
@@ -167,7 +168,7 @@ static void ascii_ssetup_strings(char **pbcc_area, struct cifsSesInfo *ses,
 
 	strcpy(bcc_ptr, "Linux version ");
 	bcc_ptr += strlen("Linux version ");
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 	strcpy(bcc_ptr, init_utsname()->release);
 	bcc_ptr += strlen(init_utsname()->release) + 1;
 #else

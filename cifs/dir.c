@@ -209,7 +209,7 @@ cifs_create(struct inode *inode, struct dentry *direntry, int mode)
 	}
 	if (cifs_sb->tcon->ses->capabilities & CAP_NT_SMBS)
 		rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
-			 desiredAccess, CREATE_NOT_DIR,
+			 desiredAccess, FILE_SHARE_ALL, CREATE_NOT_DIR,
 			 &fileHandle, &oplock, buf, cifs_sb->local_nls,
 			 cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
 	else
@@ -419,6 +419,7 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode, int devic
 					  WRITE_OWNER | WRITE_DAC be better? */,
 					 /* Create a file and set the
 					    file attribute to SYSTEM */
+					 FILE_SHARE_ALL,
 					 CREATE_NOT_DIR | CREATE_OPTION_SPECIAL,
 					 &fileHandle, &oplock, buf,
 					 cifs_sb->local_nls,

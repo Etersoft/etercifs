@@ -363,6 +363,7 @@ struct cifsInodeInfo {
 	unsigned clientCanCacheRead:1; /* read oplock */
 	unsigned clientCanCacheAll:1;  /* read and writebehind oplock */
 	unsigned oplockPending:1;
+	unsigned needForceInvalidate:1; 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0)
 	struct inode vfs_inode;
 #endif
@@ -611,6 +612,8 @@ GLOBAL_EXTERN atomic_t smBufAllocCount;
 GLOBAL_EXTERN atomic_t midCount;
 
 /* Misc globals */
+GLOBAL_EXTERN unsigned int etersoft_flag; /* if enabled allows extended shared modes in open */
+
 GLOBAL_EXTERN unsigned int multiuser_mount; /* if enabled allows new sessions
 				to be established on existing mount if we
 				have the uid/password or Kerberos credential

@@ -41,13 +41,12 @@ static inline void drop_nlink(struct inode *inode)
 {
 	inode->i_nlink--;
 }
+#endif
 
-static inline void inc_nlink(struct inode *inode)
+static inline void fc8_inc_nlink(struct inode *inode)
 {
 	inode->i_nlink++;
 }
-#endif
-
 
 int cifs_get_inode_info_unix(struct inode **pinode,
 	const unsigned char *search_path, struct super_block *sb, int xid)
@@ -256,7 +255,7 @@ static int decode_sfu_inode(struct inode *inode, __u64 size,
 		return -EINVAL;	 /* EOPNOTSUPP? */
 	}
 
-	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ,
+	rc = CIFSSMBOpen(xid, pTcon, path, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
 			 CREATE_NOT_DIR, &netfid, &oplock, NULL,
 			 cifs_sb->local_nls,
 			 cifs_sb->mnt_cifs_flags &
@@ -665,7 +664,7 @@ psx_del_no_retry:
 		int oplock = FALSE;
 		__u16 netfid;
 
-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE,
+		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, DELETE, FILE_SHARE_ALL,
 				 CREATE_NOT_DIR | CREATE_DELETE_ON_CLOSE,
 				 &netfid, &oplock, NULL, cifs_sb->local_nls,
 				 cifs_sb->mnt_cifs_flags &
@@ -709,8 +708,7 @@ psx_del_no_retry:
 			/* BB could scan to see if we already have it open
 			   and pass in pid of opener to function */
 				rc = CIFSSMBOpen(xid, pTcon, full_path,
-						 FILE_OPEN, SYNCHRONIZE |
-						 FILE_WRITE_ATTRIBUTES, 0,
+						 FILE_OPEN, SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL, 0,
 						 &netfid, &oplock, NULL,
 						 cifs_sb->local_nls,
 						 cifs_sb->mnt_cifs_flags &
@@ -737,7 +735,7 @@ psx_del_no_retry:
 				__u16 netfid;
 
 				rc = CIFSSMBOpen(xid, pTcon, full_path,
-						 FILE_OPEN, DELETE,
+						 FILE_OPEN, DELETE, FILE_SHARE_ALL,
 						 CREATE_NOT_DIR |
 						 CREATE_DELETE_ON_CLOSE,
 						 &netfid, &oplock, NULL,
@@ -959,7 +957,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, int mode)
 			}
 /*BB check (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID ) to see if need
 	to set uid/gid */
-			inc_nlink(inode);
+			fc8_inc_nlink(inode);
 			if (pTcon->nocase)
 				direntry->d_op = &cifs_ci_dentry_ops;
 			else
@@ -1009,7 +1007,7 @@ mkdir_retry_old:
 		d_drop(direntry);
 	} else {
 mkdir_get_info:
-		inc_nlink(inode);
+		fc8_inc_nlink(inode);
 		if (pTcon->unix_ext)
 			rc = cifs_get_inode_info_unix(&newinode, full_path,
 						      inode->i_sb, xid);
@@ -1209,7 +1207,7 @@ int cifs_rename(struct inode *source_inode, struct dentry *source_direntry,
 		/* if renaming directory - we should not say CREATE_NOT_DIR,
 		   need to test renaming open directory, also GENERIC_READ
 		   might not right be right access to request */
-		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ,
+		rc = CIFSSMBOpen(xid, pTcon, fromName, FILE_OPEN, GENERIC_READ, FILE_SHARE_ALL,
 				 CREATE_NOT_DIR, &netfid, &oplock, NULL,
 				 cifs_sb_source->local_nls,
 				 cifs_sb_source->mnt_cifs_flags &
@@ -1273,7 +1271,7 @@ int cifs_revalidate(struct dentry *direntry)
 		 direntry->d_inode->i_count.counter, direntry,
 		 direntry->d_time, jiffies));
 
-	if (cifsInode->time == 0) {
+	if (cifsInode->time == 0 || cifsInode->needForceInvalidate ) {
 		/* was set to zero previously to force revalidate */
 	} else if (time_before(jiffies, cifsInode->time + HZ) &&
 		   lookupCacheEnabled) {
@@ -1315,18 +1313,18 @@ int cifs_revalidate(struct dentry *direntry)
 	/* if not oplocked, we invalidate inode pages if mtime or file size
 	   had changed on server */
 
-	if (timespec_equal(&local_mtime, &direntry->d_inode->i_mtime) &&
-	    (local_size == direntry->d_inode->i_size)) {
-		cFYI(1, ("cifs_revalidate - inode unchanged"));
+	if (!cifsInode->needForceInvalidate &&
+		timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) &&
+	    (local_size == direntry->d_inode->i_size) ) {
+		cFYI(1, ("***************************** cifs_revalidate - inode unchanged"));
 	} else {
 		/* file may have changed on server */
 		if (cifsInode->clientCanCacheRead) {
 			/* no need to invalidate inode pages since we were the
 			   only ones who could have modified the file and the
 			   server copy is staler than ours */
-		} else {
+		} else
 			invalidate_inode = TRUE;
-		}
 	}
 
 	/* can not grab this sem since kernel filesys locking documentation
@@ -1347,8 +1345,13 @@ int cifs_revalidate(struct dentry *direntry)
 		if (S_ISREG(direntry->d_inode->i_mode)) {
 			if (direntry->d_inode->i_mapping)
 				filemap_fdatawait(direntry->d_inode->i_mapping);
+
+			if( cifsInode->needForceInvalidate ) {
+				cFYI(1, ("Force invalidating."));
+ 				invalidate_remote_inode(direntry->d_inode);
+				cifsInode->needForceInvalidate = 0;
 			/* may eventually have to do this for open files too */
-			if (list_empty(&(cifsInode->openFileList))) {
+			} else if (list_empty(&(cifsInode->openFileList))) {
 				/* changed on server - flush read ahead pages */
 				cFYI(1, ("Invalidating read ahead data on "
 					 "closed file"));
@@ -1687,7 +1690,7 @@ int cifs_setattr(struct dentry *direntry, struct iattr *attrs)
 			/* BB we could scan to see if we already have it open
 			   and pass in pid of opener to function */
 			rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
-					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
+					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL,
 					 CREATE_NOT_DIR, &netfid, &oplock,
 					 NULL, cifs_sb->local_nls,
 					 cifs_sb->mnt_cifs_flags &

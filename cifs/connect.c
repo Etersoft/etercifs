@@ -40,6 +40,7 @@
 #include <linux/kthread.h>
 #include <asm/uaccess.h>
 #include <asm/processor.h>
+#include <linux/autoconf.h>
 #include "cifspdu.h"
 #include "cifsglob.h"
 #include "cifsproto.h"
@@ -829,7 +830,7 @@ cifs_parse_mount_options(char *options, const char *devname,
 	if (Local_System_Name[0] != 0)
 		memcpy(vol->source_rfc1001_name, Local_System_Name, 15);
 	else {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+##if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		char *nodename = utsname()->nodename;
 #else
 		char *nodename = system_utsname.nodename;
@@ -1830,16 +1831,17 @@ void reset_cifs_unix_caps(int xid, struct cifsTconInfo *tcon,
 			cFYI(1, ("very large write cap"));
 #endif /* CIFS_DEBUG2 */
 		if (CIFSSMBSetFSUnixInfo(xid, tcon, cap)) {
-			if (vol_info == NULL)
+			if (vol_info == NULL) {
 				cFYI(1, ("resetting capabilities failed"));
-			else
+			}
+			else {
 				cERROR(1, ("Negotiating Unix capabilities "
 					   "with the server failed.  Consider "
 					   "mounting with the Unix Extensions\n"
 					   "disabled, if problems are found, "
 					   "by specifying the nounix mount "
 					   "option."));
-
+			}
 		}
 	}
 }
@@ -2413,7 +2415,7 @@ CIFSSessSetup(unsigned int xid, struct cifsSesInfo *ses,
 				  32, nls_codepage);
 		bcc_ptr += 2 * bytes_returned;
 		bytes_returned =
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 			cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release,
 					32, nls_codepage);
 #else
@@ -2445,7 +2447,7 @@ CIFSSessSetup(unsigned int xid, struct cifsSesInfo *ses,
 		}
 		strcpy(bcc_ptr, "Linux version ");
 		bcc_ptr += strlen("Linux version ");
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		strcpy(bcc_ptr, utsname()->release);
 		bcc_ptr += strlen(utsname()->release) + 1;
 #else
@@ -2734,7 +2736,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned int xid,
 				  32, nls_codepage);
 		bcc_ptr += 2 * bytes_returned;
 		bytes_returned =
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
 				  nls_codepage);
 #else
@@ -2756,7 +2758,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned int xid,
 	} else {		/* ASCII */
 		strcpy(bcc_ptr, "Linux version ");
 		bcc_ptr += strlen("Linux version ");
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		strcpy(bcc_ptr, utsname()->release);
 		bcc_ptr += strlen(utsname()->release) + 1;
 #else
@@ -3139,7 +3141,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xid, struct cifsSesInfo *ses,
 				  32, nls_codepage);
 		bcc_ptr += 2 * bytes_returned;
 		bytes_returned =
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
 				  nls_codepage);
 #else
@@ -3195,7 +3197,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xid, struct cifsSesInfo *ses,
 
 		strcpy(bcc_ptr, "Linux version ");
 		bcc_ptr += strlen("Linux version ");
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		strcpy(bcc_ptr, utsname()->release);
 		bcc_ptr += strlen(utsname()->release) + 1;
 #else
