@@ -56,6 +56,11 @@ BuildRequires: kernel-headers-modules-std-smp
 AutoReq: no
 %endif
 
+Requires: kernel-source-etercifs-legacy
+Requires: kernel-source-etercifs-2.6.23
+Requires: kernel-source-etercifs-2.6.24
+Requires: kernel-source-etercifs-2.6.25
+
 %define module_dir /lib/modules/%name
 
 ExclusiveOS: Linux
@@ -121,15 +126,35 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 %install
 mkdir -p %kernel_srcdir
 cp %SOURCE1 %kernel_srcdir/%src_package_name-%src_package_version.tar.bz2
+for N in `seq 18 22`
+do
+  ln -s %kernel_src/%src_package_name-%src_package_version.tar.bz2 %kernel_srcdir/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
+done
+
+mkdir -p %buildroot%_datadir/%name
+install -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
+
+mkdir -p %buildroot%_initdir
+sed -e "s|@SRC_DIR@|%_datadir/%name|g" < %name.init > %name.init.repl
+install -m755 %name.init.repl %buildroot%_initdir/%name
+install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 
 %files
+%_datadir/%name/buildmodule.sh
+%_initdir/%name
+%_initdir/%name.outformat
 
 %files -n %src_package_name
 %attr(0644,root,root) %kernel_src/%src_package_name-%src_package_version.tar.bz2
+%kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
-* Thu Aug 28 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
-- fix build on Fedora 8 (2.6.18-53)
+* Mon Sep 01 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
+- sources changed - now it's with Etersoft patches
+- source directory renamed to cifs
+- sources will be packaged in separate kernel-source package,
+  named kernel-source-etercifs-legacy-1.50c
+- no more compiled module etercifs.ko in rpm, just install scripts and src
 
 * Thu Jan 31 2008 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt4
 - fix build on Fedora 8 (2.6.18-53)

@@ -1,19 +1,2 @@
-Generic /usr/src/*
-ALTLinux /usr/src/*
-ASPLinux /usr/src/kernels/*
-ASPLinux/10 /lib/modules/*/build
-RedHat /usr/src/kernels/*
-RHEL /usr/src/kernels/*
-CentOS /usr/src/kernels/*
-LinuxXP /usr/src/kernels/*
-Scientific /usr/src/kernels/*
-FedoraCore /usr/src/kernels/*
-Debian /usr/src/*
-Ubuntu /usr/src/*
-SUSE /usr/src/linux-*/*/*
-NLD /usr/src/linux-*/*/*
-MOPSLinux /usr/src/*
-Slackware /usr/src/*
-Mandriva /usr/src/*
-Gentoo /usr/src/*
-
+Generic /usr/src/kernel/sources/*
+ALTLinux /usr/src/kernel/sources/*

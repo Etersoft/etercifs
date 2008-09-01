@@ -1,2 +1,5 @@
-kernel-source-etercifs-2.6.23.spec
 linux-cifs.spec~
+linux-cifs/test.sh
+linux-cifs/kernel_src.list_old
+linux-cifs/build.sh_old
+

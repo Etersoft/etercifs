@@ -30,6 +30,15 @@ get_src_dir()
 	[ -z "$BASE_KERNEL_SOURCES_DIR" ] && return 1
 	return 0
 }
+
+exit_handler()
+{
+  local rc=$?
+  trap - EXIT
+  [ -z "$tmpdir" ] || rm -rf -- "$tmpdir"
+  exit $rc
+}
+
 # Должно работать везде:
 #/lib/modules/$(shell uname -r)/build
 
