@@ -5,9 +5,31 @@
 
 # Build kernel module in installed system
 
+. ./functions.sh
+
+echo "====DISTR_VENDOR="$DISTR_VENDOR
+
+tmpdir=
+
+tmpdir="$(mktemp -dt "Etercifs.XXXXXXXX")"
+trap exit_handler HUP PIPE INT QUIT TERM EXIT
+BUILDDIR="$tmpdir/buildroot"
+
+echo "====BUILDDIR="$BUILDDIR
+
+# Тут мы должны найти соответствующий нашему ядру src,
+# распаковать его в $BUILDDIR, и собрать
+
+# При запуске сервиса:
+# Проверка, что если ядро обновилось до нашего, но новее - пересобираем
+# Проверка, что если ядро обновилось до нового - ругаемся
+
+
 MODULEFILENAME=etercifs.ko
-BUILDDIR=$(pwd)
+# BUILDDIR=$(pwd)
 KERNELVERSION=$(uname -r)
+
+echo "====KERNELVERSION="$KERNELVERSION
 
 # SMP build
 [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
@@ -23,7 +45,10 @@ if [ -z "$INSTALL_MOD_PATH" ]; then
 	#INSTALL_MOD_PATH=/lib/modules/linux-cifs
 fi
 
-echo 
+echo "====KERNSRC="$KERNSRC
+echo "====INSTALL_MOD_PATH="$INSTALL_MOD_PATH
+
+echo
 echo "Build for $KERNELVERSION Linux kernel (headers in $KERNSRC)"
 
 if [ ! -f $KERNSRC/include/linux/version.h ]; then
@@ -52,23 +77,25 @@ else
 	export GCCNAME=gcc
 fi
 
+echo "====GCCNAME="$GCCNAME
+
 if ! which $GCCNAME ; then
 	echo "GCC compiler have not found. Please install gcc package."
 	exit 1
 fi
 
-# Clean, build and check
-rm -f $BUILDDIR/$MODULEFILENAME
-make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
-make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
-
-#[ "$KERVER" = "2.4" ] && MODULENAME=$MODULENAME.o || MODULENAME=$MODULENAME.ko
-test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME, continue" ; exit 1 ; }
-strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
-
-echo "Copying built module to $INSTALL_MOD_PATH"
-mkdir -p $INSTALL_MOD_PATH
-install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
-depmod -ae || exit 1
-#echo "$MODULENAME build correctly"
-exit 0
+# # Clean, build and check
+# rm -f $BUILDDIR/$MODULEFILENAME
+# make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
+# make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
+# 
+# #[ "$KERVER" = "2.4" ] && MODULENAME=$MODULENAME.o || MODULENAME=$MODULENAME.ko
+# test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME, continue" ; exit 1 ; }
+# strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
+# 
+# echo "Copying built module to $INSTALL_MOD_PATH"
+# mkdir -p $INSTALL_MOD_PATH
+# install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
+# depmod -ae || exit 1
+# #echo "$MODULENAME build correctly"
+# exit 0

@@ -132,15 +132,15 @@ do
 done
 
 mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
+install -m644 buildmodule.sh functions.sh kernel_src.list %buildroot%_datadir/%name
 
 mkdir -p %buildroot%_initdir
-sed -e "s|@SRC_DIR@|%_datadir/%name|g" < %name.init > %name.init.repl
+sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
 install -m755 %name.init.repl %buildroot%_initdir/%name
 install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 
 %files
-%_datadir/%name/buildmodule.sh
+%_datadir/%name/*
 %_initdir/%name
 %_initdir/%name.outformat
 

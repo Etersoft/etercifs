@@ -193,7 +193,7 @@ build_module()
 	if [ -r @SRC_DIR/dkms.conf ] ; then
 		echo "TODO: use dkms build/install for build"
 	else
-	        cd @SRC_DIR@
+	        cd @DATADIR@
 		sh buildmodule.sh
 	fi
 }

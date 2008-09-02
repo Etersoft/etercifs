@@ -11,7 +11,6 @@ fatal()
 	exit 1
 }
 
-
 DISTR_VENDOR=/usr/bin/distr_vendor
 test -x $DISTR_VENDOR || fatal "Can't find distr_vendor"
 
