@@ -12,12 +12,17 @@ fatal()
 }
 
 DISTR_VENDOR=/usr/bin/distr_vendor
+
 test -x $DISTR_VENDOR || fatal "Can't find distr_vendor"
 
 get_sd()
 {
 	# Ищем в нашем списке где искать файлы ядра в этой системе
+	BASE_KERNEL_SOURCES_DIR=
 	BASE_KERNEL_SOURCES_DIR=`grep -i $1 kernel_src.list | head -n1 | cut -d" " -f 2 2>/dev/null`
+	# Ищем в нашем списке где искать исходники для модуля etercifs в этой системе
+	ETERCIFS_SOURCES_LIST=
+	ETERCIFS_SOURCES_LIST=`grep -i $1 etercifs_src.list | head -n1 | cut -d" " -f 2 2>/dev/null`
 }
 
 get_src_dir()

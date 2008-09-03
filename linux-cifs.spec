@@ -149,12 +149,13 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
-* Mon Sep 01 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
+* Wed Sep 03 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
 - sources changed - now it's with Etersoft patches
 - source directory renamed to cifs
 - sources will be packaged in separate kernel-source package,
   named kernel-source-etercifs-legacy-1.50c
 - no more compiled module etercifs.ko in rpm, just install scripts and src
+- one script builds etercifs module for several kerneld from other sources
 
 * Thu Jan 31 2008 Vitaly Lipatov <lav@altlinux.ru> 1.50c-alt4
 - fix build on Fedora 8 (2.6.18-53)
