@@ -26,20 +26,12 @@ tmpdir=
 
 tmpdir="$(mktemp -dt "Etercifs.XXXXXXXX")"
 
-# TODO: сделать независимо от типа архива
+# TODO: wonts independency of type archive
 tar -xjf $KERNEL_SOURCE_ETERCIFS -C $tmpdir
 trap exit_handler HUP PIPE INT QUIT TERM EXIT
 
 FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
 BUILDDIR=$tmpdir/${FILENAME%.tar.bz2}
-
-# распаковать его в $BUILDDIR, и собрать
-
-# TODO:
-# При запуске сервиса:
-# Проверка, что если ядро обновилось до нашего, но новее - пересобираем
-# Проверка, что если ядро обновилось до нового - ругаемся
-
 
 # SMP build
 [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
@@ -88,7 +80,6 @@ if ! which $GCCNAME ; then
 	echo "GCC compiler have not found. Please install gcc package."
 	exit 1
 fi
-
 
 # Clean, build and check
 rm -f $BUILDDIR/$MODULEFILENAME

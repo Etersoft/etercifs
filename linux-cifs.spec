@@ -132,7 +132,7 @@ do
 done
 
 mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh functions.sh kernel_src.list %buildroot%_datadir/%name
+install -m644 buildmodule.sh functions.sh kernel_src.list etercifs_src.list %buildroot%_datadir/%name
 
 mkdir -p %buildroot%_initdir
 sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
