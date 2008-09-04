@@ -830,7 +830,7 @@ cifs_parse_mount_options(char *options, const char *devname,
 	if (Local_System_Name[0] != 0)
 		memcpy(vol->source_rfc1001_name, Local_System_Name, 15);
 	else {
-##if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18) || defined CONFIG_VE
 		char *nodename = utsname()->nodename;
 #else
 		char *nodename = system_utsname.nodename;

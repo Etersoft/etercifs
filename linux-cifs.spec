@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt1
+Release: alt2
 Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -149,6 +149,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Thu Sep 04 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt2
+- fixed build problem on kernel 2.6.18
+
 * Wed Sep 03 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt1
 - sources changed - now it's with Etersoft patches
 - source directory renamed to cifs
