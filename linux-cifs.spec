@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt3
+Release: alt4
 Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -147,6 +147,7 @@ service %name build && service %name start ||:
 %preun_service %name
 
 %files
+%_datadir/%name
 %_datadir/%name/*
 %_initdir/%name
 %_initdir/%name.outformat
@@ -156,6 +157,9 @@ service %name build && service %name start ||:
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Fri Sep 05 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt4
+- Minor bugfix in spec
+
 * Fri Sep 05 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt3
 - Added forgotten part (post and preun) of spec (and modified)
 
