@@ -1,13 +1,16 @@
 #!/bin/sh
+#
+# linux-cifs	CIFS support for Linux kernel
+#
 # Author: Vitaly Lipatov <lav@etersoft.ru>
-# 2006, 2007, 2008 Public domain
-# Multiplatform init script
-# linux-cifs - CIFS support for Linux kernel
 #
 # chkconfig: 345 03 80
-# description:  linux cifs module
-#               
-# modulename: cifs
+#
+# description:  linux cifs module \
+#               Multiplatform init script \
+#               2006, 2007, 2008 Public domain
+#
+# modulename: etercifs
 #
 RMMOD=/sbin/rmmod
 MODPROBE=/sbin/modprobe
