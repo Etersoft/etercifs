@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt4
+Release: alt5
 Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -128,7 +128,7 @@ mkdir -p %kernel_srcdir
 cp %SOURCE1 %kernel_srcdir/%src_package_name-%src_package_version.tar.bz2
 for N in `seq 18 22`
 do
-  ln -s %kernel_src/%src_package_name-%src_package_version.tar.bz2 %kernel_srcdir/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
+  ln -s %src_package_name-%src_package_version.tar.bz2 %kernel_srcdir/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
 done
 
 mkdir -p %buildroot%_datadir/%name
@@ -157,6 +157,9 @@ service %name build && service %name start ||:
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Tue Sep 16 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt5
+- Symlinks changed to local
+
 * Fri Sep 05 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt4
 - Minor bugfix in spec
 
