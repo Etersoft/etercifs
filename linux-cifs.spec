@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt5
+Release: alt6
 Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -35,7 +35,8 @@ BuildArch: noarch
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-%src_package_version.tar.bz2
 
-BuildRequires: rpm-build-compat >= 0.97
+#BuildRequires: rpm-build-compat >= 0.97
+Requires: rpm-build-compat >= 0.97
 
 # Spec part for ALT Linux
 %if %_vendor == "alt"
@@ -157,6 +158,9 @@ service %name build && service %name start ||:
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Fri Sep 19 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt6
+- Remove BuildRequires and  add requires - rpm-build-compat
+
 * Tue Sep 16 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt5
 - Symlinks changed to local
 
