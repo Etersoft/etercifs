@@ -16,8 +16,8 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt7
-Serial: 1
+Release: alt8
+Epoch: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -158,6 +158,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Sep 24 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt8
+- For compatibility Serial replaced by Epoch
+
 * Wed Sep 24 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt7
 - For compatibility with Ubuntu command service replaced by macros
 
