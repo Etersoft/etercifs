@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt6
+Release: alt7
 Serial: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -142,7 +142,7 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 
 %post
 %post_service %name
-service %name build && service %name start ||:
+%_initdir/%name build && %_initdir/%name start ||:
 
 %preun
 %preun_service %name
@@ -158,6 +158,9 @@ service %name build && service %name start ||:
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Sep 24 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt7
+- For compatibility with Ubuntu command service replaced by macros
+
 * Fri Sep 19 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt6
 - Remove BuildRequires and  add requires - rpm-build-compat
 
