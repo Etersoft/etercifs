@@ -16,7 +16,7 @@
 
 Name: linux-cifs
 Version: 1.0
-Release: alt8
+Release: alt9
 Epoch: 1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -142,7 +142,6 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 
 %post
 %post_service %name
-%_initdir/%name build && %_initdir/%name start ||:
 
 %preun
 %preun_service %name
@@ -158,6 +157,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Thu Sep 25 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt9
+- Removed experimental code
+
 * Wed Sep 24 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt8
 - For compatibility Serial replaced by Epoch
 
