@@ -15,9 +15,8 @@
 %define src_package_version 1.50c
 
 Name: linux-cifs
-Version: 1.0
-Release: alt9
-Epoch: 1
+Version: 2.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -157,6 +156,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Thu Sep 25 2008 Konstantin Baev <kipruss@altlinux.org> 2.0-alt1
+- Up version to 2.0
+
 * Thu Sep 25 2008 Konstantin Baev <kipruss@altlinux.org> 1:1.0-alt9
 - Removed experimental code
 
