@@ -1,5 +1,5 @@
 #!/bin/sh
-# 2007 (c) Etersoft http://etersoft.ru
+# 2007-2008 (c) Etersoft http://etersoft.ru
 # Author: Vitaly Lipatov <lav@etersoft.ru>
 # GNU Public License
 
@@ -40,45 +40,44 @@ BUILDDIR=$tmpdir/${FILENAME%.tar.bz2}
 # source and destination directories can be inherited from the environment
 
 if [ -z "$KERNSRC" ]; then
-	KERNSRC=/lib/modules/$KERNELVERSION/build
+    KERNSRC=/lib/modules/$KERNELVERSION/build
 fi
 if [ -z "$INSTALL_MOD_PATH" ]; then
-	INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/fs/cifs
-	#INSTALL_MOD_PATH=/lib/modules/linux-cifs
+    INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/fs/cifs
 fi
 
 echo
 echo "Build for $KERNELVERSION Linux kernel (headers in $KERNSRC)"
 
 if [ ! -f $KERNSRC/include/linux/version.h ]; then
-	cat >&2 <<EOF
+    cat >&2 <<EOF
 Error: no kernel headers found at $KERNSRC
 Please install package
- 	kernel-headers-modules-XXXX for ALT Linux
- 	kernel-XXXX-devel for FCx / ASP Linux
- 	dkms-linux-cifs for Mandriva 2008
- 	linux-headers-XXXX for Debian / Ubuntu
- 	kernel-source-XXXX for SuSe
- 	kernel-source-XXXX for Slackware / MOPSLinux
+    kernel-headers-modules-XXXX for ALT Linux
+    kernel-XXXX-devel for FCx / ASP Linux
+    dkms-linux-cifs for Mandriva 2008
+    linux-headers-XXXX for Debian / Ubuntu
+    kernel-source-XXXX for SuSe
+    kernel-source-XXXX for Slackware / MOPSLinux
 or use KERNSRC variable to set correct location
 Exiting...
 EOF
-	exit 1
+    exit 1
 fi
 
 # set GCC version if needed
 if [ -f $KERNSRC/gcc_version.inc ] ; then
-	. $KERNSRC/gcc_version.inc
-	echo "We in ALT Linux, use GCC $GCC_VERSION"
-	export GCCNAME=gcc-$GCC_VERSION
-	export USEGCC="CC=$GCCNAME"
+    . $KERNSRC/gcc_version.inc
+    echo "We in $($DISTR_VENDOR -e), use GCC $GCC_VERSION"
+    export GCCNAME=gcc-$GCC_VERSION
+    export USEGCC="CC=$GCCNAME"
 else
-	export GCCNAME=gcc
+    export GCCNAME=gcc
 fi
 
 if ! which $GCCNAME ; then
-	echo "GCC compiler have not found. Please install gcc package."
-	exit 1
+    echo "GCC compiler have not found. Please install gcc package."
+    exit 1
 fi
 
 # Clean, build and check
@@ -96,3 +95,4 @@ install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || e
 depmod -ae || exit 1
 #echo "$MODULENAME build correctly"
 exit 0
+

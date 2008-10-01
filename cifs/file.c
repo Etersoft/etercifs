@@ -113,7 +113,7 @@ static inline int cifs_get_share_flags(unsigned int flags)
 {
 	if (!etersoft_flag)
 		return FILE_SHARE_ALL;
-	return ((~(flags>>29))&7);
+	return ((~(flags>>21))&7);
 }
 
 /* all arguments to this function must be checked for validity in caller */

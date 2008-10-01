@@ -14,8 +14,8 @@
 %define src_package_name kernel-source-etercifs-legacy
 %define src_package_version 1.50c
 
-Name: linux-cifs
-Version: 2.0
+Name: etercifs
+Version: 3.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -34,7 +34,6 @@ BuildArch: noarch
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-%src_package_version.tar.bz2
 
-#BuildRequires: rpm-build-compat >= 0.97
 Requires: rpm-build-compat >= 0.97
 
 # Spec part for ALT Linux
@@ -61,9 +60,9 @@ Requires: kernel-source-etercifs-2.6.23
 Requires: kernel-source-etercifs-2.6.24
 Requires: kernel-source-etercifs-2.6.25
 
-%define module_dir /lib/modules/%name
-
 ExclusiveOS: Linux
+
+Conflicts: linux-cifs
 
 %description
 The CIFS VFS is a virtual file system for Linux to allow access to
@@ -88,14 +87,12 @@ though.
 
 This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
-#cifs-bld-tmp/fs/cifs
-%define intdir new-cifs-backport
-
 %package -n %src_package_name
 Version: %src_package_version
 Summary: Advanced Common Internet File System for Linux with Etersoft extension - module sources
 Group: Development/Kernel
 BuildArch: noarch
+Conflicts: kernel-source-linux-cifs-legacy
 
 %description -n %src_package_name
 The CIFS VFS is a virtual file system for Linux to allow access to
@@ -156,6 +153,12 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Oct 01 2008 Konstantin Baev <kipruss@altlinux.org> 3.0-alt1
+- Up version to 2.0
+- changed flag in /fs/cifs/file.c
+- changed package name and service name to etercifs
+- added Conflicts
+
 * Thu Sep 25 2008 Konstantin Baev <kipruss@altlinux.org> 2.0-alt1
 - Up version to 2.0
 

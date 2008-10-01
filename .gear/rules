@@ -1,2 +1,2 @@
 tar.bz2: cifs name=kernel-source-etercifs-legacy-1.50c
-tar.bz2: linux-cifs
+tar.bz2: etercifs

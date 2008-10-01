@@ -1,6 +1,6 @@
 #!/bin/sh
 # Output formatting functions.
-# $Id: linux-cifs.outformat,v 1.3 2007/07/27 11:55:53 lav Exp $
+# $Id: etercifs.outformat,v 1.3 2007/07/27 11:55:53 lav Exp $
 #
 # Copyright (C) 2002 Ivan Zakharyaschev <imz@altlinux.ru>.
 # Copyright (C) 2002 Dmitry V. Levin <ldv@altlinux.org>.
@@ -46,53 +46,54 @@ MOVE_TO_COL()
 # Set 'success' color (currently: green)
 SETCOLOR_SUCCESS()
 {
-	{
-		echo bold
-		echo setaf $GREEN
-	} |tput -S
+    {
+        echo bold
+        echo setaf $GREEN
+    } |tput -S
 }
 
 # Set 'failure' color (currently: red)
 SETCOLOR_FAILURE()
 {
-	{
-		echo bold
-		echo setaf $RED
-	} |tput -S
+    {
+        echo bold
+        echo setaf $RED
+    } |tput -S
 }
 
 # Set 'warning' color (currently: yellow)
 SETCOLOR_WARNING()
 {
-	{
-		echo bold
-		echo setaf $YELLOW
-	} |tput -S
+    {
+        echo bold
+        echo setaf $YELLOW
+    } |tput -S
 }
 
 # Set 'info' color (currently: cyan)
 SETCOLOR_INFO()
 {
-	{
-		echo bold
-		echo setaf $CYAN
-	} |tput -S
+    {
+        echo bold
+        echo setaf $CYAN
+    } |tput -S
 }
 
 # Set 'banner' color (currently: blue on yellow)
 SETCOLOR_BANNER()
 {
-	{
-		echo setaf $BLUE
-		echo setab $YELLOW
-	} |tput -S
+    {
+        echo setaf $BLUE
+        echo setab $YELLOW
+    } |tput -S
 }
 
 # Terminal sequence to reset to the default color.
 SETCOLOR_NORMAL()
-{ 
-	{
-		echo op; # set Original color Pair.
-		echo sgr0; # turn off all special graphics mode (bold in our case).
-	} |tput -S
+{
+    {
+        echo op; # set Original color Pair.
+        echo sgr0; # turn off all special graphics mode (bold in our case).
+    } |tput -S
 }
+
