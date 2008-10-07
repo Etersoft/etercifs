@@ -9,9 +9,7 @@
 
 MODULEFILENAME=etercifs.ko
 KERNELVERSION=$(uname -r)
-
-# TODO: use regexp
-KERNEL=${KERNELVERSION:0:(`expr index "$KERNELVERSION" -`-1)}
+KERNEL=${KERNELVERSION%%-*}
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
 

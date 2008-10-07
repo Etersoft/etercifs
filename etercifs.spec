@@ -15,7 +15,7 @@
 %define src_package_version 1.50c
 
 Name: etercifs
-Version: 3.0
+Version: 3.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -153,6 +153,10 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Tue Oct 07 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt1
+- Fixed part 1 of bug Eter#2553
+- Added usage Generic for etercifs sources
+
 * Wed Oct 01 2008 Konstantin Baev <kipruss@altlinux.org> 3.0-alt1
 - Up version to 2.0
 - changed flag in /fs/cifs/file.c
