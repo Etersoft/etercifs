@@ -8,7 +8,7 @@
 . ./functions.sh
 
 MODULEFILENAME=etercifs.ko
-[ -n "$KERNELVERSION"] || KERNELVERSION=`uname -r`
+[ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
 KERNEL=${KERNELVERSION%%-*}
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet for kernel sources"

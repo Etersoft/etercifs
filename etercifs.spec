@@ -16,7 +16,7 @@
 
 Name: etercifs
 Version: 3.1
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -154,6 +154,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt3
+- Minor bugfix
+
 * Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt2
 - Fixed part 2 of bug Eter#2553
 
