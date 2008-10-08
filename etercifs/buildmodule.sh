@@ -84,7 +84,6 @@ rm -f $BUILDDIR/$MODULEFILENAME
 make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
 make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 
-#[ "$KERVER" = "2.4" ] && MODULENAME=$MODULENAME.o || MODULENAME=$MODULENAME.ko
 test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME, continue" ; exit 1 ; }
 strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
 
@@ -92,6 +91,5 @@ echo "Copying built module to $INSTALL_MOD_PATH"
 mkdir -p $INSTALL_MOD_PATH
 install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
 depmod -ae || exit 1
-#echo "$MODULENAME build correctly"
 exit 0
 
