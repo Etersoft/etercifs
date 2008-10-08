@@ -55,6 +55,3 @@ exit_handler()
 }
 
 #/lib/modules/$(shell uname -r)/build
-
-#fatal "Errror in func"
-
