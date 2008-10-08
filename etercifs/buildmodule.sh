@@ -8,10 +8,11 @@
 . ./functions.sh
 
 MODULEFILENAME=etercifs.ko
-KERNELVERSION=$(uname -r)
+[ -n "$KERNELVERSION"] || KERNELVERSION=`uname -r`
 KERNEL=${KERNELVERSION%%-*}
 
-get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet"
+get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet for kernel sources"
+get_etercifs_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet for etercifs sources"
 
 [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
 

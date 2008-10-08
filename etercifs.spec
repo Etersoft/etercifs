@@ -16,7 +16,7 @@
 
 Name: etercifs
 Version: 3.1
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -89,6 +89,7 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %package -n %src_package_name
 Version: %src_package_version
+Release: alt1
 Summary: Advanced Common Internet File System for Linux with Etersoft extension - module sources
 Group: Development/Kernel
 BuildArch: noarch
@@ -153,6 +154,9 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt2
+- Fixed part 2 of bug Eter#2553
+
 * Tue Oct 07 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt1
 - Fixed part 1 of bug Eter#2553
 - Added usage Generic for etercifs sources
