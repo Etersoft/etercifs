@@ -15,8 +15,8 @@
 %define src_package_version 1.50c
 
 Name: etercifs
-Version: 3.1
-Release: alt3
+Version: 3.2
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -154,6 +154,10 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt1
+- remove disableing LinuxExtensions (bug Eter#2563)
+- now package etercifs is not similar linux-cifs
+
 * Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.1-alt3
 - Minor bugfix
 
