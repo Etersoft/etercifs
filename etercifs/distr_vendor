@@ -1,0 +1,254 @@
+#!/bin/sh
+# Author: Vitaly Lipatov <lav@etersoft.ru>
+# 2007 (c) Etersoft
+# 2007 Public domain
+
+# Print the distro version
+# Welcome to send updates!
+
+# You can set ROOTDIR to your root dir
+#ROOTDIR=
+# TODO: /bin/lsb_release
+
+# Check for DISTRO specific file in /etc
+distro()
+{
+	# fill global DISTROFILE
+	DISTROFILE="$ROOTDIR/etc/$1"
+	[ -f "$DISTROFILE" ]
+}
+
+# Has DISTRO file specified word?
+has()
+{
+	[ -n "$DISTROFILE" ] || exit 1
+	grep "$1" "$DISTROFILE" >/dev/null 2>&1
+}
+
+# Print DISTRIB_ID name in package manner
+pkgvendor()
+{
+	[ "$DISTRIB_ID" = "ALTLinux" ] && echo "alt" && return
+	[ "$DISTRIB_ID" = "LinuxXP" ] && echo "lxp" && return
+	[ "$DISTRIB_ID" = "Mandriva" ] && echo "mdv" && return
+	echo "$DISTRIB_ID" | tr [A-Z] [a-z]
+}
+
+get_var()
+{
+	grep -i "^$1 *=" | head -n 1 | sed -e "s/^[^=]*[ \t]*=[ \t]*//"
+
+}
+
+# Set DISTRIB_ID
+# default
+DISTRIB_ID="Generic"
+DISTRIB_RELEASE=""
+
+if distro lsb-release ; then
+	DISTRIB_ID=`cat $DISTROFILE | get_var DISTRIB_ID`
+	DISTRIB_RELEASE=`cat $DISTROFILE | get_var DISTRIB_RELEASE`
+fi
+
+# ALT Linux based
+if distro altlinux-release ; then
+	DISTRIB_ID="ALTLinux"
+	if has Strawberry ; then DISTRIB_RELEASE="2.3"
+	elif has Citron   ; then DISTRIB_RELEASE="2.4"
+	elif has 20050723 ; then DISTRIB_RELEASE="3.0"
+	elif has Ajuga    ; then DISTRIB_RELEASE="4.0"
+	elif has 20070810 ; then DISTRIB_RELEASE="4.0"
+	elif has Walnut   ; then DISTRIB_RELEASE="4.0"
+	elif has Desktop  ; then DISTRIB_RELEASE="4.0"
+	elif has Sisyphus ; then DISTRIB_RELEASE="Sisyphus"
+	fi
+
+elif [ `uname` = "FreeBSD" ] ; then
+	DISTRIB_ID="FreeBSD"
+	if uname -a | grep 6.0-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=6.0
+	elif uname -a | grep 6.1-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=6.1
+	elif uname -a | grep 6.2-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=6.2
+	elif uname -a | grep 6.3-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=6.3
+	elif uname -a | grep 7.0-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=7.0
+	elif uname -a | grep 7.1-RELEASE >/dev/null ; then
+		DISTRIB_RELEASE=7.1
+	fi
+
+elif distro gentoo-release ; then
+	DISTRIB_ID="Gentoo"
+	readlink $ROOTDIR/etc/make.profile | grep 2006.1 >/dev/null 2>&1 && DISTRIB_RELEASE="2006.1"
+	readlink $ROOTDIR/etc/make.profile | grep 2006.2 >/dev/null 2>&1 && DISTRIB_RELEASE="2006.2"
+	readlink $ROOTDIR/etc/make.profile | grep 2007.1 >/dev/null 2>&1 && DISTRIB_RELEASE="2007.1"
+	readlink $ROOTDIR/etc/make.profile | grep 2007.2 >/dev/null 2>&1 && DISTRIB_RELEASE="2007.2"
+	readlink $ROOTDIR/etc/make.profile | grep 2008.1 >/dev/null 2>&1 && DISTRIB_RELEASE="2008.1"
+
+# Slackware based
+elif distro mopslinux-version ; then
+	DISTRIB_ID="MOPSLinux"
+	if   has 4.0 ; then DISTRIB_RELEASE="4.0"
+	elif has 5.0 ; then DISTRIB_RELEASE="5.0"
+	elif has 5.1 ; then DISTRIB_RELEASE="5.1"
+	elif has 6.0 ; then DISTRIB_RELEASE="6.0"
+	elif has 6.1 ; then DISTRIB_RELEASE="6.1"
+	fi
+elif distro slackware-version ; then
+	DISTRIB_ID="Slackware"
+	if   has 10.2 ; then DISTRIB_RELEASE="10.2"
+	elif has 11 ; then DISTRIB_RELEASE="11"
+	elif has 11.1 ; then DISTRIB_RELEASE="11.1"
+	elif has 12 ; then DISTRIB_RELEASE="12"
+	fi
+
+elif distro arch-release ; then
+	DISTRIB_ID="ArchLinux"
+	DISTRIB_RELEASE="2007"
+
+# for Ubuntu use standard LSB info
+elif [ "$DISTRIB_ID" = "Ubuntu" ] && [ -n "$DISTRIB_RELEASE" ]; then
+	# use LSB version
+	true
+
+# Debian based
+elif distro debian_version ; then
+	DISTRIB_ID="Debian"
+	DISTRIB_RELEASE=`cat $DISTROFILE`
+
+
+# Mandriva based
+elif distro pclinuxos-release ; then
+	DISTRIB_ID="PCLinux"
+	if   has "2007" ; then DISTRIB_RELEASE="2007"
+	elif has "2008" ; then DISTRIB_RELEASE="2008"
+	fi
+
+elif distro mandriva-release || distro mandrake-release ; then
+	DISTRIB_ID="Mandriva"
+	if   has 2005 ; then DISTRIB_RELEASE="2005"
+	elif has 2006 ; then DISTRIB_RELEASE="2006"
+	elif has 2007 ; then DISTRIB_RELEASE="2007"
+	elif has 2008 ; then DISTRIB_RELEASE="2008"
+	fi
+# make old as generic
+#elif distro mandrake-release ; then
+#	DISTRIB_ID="Mandriva"
+
+# Fedora based
+elif distro linux-xp-release || distro lxp-release; then
+	DISTRIB_ID="LinuxXP"
+	if has "Attack of the Clones" ; then DISTRIB_RELEASE="2006"
+	elif has "2007" ; then DISTRIB_RELEASE="2007"
+	elif has "2008" ; then DISTRIB_RELEASE="2008"
+	fi
+
+elif distro asplinux-release ; then
+	DISTRIB_ID="ASPLinux"
+	if   has Karelia ; then DISTRIB_RELEASE="10"
+	elif has Seliger ; then DISTRIB_RELEASE="11"
+	elif has "11.1" ; then DISTRIB_RELEASE="11.1"
+	elif has Ladoga ; then DISTRIB_RELEASE="11.2"
+	elif has "11.2" ; then DISTRIB_RELEASE="11.2"
+	elif has "12" ; then DISTRIB_RELEASE="12"
+	fi
+
+elif distro MCBC-release ; then
+	DISTRIB_ID="MCBC"
+	if   has 3.0 ; then DISTRIB_RELEASE="3.0"
+	elif has 3.1 ; then DISTRIB_RELEASE="3.1"
+	fi
+
+elif distro fedora-release ; then
+	DISTRIB_ID="Fedora"
+	if   has Stentz ; then DISTRIB_RELEASE="4"
+	elif has Bordeaux ; then DISTRIB_RELEASE="5"
+	elif has Zod ; then DISTRIB_RELEASE="6"
+	elif has Moonshine ; then DISTRIB_RELEASE="7"
+	elif has Werewolf ; then DISTRIB_RELEASE="8"
+	elif has Sulphur ; then DISTRIB_RELEASE="9"
+	fi
+
+elif distro redhat-release ; then
+	DISTRIB_ID="RHEL"
+	if has CentOS ; then
+		DISTRIB_ID="CentOS"
+		if   has "release 4" ; then DISTRIB_RELEASE="4"
+		elif has "release 5" ; then DISTRIB_RELEASE="5"
+		fi
+	elif has Beryllium ; then
+		DISTRIB_ID="Scientific"
+		DISTRIB_RELEASE="4.1"
+	elif has Shrike ; then
+		DISTRIB_ID="RedHat"
+		DISTRIB_RELEASE="9"
+	elif has Taroon ; then 	DISTRIB_RELEASE="3"
+	elif has "release 4" ; then DISTRIB_RELEASE="4"
+	elif has "release 5" ; then DISTRIB_RELEASE="5"
+	fi
+
+# SUSE based
+elif distro SuSe-release || distro SuSE-release ; then
+	DISTRIB_ID="SUSE"
+	if   has "Desktop 9" ; then
+		DISTRIB_ID="NLD"
+		DISTRIB_RELEASE="9"
+	elif has "10.1" ; then DISTRIB_RELEASE="10.1"
+	elif has "10.2" ; then DISTRIB_RELEASE="10.2"
+	elif has "10.3" ; then DISTRIB_RELEASE="10.3"
+	elif has "10.4" ; then DISTRIB_RELEASE="10.4"
+	elif has "10" ; then DISTRIB_RELEASE="10"
+	elif has "11.1" ; then DISTRIB_RELEASE="11.1"
+	elif has "11" ; then DISTRIB_RELEASE="11"
+	fi
+
+# try use standart LSB info
+elif distro lsb-release && [ -n "$DISTRIB_RELEASE" ]; then
+	# use LSB
+	true
+fi
+
+case $1 in
+	-p)
+		# overrider DISTRIB_ID
+		test -n "$2" && DISTRIB_ID="$2"
+		case `pkgvendor` in
+			freebsd) echo "pkg" ;;
+			slackware|mopslinux) echo "tgz" ;;
+			archlinux) echo "tar.gz" ;;
+			gentoo) echo "tbz2" ;;
+			debian|ubuntu) echo "deb" ;;
+			alt|asplinux|suse|madriva|mandrake|pclinux)
+				echo "rpm" ;;
+			fedora|redhat|scientific|centos|rhel)
+				echo "rpm" ;;
+			*)  echo "rpm" ;;
+		esac
+		exit 0
+		;;
+	-h)
+		echo "-p print type of packaging system"
+		echo "-d print distro name"
+		echo "-v print version of distro"
+		echo "-e print full name of distro (with version)"
+		echo "-s print name of distro for build system"
+		echo "-h this help"
+		exit 0
+		;;
+	-d)
+		echo $DISTRIB_ID
+		;;
+	-v)
+		echo $DISTRIB_RELEASE
+		;;
+	-s)
+		pkgvendor
+		exit 0
+		;;
+	*)
+		[ -n "$DISTRIB_RELEASE" ] && echo $DISTRIB_ID/$DISTRIB_RELEASE || echo $DISTRIB_ID
+		;;
+esac
+

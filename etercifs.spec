@@ -16,7 +16,7 @@
 
 Name: etercifs
 Version: 3.2
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -33,8 +33,6 @@ BuildArch: noarch
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-%src_package_version.tar.bz2
-
-Requires: rpm-build-compat >= 0.97
 
 # Spec part for ALT Linux
 %if %_vendor == "alt"
@@ -130,7 +128,10 @@ do
 done
 
 mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh functions.sh kernel_src.list etercifs_src.list %buildroot%_datadir/%name
+install -m644 buildmodule.sh kernel_src.list etercifs_src.list %buildroot%_datadir/%name
+install -m755 distr_vendor %buildroot%_datadir/%name
+sed -e "s|@DATADIR@|%_datadir/%name|g" < functions.sh.init > functions.sh.init.repl
+install -m644 functions.sh.init.repl %buildroot%_datadir/%name/functions.sh
 
 mkdir -p %buildroot%_initdir
 sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
@@ -154,6 +155,10 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Thu Oct 09 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt2
+- remove Requires: rpm-build-compat
+- add distr_vendor into package
+
 * Wed Oct 08 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt1
 - remove disableing LinuxExtensions (bug Eter#2563)
 - now package etercifs is not similar linux-cifs
