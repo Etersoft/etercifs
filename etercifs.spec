@@ -11,12 +11,13 @@
 # 	kernel-source-XXXX for SuSe
 # 	kernel-source-XXXX for Slackware / MOPSLinux
 
-%define src_package_name kernel-source-etercifs-legacy
-%define src_package_version 1.50c
+%define src_package_name kernel-source-etercifs
+%define src_legacy_version 1.50c
+%define src_2_6_25_version 1.52
 
 Name: etercifs
-Version: 3.3
-Release: alt2
+Version: 3.2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -29,7 +30,8 @@ Url: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 BuildArch: noarch
 
 Source: %name-%version.tar.bz2
-Source1: %src_package_name-%src_package_version.tar.bz2
+Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
+Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -74,11 +76,12 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %define etercifs_src %_datadir/%name/sources
 
 mkdir -p %buildroot/%etercifs_src
-cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-%src_package_version.tar.bz2
+cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
 for N in `seq 18 22`
 do
-  ln -s %src_package_name-%src_package_version.tar.bz2 %buildroot/%etercifs_src/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
+  ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
 done
+cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 
 %post
 %post_service %name
@@ -88,12 +91,8 @@ done
 
 %files
 %_datadir/%name
-%_datadir/%name/*
 %_initdir/%name
 %_initdir/%name.outformat
-%etercifs_src
-%etercifs_src/%src_package_name-%src_package_version.tar.bz2
-%etercifs_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
 * Fri Oct 10 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt3
