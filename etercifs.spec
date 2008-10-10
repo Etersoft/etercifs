@@ -63,7 +63,7 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %install
 mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh kernel_src.list etercifs_src.list %buildroot%_datadir/%name
+install -m644 buildmodule.sh kernel_src.list %buildroot%_datadir/%name
 install -m755 distr_vendor %buildroot%_datadir/%name
 sed -e "s|@DATADIR@|%_datadir/%name|g" < functions.sh.init > functions.sh.init.repl
 install -m644 functions.sh.init.repl %buildroot%_datadir/%name/functions.sh
@@ -100,6 +100,7 @@ cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_versi
 - delete Requires
 - delete Spec part for ALT Linux with BuildRequires
 - Url fixed
+- update sources/2.6.25
 
 * Thu Oct 09 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt2
 - remove Requires: rpm-build-compat

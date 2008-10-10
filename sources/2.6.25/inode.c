@@ -751,7 +751,8 @@ psx_del_no_retry:
 			/* BB could scan to see if we already have it open
 			   and pass in pid of opener to function */
 				rc = CIFSSMBOpen(xid, pTcon, full_path,
-						 FILE_OPEN, SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL, 0,
+						 FILE_OPEN, SYNCHRONIZE |
+						 FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL, 0,
 						 &netfid, &oplock, NULL,
 						 cifs_sb->local_nls,
 						 cifs_sb->mnt_cifs_flags &
@@ -908,7 +909,6 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, int mode)
 /*BB check (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID ) to see if need
 	to set uid/gid */
 			inc_nlink(inode);
-//			fc8_inc_nlink(inode);
 			if (pTcon->nocase)
 				direntry->d_op = &cifs_ci_dentry_ops;
 			else
@@ -959,7 +959,6 @@ mkdir_retry_old:
 	} else {
 mkdir_get_info:
 		inc_nlink(inode);
-//		fc8_inc_nlink(inode);
 		if (pTcon->unix_ext)
 			rc = cifs_get_inode_info_unix(&newinode, full_path,
 						      inode->i_sb, xid);
@@ -1270,8 +1269,9 @@ int cifs_revalidate(struct dentry *direntry)
 			/* no need to invalidate inode pages since we were the
 			   only ones who could have modified the file and the
 			   server copy is staler than ours */
-		} else
+		} else {
 			invalidate_inode = TRUE;
+		}
 	}
 
 	/* can not grab this sem since kernel filesys locking documentation

@@ -35,7 +35,6 @@
 #include <linux/freezer.h>
 #include <asm/uaccess.h>
 #include <asm/processor.h>
-#include <linux/autoconf.h>
 #include "cifspdu.h"
 #include "cifsglob.h"
 #include "cifsproto.h"
@@ -1787,15 +1786,13 @@ void reset_cifs_unix_caps(int xid, struct cifsTconInfo *tcon,
 		if (CIFSSMBSetFSUnixInfo(xid, tcon, cap)) {
 			if (vol_info == NULL) {
 				cFYI(1, ("resetting capabilities failed"));
-			}
-			else {
+			} else
 				cERROR(1, ("Negotiating Unix capabilities "
 					   "with the server failed.  Consider "
 					   "mounting with the Unix Extensions\n"
 					   "disabled, if problems are found, "
 					   "by specifying the nounix mount "
 					   "option."));
-			}
 
 		}
 	}
