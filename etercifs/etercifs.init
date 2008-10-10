@@ -130,8 +130,6 @@ start()
     load_module
     if is_moduled ; then
         test -n "$WASCIFS" && mount_cifs || :
-    else
-        failure
     fi
 }
 
