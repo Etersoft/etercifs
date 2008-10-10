@@ -15,7 +15,7 @@
 %define src_package_version 1.50c
 
 Name: etercifs
-Version: 3.2
+Version: 3.3
 Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -24,41 +24,12 @@ Packager: Konstantin Baev <kipruss@altlinux.org>
 
 License: GPLv2
 Group: System/Kernel and hardware
-Url: http://git.etersoft.ru/
+Url: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 
 BuildArch: noarch
 
-#Source: ftp://updates.etersoft.ru/pub/Etersoft/WINE@Etersoft/sources/tarball/%name-%version.tar.bz2
-#Source1: http://pserver.samba.org/samba/ftp/cifs-cvs/cifs-%version.tar.bz2
-
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-%src_package_version.tar.bz2
-
-# Spec part for ALT Linux
-%if %_vendor == "alt"
-BuildRequires: kernel-build-tools
-BuildRequires: kernel-headers-modules-std-def
-#BuildRequires: kernel-headers-modules-std-smp kernel-headers-modules-ovz-smp kernel-headers-modules-std-def
-# do not work?
-%ifarch x86_64
-# Don't know if ifnarch exist
-BuildRequires: kernel-headers-modules-std-smp
-%else
-#BuildRequires: kernel-headers-modules-std-pae
-%endif
-%endif
-
-%if %_vendor == "suse"
-# due kernel dependencies
-AutoReq: no
-%endif
-
-Requires: kernel-source-etercifs-legacy
-Requires: kernel-source-etercifs-2.6.23
-Requires: kernel-source-etercifs-2.6.24
-Requires: kernel-source-etercifs-2.6.25
-
-ExclusiveOS: Linux
 
 Conflicts: linux-cifs
 
@@ -85,48 +56,10 @@ though.
 
 This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
-%package -n %src_package_name
-Version: %src_package_version
-Release: alt1
-Summary: Advanced Common Internet File System for Linux with Etersoft extension - module sources
-Group: Development/Kernel
-BuildArch: noarch
-Conflicts: kernel-source-linux-cifs-legacy
-
-%description -n %src_package_name
-The CIFS VFS is a virtual file system for Linux to allow access to
-servers and storage appliances compliant with the SNIA CIFS Specification
-version 1.0 or later.
-Popular servers such as Samba, Windows 2000, Windows XP and many others
-support CIFS by default.
-The CIFS VFS provides some support for older servers based on the more
-primitive SMB (Server Message Block) protocol (you also can use the Linux
-file system smbfs as an alternative for accessing these).
-CIFS VFS is designed to take advantage of advanced network file system
-features such as locking, Unicode (advanced internationalization),
-hardlinks, dfs (hierarchical, replicated name space), distributed caching
-and uses native TCP names (rather than RFC1001, Netbios names).
-
-Unlike some other network file systems all key network function including
-authentication is provided in kernel (and changes to mount and/or a mount
-helper file are not required in order to enable the CIFS VFS). With the
-addition of upcoming improvements to the mount helper (mount.cifs) the
-CIFS VFS will be able to take advantage of the new CIFS URL specification
-though.
-
-This package has Etersoft's patches for WINE@Etersoft sharing access support.
-
 %prep
 %setup -q
 
 %install
-mkdir -p %kernel_srcdir
-cp %SOURCE1 %kernel_srcdir/%src_package_name-%src_package_version.tar.bz2
-for N in `seq 18 22`
-do
-  ln -s %src_package_name-%src_package_version.tar.bz2 %kernel_srcdir/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
-done
-
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh kernel_src.list etercifs_src.list %buildroot%_datadir/%name
 install -m755 distr_vendor %buildroot%_datadir/%name
@@ -137,6 +70,15 @@ mkdir -p %buildroot%_initdir
 sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
 install -m755 %name.init.repl %buildroot%_initdir/%name
 install -m755 %name.outformat %buildroot%_initdir/%name.outformat
+
+%define etercifs_src %_datadir/%name/sources
+
+mkdir -p %buildroot/%etercifs_src
+cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-%src_package_version.tar.bz2
+for N in `seq 18 22`
+do
+  ln -s %src_package_name-%src_package_version.tar.bz2 %buildroot/%etercifs_src/kernel-source-etercifs-2.6.$N-%src_package_version.tar.bz2
+done
 
 %post
 %post_service %name
@@ -149,12 +91,17 @@ install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 %_datadir/%name/*
 %_initdir/%name
 %_initdir/%name.outformat
-
-%files -n %src_package_name
-%attr(0644,root,root) %kernel_src/%src_package_name-%src_package_version.tar.bz2
-%kernel_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
+%etercifs_src
+%etercifs_src/%src_package_name-%src_package_version.tar.bz2
+%etercifs_src/kernel-source-etercifs-2.6.??-%src_package_version.tar.bz2
 
 %changelog
+* Fri Oct 10 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt3
+- move sources into etercifs rmp package
+- delete Requires
+- delete Spec part for ALT Linux with BuildRequires
+- Url fixed
+
 * Thu Oct 09 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt2
 - remove Requires: rpm-build-compat
 - add distr_vendor into package
