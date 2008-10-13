@@ -17,6 +17,7 @@
 %define src_2_6_24_version 1.52
 %define src_2_6_25_version 1.52
 %define src_2_6_26_version 1.53
+%define src_2_6_27_version 1.54
 
 Name: etercifs
 Version: 3.3
@@ -38,6 +39,7 @@ Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 Source26: %src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
+Source27: %src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -91,6 +93,7 @@ cp %SOURCE23 %buildroot/%etercifs_src/%src_package_name-2.6.23-%src_2_6_23_versi
 cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
+cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
 
 %post
 %post_service %name
@@ -113,6 +116,7 @@ cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_versi
 - add sources/2.6.24
 - add sources/2.6.23
 - add sources/2.6.26
+- add sources/2.6.27
 
 * Thu Oct 09 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt2
 - remove Requires: rpm-build-compat
