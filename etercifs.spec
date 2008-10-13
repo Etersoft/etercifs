@@ -13,6 +13,7 @@
 
 %define src_package_name kernel-source-etercifs
 %define src_legacy_version 1.50c
+%define src_2_6_24_version 1.52
 %define src_2_6_25_version 1.52
 
 Name: etercifs
@@ -31,6 +32,7 @@ BuildArch: noarch
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
+Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 
 Conflicts: linux-cifs
@@ -101,6 +103,7 @@ cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_versi
 - delete Spec part for ALT Linux with BuildRequires
 - Url fixed
 - update sources/2.6.25
+- add sources/2.6.24
 
 * Thu Oct 09 2008 Konstantin Baev <kipruss@altlinux.org> 3.2-alt2
 - remove Requires: rpm-build-compat
