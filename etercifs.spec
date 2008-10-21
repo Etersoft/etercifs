@@ -20,7 +20,7 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 3.3
+Version: 3.4
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -107,6 +107,10 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Tue Oct 21 2008 Konstantin Baev <kipruss@altlinux.org> 3.4-alt1
+- Fix error while building module in MOPSLinux
+- update sources/2.6.27
+
 * Fri Oct 10 2008 Konstantin Baev <kipruss@altlinux.org> 3.3-alt1
 - move sources into etercifs rmp package
 - delete Requires

@@ -9,7 +9,7 @@
 
 MODULEFILENAME=etercifs.ko
 [ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
-KERNEL=${KERNELVERSION%%-*}
+KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
 
 get_src_dir || fatal "Distro $($DISTR_VENDOR -e) is not supported yet for kernel sources"
 
