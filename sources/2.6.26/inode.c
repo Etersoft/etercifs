@@ -1282,7 +1282,7 @@ int cifs_revalidate(struct dentry *direntry)
 	if (!cifsInode->needForceInvalidate &&
 		timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
 	    (local_size == direntry->d_inode->i_size) ) {
-		cFYI(1, ("***** cifs_revalidate - inode unchanged"));
+		cFYI(1, ("************** cifs_revalidate - inode unchanged"));
 	} else {
 		/* file may have changed on server */
 		if (cifsInode->clientCanCacheRead) {
@@ -1314,6 +1314,7 @@ int cifs_revalidate(struct dentry *direntry)
 		if (S_ISREG(direntry->d_inode->i_mode)) {
 			if (direntry->d_inode->i_mapping)
 				wbrc = filemap_fdatawait(direntry->d_inode->i_mapping);
+
 			if( cifsInode->needForceInvalidate ) {
 				cFYI(1, ("Force invalidating."));
 				invalidate_remote_inode(direntry->d_inode);
