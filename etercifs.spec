@@ -20,7 +20,7 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 3.6.1
+Version: 3.7.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -97,6 +97,7 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 
 %post
 %post_service %name
+%_initdir/%name build && %_initdir/%name start ||:
 
 %preun
 %preun_service %name
@@ -107,6 +108,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt1
+- Add building module on installing rpm
+
 * Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.6.1-alt1
 - update sources/2.6.23 (Fixed bug Eter#2773)
 
