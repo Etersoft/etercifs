@@ -1503,7 +1503,7 @@ int cifs_setattr(struct dentry *direntry, struct iattr *attrs)
 
 				rc = SMBLegacyOpen(xid, pTcon, full_path,
 					FILE_OPEN,
-					SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL,
+					SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
 					CREATE_NOT_DIR, &netfid, &oplock,
 					NULL, cifs_sb->local_nls,
 					cifs_sb->mnt_cifs_flags &
@@ -1634,7 +1634,7 @@ int cifs_setattr(struct dentry *direntry, struct iattr *attrs)
 			/* BB we could scan to see if we already have it open
 			   and pass in pid of opener to function */
 			rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
-					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
+					 SYNCHRONIZE | FILE_WRITE_ATTRIBUTES, FILE_SHARE_ALL,
 					 CREATE_NOT_DIR, &netfid, &oplock,
 					 NULL, cifs_sb->local_nls,
 					 cifs_sb->mnt_cifs_flags &
