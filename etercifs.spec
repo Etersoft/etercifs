@@ -20,7 +20,7 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 3.6
+Version: 3.6.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -107,6 +107,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.6.1-alt1
+- update sources/2.6.23 (Fixed bug Eter#2773)
+
 * Mon Oct 27 2008 Konstantin Baev <kipruss@altlinux.org> 3.6-alt1
 - update sources/2.6.27 (up to 2.6.27.4)
 
