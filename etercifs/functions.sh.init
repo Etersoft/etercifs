@@ -36,12 +36,14 @@ detect_etercifs_sources()
 
 create_builddir()
 {
-    tmpdir=
-    tmpdir="$(mktemp -dt "Etercifs.XXXXXXXX")"
-
+    if [ -n "$BUILDDIR" ] ; then
+        tmpdir=$BUILDDIR
+    else
+        tmpdir=
+        tmpdir="$(mktemp -dt "Etercifs.XXXXXXXX")"
+    fi
     tar -xjf $KERNEL_SOURCE_ETERCIFS -C $tmpdir
     trap exit_handler HUP PIPE INT QUIT TERM EXIT
-
     FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
     BUILDDIR=$tmpdir/${FILENAME%.tar.bz2}
 }

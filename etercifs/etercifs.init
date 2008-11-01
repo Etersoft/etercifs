@@ -169,6 +169,12 @@ build_module()
     fi
 }
 
+test_build_module()
+{
+    cd @DATADIR@
+    TESTBUILD=1 sh buildmodule.sh
+}
+
 case "$1" in
     start)
         start
@@ -182,6 +188,9 @@ case "$1" in
         ;;
     build)
         build_module
+        ;;
+    testbuild)
+        test_build_module
         ;;
     status)
         status

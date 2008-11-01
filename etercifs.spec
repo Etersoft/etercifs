@@ -21,7 +21,7 @@
 
 Name: etercifs
 Version: 3.7.0
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -32,6 +32,8 @@ Group: System/Kernel and hardware
 Url: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 
 BuildArch: noarch
+
+BuildRequires: kernel-headers-modules-std-def kernel-headers-modules-std-ll kernel-headers-modules-std-srv kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
@@ -71,8 +73,7 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %install
 mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh kernel_src.list %buildroot%_datadir/%name
-install -m755 distr_vendor %buildroot%_datadir/%name
+install -m644 buildmodule.sh %buildroot%_datadir/%name
 sed -e "s|@DATADIR@|%_datadir/%name|g" < functions.sh.init > functions.sh.init.repl
 install -m644 functions.sh.init.repl %buildroot%_datadir/%name/functions.sh
 
@@ -94,10 +95,11 @@ cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_versi
 cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
+cd %buildroot%_datadir/%name
+KERNEL_SRC_LIST=/usr/src/* TESTBUILD=1 ETERCIFS_SOURCES_LIST=sources/kernel-source-etercifs* sh ./buildmodule.sh
 
 %post
 %post_service %name
-%_initdir/%name build && %_initdir/%name start ||:
 
 %preun
 %preun_service %name
@@ -108,6 +110,14 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Sat Nov 01 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
+- delete last change (building module on installing rpm)
+- remove kernel_src.list and distr_vendor
+- code refactoring near finction.sh and buildmodule.sh
+- add option 'testbuild' in rc-script and now able the command:
+    service etercifs testbuild
+- run testbuild while build rpm
+
 * Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt1
 - Add building module on installing rpm
 
