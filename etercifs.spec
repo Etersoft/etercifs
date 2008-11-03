@@ -106,12 +106,13 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
-* Sat Nov 01 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
+* Wed Nov 05 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
 - delete last change (building module on installing rpm)
 - remove kernel_src.list and distr_vendor
 - code refactoring near finction.sh and buildmodule.sh
 - add option 'testbuild' in rc-script and now able the command:
     service etercifs testbuild
+- fix bug Eter#2783
 
 * Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt1
 - Add building module on installing rpm
