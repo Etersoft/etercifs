@@ -121,8 +121,8 @@ load_module()
     echo -n "Loading CIFS kernel module... "
     $MODPROBE $MODULENAME && { success ; return ; }
     echo -n "$MODULENAME from Etersoft is not found, "
-    echo -n "you can try compile it with 'service etercifs build' command."
-    failure
+    echo -n "trying to compile it..."
+    build_module
 }
 
 start()
