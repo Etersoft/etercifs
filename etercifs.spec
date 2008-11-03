@@ -33,8 +33,6 @@ Url: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 
 BuildArch: noarch
 
-BuildRequires: kernel-headers-modules-std-def kernel-headers-modules-std-ll kernel-headers-modules-std-srv kernel-headers-modules-std-pae kernel-headers-modules-ovz-smp
-
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
@@ -95,8 +93,6 @@ cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_versi
 cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
-cd %buildroot%_datadir/%name
-KERNEL_SRC_LIST=/usr/src/* TESTBUILD=1 ETERCIFS_SOURCES_LIST=sources/kernel-source-etercifs* sh ./buildmodule.sh
 
 %post
 %post_service %name
@@ -116,7 +112,6 @@ KERNEL_SRC_LIST=/usr/src/* TESTBUILD=1 ETERCIFS_SOURCES_LIST=sources/kernel-sour
 - code refactoring near finction.sh and buildmodule.sh
 - add option 'testbuild' in rc-script and now able the command:
     service etercifs testbuild
-- run testbuild while build rpm
 
 * Thu Oct 30 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt1
 - Add building module on installing rpm

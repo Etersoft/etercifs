@@ -204,6 +204,6 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Usage: etercifs {start|stop|restart|build|condrestart|condstop|status}"
+        echo "Usage: etercifs {start|stop|restart|build|testbuild|condrestart|condstop|status}"
 esac
 
