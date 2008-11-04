@@ -95,7 +95,7 @@ Error: no kernel headers found at $KERNSRC
 Please install package
     kernel-headers-modules-XXXX for ALT Linux
     kernel-XXXX-devel for FCx / ASP Linux
-    dkms-linux-cifs for Mandriva 2008
+    dkms-etercifs for Mandriva 2009
     linux-headers-XXXX for Debian / Ubuntu
     kernel-source-XXXX for SuSe
     kernel-source-XXXX for Slackware / MOPSLinux
