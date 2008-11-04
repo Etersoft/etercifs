@@ -106,7 +106,7 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
-* Wed Nov 05 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
+* Mon Nov 03 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
 - delete last change (building module on installing rpm)
 - remove kernel_src.list and distr_vendor
 - code refactoring near finction.sh and buildmodule.sh

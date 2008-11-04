@@ -20,19 +20,21 @@ else
     echo "====================================================================="
     echo "Check build etercifs module for all founded kernels"
     BUILTLIST=
-    [ -n "$KERNEL_SRC_LIST" ] || KERNEL_SRC_LIST=`readlink /lib/modules/*/build`
-    for KERNSRC in $KERNEL_SRC_LIST ; do
-        [ -L $KERNSRC ] && [ `basename $KERNSRC` != "build" ] && continue
-        [ -f $KERNSRC/.config ] || continue
-        echo "---------------------------------------------------------------------"
-        detect_kernel
-        if [ -z "$KERNELVERSION" ] ; then
-            echo "Can't detect kernel version in $KERNSRC"
-        else
-            echo "Build for $KERNSRC (detected as $KERNELVERSION)"
-            BUILTLIST="$BUILTLIST $KERNELVERSION"
-            compile_module
-            check_build_module
+    for LM in `ls /lib/modules` ; do
+        KERNSRC=`readlink /lib/modules/$LM/build`
+        if [ $KERNSRC ] ; then
+            [ -L $KERNSRC ] && continue
+            [ -f $KERNSRC/.config ] || continue
+            echo "---------------------------------------------------------------------"
+            detect_kernel
+            if [ -z "$KERNELVERSION" ] ; then
+                echo "Can't detect kernel version in $KERNSRC"
+            else
+                echo "Build for $KERNSRC (detected as $KERNELVERSION)"
+                BUILTLIST="$BUILTLIST $KERNELVERSION"
+                compile_module
+                check_build_module
+            fi
         fi
     done
     echo "====================================================================="
