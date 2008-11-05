@@ -110,7 +110,8 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 - delete last change (building module on installing rpm)
 - remove kernel_src.list and distr_vendor
 - code refactoring near finction.sh and buildmodule.sh
-- add option 'testbuild' in rc-script and now able the command:
+- while fixing Eter#2782 added option 'testbuild' in rc-script:
+  now able the command:
     service etercifs testbuild
 - fix bug Eter#2783
 
