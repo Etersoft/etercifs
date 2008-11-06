@@ -70,19 +70,19 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 %setup -q
 
 %install
+mkdir -p %buildroot%_sysconfdir
+echo DATADIR=%_datadir/%name > %buildroot%_sysconfdir/%name.conf
+echo SRC_DIR=%_usrsrc/%name-%version >> %buildroot%_sysconfdir/%name.conf
+echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
+echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
+
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh %buildroot%_datadir/%name
-sed -e "s|@DATADIR@|%_datadir/%name|g" < functions.sh.init > functions.sh.init.repl
-sed -e "s|@SRC_DIR@|%_usrsrc/%name-%version|g" < functions.sh.init > functions.sh.init.repl
-sed -e "s|@MODULENAME@|%name|g" < functions.sh.init > functions.sh.init.repl
-sed -e "s|@MODULEVERSION@|%version|g" < functions.sh.init > functions.sh.init.repl
-install -m644 functions.sh.init.repl %buildroot%_datadir/%name/functions.sh
+install -m644 functions.sh %buildroot%_datadir/%name
 
 mkdir -p %buildroot%_initdir
-sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
-sed -e "s|@SRC_DIR@|%_usrsrc/%name-%version|g" < %name.init > %name.init.repl
-install -m755 %name.init.repl %buildroot%_initdir/%name
-install -m755 %name.outformat %buildroot%_initdir/%name.outformat
+install -m755 %name %buildroot%_initdir
+install -m755 %name.outformat %buildroot%_initdir
 
 %define etercifs_src %_datadir/%name/sources
 
@@ -105,13 +105,15 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %preun_service %name
 
 %files
+%config(noreplace) %_sysconfdir/%name.conf
 %_datadir/%name
 %_initdir/%name
 %_initdir/%name.outformat
 
 %changelog
 * Thu Nov 06 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt1
-- Fix building module with dkms
+- fix building module with dkms
+- add config file /etc/etercifs.conf
 
 * Wed Nov 05 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
 - delete last change (building module on installing rpm)

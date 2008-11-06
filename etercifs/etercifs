@@ -15,10 +15,16 @@
 RMMOD=/sbin/rmmod
 MODPROBE=/sbin/modprobe
 INSMOD=/sbin/insmod
-SRC_DIR=@SRC_DIR@
+
+if [ -f /etc/etercifs.conf ] ; then
+  . /etc/etercifs.conf
+fi
+
+[ -n "$SRC_DIR" ] || SRC_DIR=/usr/src
+[ -n "$DATADIR" ] || DATADIR=/usr/share/etercifs
+[ -n "$MODULENAME" ] || MODULENAME=etercifs
 
 ORIGMODULENAME=cifs
-MODULENAME=etercifs
 
 OUTFORMAT=/etc/init.d/outformat
 [ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/etercifs.outformat
@@ -160,17 +166,17 @@ status()
 build_module()
 {
     if [ -r $SRC_DIR/dkms.conf ] ; then
-        cd @DATADIR@
+        cd $DATADIR
         DKMSBUILD=1 sh buildmodule.sh
     else
-        cd @DATADIR@
+        cd $DATADIR
         sh buildmodule.sh
     fi
 }
 
 test_build_module()
 {
-    cd @DATADIR@
+    cd $DATADIR
     TESTBUILD=1 sh buildmodule.sh
 }
 

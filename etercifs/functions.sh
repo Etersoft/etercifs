@@ -7,11 +7,13 @@
 
 # Build kernel modules for all kernel and all platforms
 
-MODULENAME=@MODULENAME@
-MODULEVERSION=@MODULEVERSION@
-MODULEFILENAME=etercifs.ko
-SRC_DIR=@SRC_DIR@
+if [ -f /etc/etercifs.conf ] ; then
+  . /etc/etercifs.conf
+else
+  fatal "Not found configuration file /etc/etercifs.conf"
+fi
 
+MODULEFILENAME=etercifs.ko
 [ -n "$TESTBUILD" ] || TESTBUILD=0
 [ -n "$DKMSBUILD" ] || DKMSBUILD=0
 
@@ -31,7 +33,7 @@ exit_handler()
 
 detect_etercifs_sources()
 {
-    [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=@DATADIR@/sources/kernel-source-etercifs*
+    [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
     [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
     KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
     KERNEL_SOURCE_ETERCIFS=`readlink -f $KERNEL_SOURCE_ETERCIFS_LINK`
@@ -138,6 +140,7 @@ dkms_build_module()
     DIRNAME=${FILENAME%.tar.bz2}
     mv -f $SRC_DIR/$DIRNAME/* $SRC_DIR
     rm -rf $SRC_DIR/$DIRNAME
+    dkms uninstall -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
     dkms build -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
     dkms install -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
 }
