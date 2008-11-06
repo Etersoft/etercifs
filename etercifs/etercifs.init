@@ -15,6 +15,7 @@
 RMMOD=/sbin/rmmod
 MODPROBE=/sbin/modprobe
 INSMOD=/sbin/insmod
+SRC_DIR=@SRC_DIR@
 
 ORIGMODULENAME=cifs
 MODULENAME=etercifs
@@ -158,11 +159,9 @@ status()
 
 build_module()
 {
-    #DKMS=/sbin/dkms
-    # && [ -x $DKMS ]
-    # Need name-version for it
-    if [ -r @SRC_DIR/dkms.conf ] ; then
-        echo "TODO: use dkms build/install for build"
+    if [ -r $SRC_DIR/dkms.conf ] ; then
+        cd @DATADIR@
+        DKMSBUILD=1 sh buildmodule.sh
     else
         cd @DATADIR@
         sh buildmodule.sh

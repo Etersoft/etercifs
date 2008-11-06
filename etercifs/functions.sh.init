@@ -7,9 +7,13 @@
 
 # Build kernel modules for all kernel and all platforms
 
+MODULENAME=@MODULENAME@
+MODULEVERSION=@MODULEVERSION@
 MODULEFILENAME=etercifs.ko
+SRC_DIR=@SRC_DIR@
 
 [ -n "$TESTBUILD" ] || TESTBUILD=0
+[ -n "$DKMSBUILD" ] || DKMSBUILD=0
 
 fatal()
 {
@@ -124,6 +128,18 @@ set_gcc()
         echo "GCC compiler have not found. Please install gcc package."
         exit 1
     fi
+}
+
+dkms_build_module()
+{
+    detect_etercifs_sources
+    tar -xjf $KERNEL_SOURCE_ETERCIFS -C $SRC_DIR
+    FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
+    DIRNAME=${FILENAME%.tar.bz2}
+    mv -f $SRC_DIR/$DIRNAME/* $SRC_DIR
+    rm -rf $SRC_DIR/$DIRNAME
+    dkms build -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
+    dkms install -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
 }
 
 compile_module()

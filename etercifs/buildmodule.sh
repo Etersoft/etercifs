@@ -10,11 +10,18 @@
 . ./functions.sh
 
 if [ $TESTBUILD -ne 1 ] ; then
-    detect_host_kernel
-    echo
-    echo "Building for $KERNELVERSION Linux kernel (headers in $KERNSRC)"
-    compile_module
-    install_module
+    if [ $DKMSBUILD -eq 1 ] ; then
+        detect_host_kernel
+        echo
+        echo "Building for $KERNELVERSION Linux kernel with dkms"
+        dkms_build_module
+    else
+        detect_host_kernel
+        echo
+        echo "Building for $KERNELVERSION Linux kernel (headers in $KERNSRC)"
+        compile_module
+        install_module
+    fi
 else
     echo
     echo "====================================================================="

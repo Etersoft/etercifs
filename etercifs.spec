@@ -6,7 +6,7 @@
 # For build install,
 # 	kernel-headers-modules-XXXX for ALT Linux
 # 	kernel-devel-XXXX for FCx / ASP Linux
-# 	kernel-source-stripped-XXXX for Mandriva 2007
+# 	dkms-etercifs for Mandriva 2009
 # 	linux-headers for Debian / Ubuntu
 # 	kernel-source-XXXX for SuSe
 # 	kernel-source-XXXX for Slackware / MOPSLinux
@@ -20,8 +20,8 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 3.7.0
-Release: alt2
+Version: 3.8.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -73,10 +73,14 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh %buildroot%_datadir/%name
 sed -e "s|@DATADIR@|%_datadir/%name|g" < functions.sh.init > functions.sh.init.repl
+sed -e "s|@SRC_DIR@|%_usrsrc/%name-%version|g" < functions.sh.init > functions.sh.init.repl
+sed -e "s|@MODULENAME@|%name|g" < functions.sh.init > functions.sh.init.repl
+sed -e "s|@MODULEVERSION@|%version|g" < functions.sh.init > functions.sh.init.repl
 install -m644 functions.sh.init.repl %buildroot%_datadir/%name/functions.sh
 
 mkdir -p %buildroot%_initdir
 sed -e "s|@DATADIR@|%_datadir/%name|g" < %name.init > %name.init.repl
+sed -e "s|@SRC_DIR@|%_usrsrc/%name-%version|g" < %name.init > %name.init.repl
 install -m755 %name.init.repl %buildroot%_initdir/%name
 install -m755 %name.outformat %buildroot%_initdir/%name.outformat
 
@@ -106,6 +110,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Thu Nov 06 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt1
+- Fix building module with dkms
+
 * Wed Nov 05 2008 Konstantin Baev <kipruss@altlinux.org> 3.7.0-alt2
 - delete last change (building module on installing rpm)
 - remove kernel_src.list and distr_vendor
