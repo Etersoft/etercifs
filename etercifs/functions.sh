@@ -125,11 +125,9 @@ set_gcc()
         export GCCNAME=gcc
     fi
 
-    [ $TESTBUILD -eq 1 ] || echo `which $GCCNAME`
-    if ! which $GCCNAME &>/dev/null ; then
-        echo "GCC compiler have not found. Please install gcc package."
-        exit 1
-    fi
+    PATHGCC=`which $GCCNAME`
+    [ $PATHGCC ] || fatal "GCC compiler have not found. Please install gcc package."
+    echo $PATHGCC
 }
 
 dkms_build_module()
@@ -156,15 +154,8 @@ compile_module()
     [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
     [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
 
-    # Clean, build and check
-    #rm -f $BUILDDIR/$MODULEFILENAME
-    if [ $TESTBUILD -eq 1 ] ; then
-        make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean &>/dev/null
-        make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP &>/dev/null
-    else
-        make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
-        make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
-    fi
+    make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
+    make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 }
 
 install_module()
