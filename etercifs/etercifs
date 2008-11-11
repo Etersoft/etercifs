@@ -23,6 +23,7 @@ fi
 [ -n "$SRC_DIR" ] || SRC_DIR=/usr/src
 [ -n "$DATADIR" ] || DATADIR=/usr/share/etercifs
 [ -n "$MODULENAME" ] || MODULENAME=etercifs
+[ -n "$BUILT" ] || BUILT=0
 
 ORIGMODULENAME=cifs
 
@@ -129,7 +130,11 @@ load_module()
     $MODPROBE $MODULENAME && { success ; return ; }
     echo -n "$MODULENAME from Etersoft is not found, "
     echo -n "trying to compile it..."
-    build_module
+    if [ $BUILT -ne 1 ] ; then
+        build_module
+        BUILT=1
+        start
+    fi
 }
 
 start()

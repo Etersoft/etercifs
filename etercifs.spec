@@ -21,7 +21,7 @@
 
 Name: etercifs
 Version: 3.8.0
-Release: alt0.M41.2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -111,8 +111,8 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
-* Fri Nov 07 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt0.M41.2
-- 41
+* Tue Nov 11 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt3
+- add starting module after building (if module not exist)
 
 * Fri Nov 07 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt2
 - fix building module on Ubuntu
