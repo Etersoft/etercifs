@@ -113,7 +113,7 @@ umount_cifs()
 mount_cifs()
 {
     echo -n "Mounting CIFS resources... "
-    mount -t cifs -a -o noperm || { failure ; return 1; }
+    mount -t cifs -a || { failure ; return 1; }
     success
 }
 
