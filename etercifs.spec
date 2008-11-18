@@ -111,10 +111,10 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
-* Wed Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt7
+* Tue Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt7
 - Minor bugfix
 
-* Wed Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt6
+* Tue Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt6
 - fixed bug Eter#2936
 
 * Tue Nov 11 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt5
