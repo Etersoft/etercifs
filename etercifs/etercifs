@@ -24,6 +24,7 @@ fi
 [ -n "$DATADIR" ] || DATADIR=/usr/share/etercifs
 [ -n "$MODULENAME" ] || MODULENAME=etercifs
 [ -n "$BUILT" ] || BUILT=0
+[ -n "$DKMS" ] || DKMS=1
 
 ORIGMODULENAME=cifs
 
@@ -170,7 +171,7 @@ status()
 
 build_module()
 {
-    if [ -r $SRC_DIR/dkms.conf ] ; then
+    if [ -r $SRC_DIR/dkms.conf ] && [ `which dkms 2>/dev/null` ] && $DKMS ; then
         cd $DATADIR
         DKMSBUILD=1 sh buildmodule.sh
     else

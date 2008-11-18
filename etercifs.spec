@@ -21,7 +21,7 @@
 
 Name: etercifs
 Version: 3.8.0
-Release: alt5
+Release: alt6
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -111,6 +111,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Wed Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt6
+- fixed bug Eter#2936
+
 * Tue Nov 11 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt5
 - removed default parameter '-o mount' for mount fstab records
 
