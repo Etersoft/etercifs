@@ -154,6 +154,24 @@ compile_module()
     [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
     [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
 
+    echo "Checking the kernel configuration..."
+    if [ -r "$KERNSRC" ]; then
+        CONF_STRING=`cat $KERNSRC/.config | grep CONFIG_CIFS=`
+        CONF_LETTER=`echo $CONF_STRING | cut -b 13-13`
+        case "$CONF_LETTER" in
+            "m")
+                echo "OK"
+                ;;
+            "y")
+                echo "WARNING: the kernel is configured with cifs supporting, but not as a module!"
+                ;;
+            *)
+                echo "WARNING: the kernel is configured without cifs supporting!"
+        esac
+    else
+        echo "WARNING: the .config file in kernel source directory does not exist!"
+    fi
+
     make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
     make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 }
