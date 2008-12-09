@@ -109,6 +109,15 @@ umount_cifs()
     echo -n "Unmounting CIFS resources... "
     umount -t cifs -a || { failure ; return 1; }
     success
+
+    if cat /proc/mounts | grep ' cifs ' ; then
+        echo -n "Unmounting lost CIFS resources..."
+        # we have something to unmount, which is not in /etc/mtab
+        for i in $(cat /proc/mounts | grep ' cifs ' | cut -d' ' -f2); do
+            umount "$i" || { failure; return 1; }
+        done
+        success
+    fi
 }
 
 mount_cifs()
