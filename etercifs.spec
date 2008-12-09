@@ -20,8 +20,8 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 3.8.0
-Release: alt7
+Version: 4.0.0
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -111,6 +111,17 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Tue Dec 09 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.0-alt2
+- update all sources: add mount option "forcemand"
+- update sources/2.6.27 (up to 2.6.27.8)
+- additional checking for existence etercifs kernel module sources for current kernel
+- add symlinks for kernel sources 2.6.16 and 2.6.17
+- fix RT ticket 7479 and bug Eter#2898
+- add checking the kernel configuration
+
+* Thu Dec 04 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.0-alt1
+- test build: add mount option "forcemandatorylock" aka "forcemand"
+
 * Tue Nov 18 2008 Konstantin Baev <kipruss@altlinux.org> 3.8.0-alt7
 - Minor bugfix
 
