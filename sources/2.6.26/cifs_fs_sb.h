@@ -31,6 +31,7 @@
 #define CIFS_MOUNT_OVERR_UID    0x400 /* override uid returned from server    */
 #define CIFS_MOUNT_OVERR_GID    0x800 /* override gid returned from server    */
 #define CIFS_MOUNT_DYNPERM	0x1000 /* allow in-memory only mode setting */
+#define CIFS_MOUNT_NOPOSIXBRL   0x2000 /* mandatory not posix byte range lock */
 
 struct cifs_sb_info {
 	struct cifsTconInfo *tcon;	/* primary mount */

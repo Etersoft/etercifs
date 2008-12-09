@@ -652,7 +652,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 	struct cifsTconInfo *pTcon;
 	__u16 netfid;
 	__u8 lockType = LOCKING_ANDX_LARGE_FILES;
-	int posix_locking;
+	int posix_locking = 0;
 
 	length = 1 + pfLock->fl_end - pfLock->fl_start;
 	rc = -EACCES;
@@ -711,8 +711,10 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 	}
 	netfid = ((struct cifsFileInfo *)file->private_data)->netfid;
 
-	posix_locking = (cifs_sb->tcon->ses->capabilities & CAP_UNIX) &&
-			(CIFS_UNIX_FCNTL_CAP & le64_to_cpu(cifs_sb->tcon->fsUnixInfo.Capability));
+	if ((pTcon->ses->capabilities & CAP_UNIX) &&
+	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(pTcon->fsUnixInfo.Capability)) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0))
+		posix_locking = 1;
 
 	/* BB add code here to normalize offset and length to
 	account for negative length which we can not accept over the

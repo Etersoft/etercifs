@@ -90,6 +90,7 @@ struct smb_vol {
 	unsigned nullauth:1; /* attempt to authenticate with null user */
 	unsigned nocase;     /* request case insensitive filenames */
 	unsigned nobrl;      /* disable sending byte range locks to srv */
+	bool mand_lock:1;  /* send mandatory not posix byte range lock reqs */
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned int sockopt;
@@ -1212,6 +1213,8 @@ cifs_parse_mount_options(char *options, const char *devname,
 			if (vol->file_mode ==
 				(S_IALLUGO & ~(S_ISUID | S_IXGRP)))
 				vol->file_mode = S_IALLUGO;
+		} else if (strnicmp(data, "forcemandatorylock", 9) == 0) {
+			vol->mand_lock = 1;
 		} else if (strnicmp(data, "setuids", 7) == 0) {
 			vol->setuids = 1;
 		} else if (strnicmp(data, "nosetuids", 9) == 0) {
@@ -2064,6 +2067,8 @@ cifs_mount(struct super_block *sb, struct cifs_sb_info *cifs_sb,
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_UNX_EMUL;
 		if (volume_info.nobrl)
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NO_BRL;
+		if (volume_info.mand_lock)
+			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NOPOSIXBRL;
 		if (volume_info.cifs_acl)
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_CIFS_ACL;
 		if (volume_info.override_uid)
