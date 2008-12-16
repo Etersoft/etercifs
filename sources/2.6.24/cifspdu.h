@@ -19,6 +19,14 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#ifndef CONFIG_CIFS_XATTR
+#define CONFIG_CIFS_XATTR
+#endif
+
+#ifndef CONFIG_CIFS_POSIX
+#define CONFIG_CIFS_POSIX
+#endif
+
 #ifndef _CIFSPDU_H
 #define _CIFSPDU_H
 
