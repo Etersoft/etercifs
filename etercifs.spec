@@ -20,8 +20,8 @@
 %define src_2_6_27_version 1.54
 
 Name: etercifs
-Version: 4.0.0
-Release: alt2
+Version: 4.0.1
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -111,6 +111,10 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %_initdir/%name.outformat
 
 %changelog
+* Tue Dec 16 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt1
+- update all sources: add code, that fixing bug Eter#2929
+- update sources/2.6.27 (up to 2.6.27.9)
+
 * Tue Dec 09 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.0-alt2
 - update all sources: add mount option "forcemand"
 - update sources/2.6.27 (up to 2.6.27.8)
