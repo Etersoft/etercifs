@@ -112,7 +112,7 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
-* Wed Dec 17 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt2
+* Thu Dec 18 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt2
 - minor design changes in sources code
 - add docs
 
