@@ -21,7 +21,7 @@
 
 Name: etercifs
 Version: 4.0.1
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -112,6 +112,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Fri Dec 26 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt3
+- fix build in kernels 2.6.18 - 2.6.24 (may be broken after adding option "forcemand")
+
 * Thu Dec 18 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt2
 - minor design changes in sources code
 - add docs

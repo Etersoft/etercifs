@@ -90,7 +90,7 @@ struct smb_vol {
 	unsigned nullauth:1; /* attempt to authenticate with null user */
 	unsigned nocase;     /* request case insensitive filenames */
 	unsigned nobrl;      /* disable sending byte range locks to srv */
-	bool mand_lock:1;  /* send mandatory not posix byte range lock reqs */
+	unsigned mand_lock:1;  /* send mandatory not posix byte range lock reqs */
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned int sockopt;
