@@ -18,10 +18,11 @@
 %define src_2_6_25_version 1.52
 %define src_2_6_26_version 1.53
 %define src_2_6_27_version 1.54
+%define src_2_6_28_version 1.55
 
 Name: etercifs
-Version: 4.0.1
-Release: alt3
+Version: 4.1.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -40,6 +41,7 @@ Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 Source26: %src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 Source27: %src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
+Source28: %src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -97,6 +99,7 @@ cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_versi
 cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
+cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 
 %post
 %post_service %name
@@ -112,6 +115,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Mon Jan 12 2009 Konstantin Baev <kipruss@altlinux.org> 4.1.0-alt1
+- add sources/2.6.28
+
 * Fri Dec 26 2008 Konstantin Baev <kipruss@altlinux.org> 4.0.1-alt3
 - fix build in kernels 2.6.18 - 2.6.24 (may be broken after adding option "forcemand")
 
