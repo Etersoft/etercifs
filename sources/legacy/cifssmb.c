@@ -1187,11 +1187,10 @@ SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
 	int name_len;
 	__u16 count;
 
-	if (etersoft_flag) {
-		printk("Etersoft: Do not use SMBLegacyOpen!\n");
-		return rc;
-	}
-
+#ifndef ETERSOFT_USE_SMB_LEGACY_OPEN
+	printk("Etersoft: Do not use SMBLegacyOpen!\n");
+	return rc;
+#else
 OldOpenRetry:
 	rc = smb_init(SMB_COM_OPEN_ANDX, 15, tcon, (void **) &pSMB,
 		      (void **) &pSMBr);
@@ -1291,6 +1290,7 @@ OldOpenRetry:
 	if (rc == -EAGAIN)
 		goto OldOpenRetry;
 	return rc;
+#endif
 }
 
 int

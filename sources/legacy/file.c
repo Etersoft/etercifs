@@ -111,8 +111,6 @@ static inline int cifs_get_disposition(unsigned int flags)
 
 static inline int cifs_get_share_flags(unsigned int flags)
 {
-	if (!etersoft_flag)
-		return FILE_SHARE_ALL;
 	return ((~(flags>>21))&7);
 }
 

@@ -463,8 +463,6 @@ static read_proc_t experimEnabled_read;
 static write_proc_t experimEnabled_write;
 static read_proc_t linuxExtensionsEnabled_read;
 static write_proc_t linuxExtensionsEnabled_write;
-static read_proc_t etersoft_read;
-static write_proc_t etersoft_write;
 
 void
 cifs_proc_init(void)
@@ -529,12 +527,6 @@ cifs_proc_init(void)
 	if (pde)
 		pde->write_proc = lookupFlag_write;
 
-	pde =
-	create_proc_read_entry("Etersoft", 0, proc_fs_cifs,
-				etersoft_read, NULL);
-	if (pde)
-		pde->write_proc = etersoft_write;
-
 /*	pde =
 	    create_proc_read_entry("NTLMV2Enabled", 0, proc_fs_cifs,
 				ntlmv2_enabled_read, NULL);
@@ -568,7 +560,6 @@ cifs_proc_clean(void)
 	remove_proc_entry("LinuxExtensionsEnabled", proc_fs_cifs);
 	remove_proc_entry("Experimental", proc_fs_cifs);
 	remove_proc_entry("LookupCacheEnabled", proc_fs_cifs);
-	remove_proc_entry("Etersoft",proc_fs_cifs);
 	remove_proc_entry("cifs", proc_root_fs);
 }
 
@@ -922,44 +913,4 @@ security_flags_write(struct file *file, const char __user *buffer,
 	/* BB should we turn on MAY flags for other MUST options? */
 	return count;
 }
-
-static int
-etersoft_read(char *page, char **start, off_t off,
-		     int count, int *eof, void *data)
-{
-	int len;
-
-	len = sprintf(page, "%d\n", etersoft_flag);
-
-	len -= off;
-	*start = page + off;
-
-	if (len > count)
-		len = count;
-	else
-		*eof = 1;
-
-	if (len < 0)
-		len = 0;
-
-	return len;
-}
-static int
-etersoft_write(struct file *file, const char __user *buffer,
-		      unsigned long count, void *data)
-{
-	char c;
-	int rc;
-
-	rc = get_user(c, buffer);
-	if (rc)
-		return rc;
-	if (c == '0' || c == 'n' || c == 'N')
-		etersoft_flag = 0;
-	else if (c == '1' || c == 'y' || c == 'Y')
-		etersoft_flag = 1;
-
-	return count;
-}
-
 #endif

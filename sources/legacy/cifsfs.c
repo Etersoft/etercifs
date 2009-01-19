@@ -61,7 +61,6 @@ extern struct export_operations cifs_export_ops;
 int cifsFYI = 0;
 int cifsERROR = 1;
 int traceSMB = 0;
-unsigned int etersoft_flag = 1;
 unsigned int oplockEnabled = 1;
 unsigned int experimEnabled = 0;
 unsigned int linuxExtEnabled = 1;
