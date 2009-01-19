@@ -126,6 +126,8 @@ set_gcc()
         export GCCNAME=gcc
     fi
 
+    [ `which make` ] || fatal "GNU make utility have not found. Please install make package."
+
     PATHGCC=`which $GCCNAME`
     [ $PATHGCC ] || fatal "GCC compiler have not found. Please install gcc package."
     echo $PATHGCC
