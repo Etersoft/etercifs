@@ -13,6 +13,7 @@
 
 %define src_package_name kernel-source-etercifs
 %define src_legacy_version 1.50c
+%define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
 %define src_2_6_25_version 1.52
@@ -21,7 +22,7 @@
 %define src_2_6_28_version 1.55
 
 Name: etercifs
-Version: 4.1.0
+Version: 4.1.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -36,6 +37,7 @@ BuildArch: noarch
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
+Source16: %src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
@@ -90,10 +92,11 @@ install -m755 %name.outformat %buildroot%_initdir
 
 mkdir -p %buildroot/%etercifs_src
 cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
-for N in `seq 16 22`
+for N in `seq 17 22`
 do
   ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
 done
+cp %SOURCE16 %buildroot/%etercifs_src/%src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 cp %SOURCE23 %buildroot/%etercifs_src/%src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
 cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
@@ -115,6 +118,12 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Mon Jan 19 2009 Konstantin Baev <kipruss@altlinux.org> 4.1.1-alt1
+- remove deprecated code from legacy sources
+- add sources/2.6.16 from SLES10SP2 kernel with Etersoft patches (Eter#3249)
+- add checking availability GNU make utility (Eter#3265)
+- update sources/2.6.28 (up to 2.6.28.1)
+
 * Mon Jan 12 2009 Konstantin Baev <kipruss@altlinux.org> 4.1.0-alt1
 - add sources/2.6.28
 
