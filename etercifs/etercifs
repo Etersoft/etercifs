@@ -168,13 +168,14 @@ status()
 {
     local PRECOMP
     echo "CIFS module status:"
-    if is_origmoduled ; then
-        echo "    origin kernel module $ORIGMODULENAME loaded"
-    fi
     if is_moduled ; then
         echo "    kernel module $MODULENAME is loaded"
     else
-        echo "    kernel module $MODULENAME is not loaded"
+        if is_origmoduled ; then
+            echo "    origin kernel module $ORIGMODULENAME loaded"
+        fi
+        echo "    WARNING!!! Kernel module $MODULENAME is not loaded!"
+        echo "    Possible ERRORS when working with WINE!"
     fi
 }
 
