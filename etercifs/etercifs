@@ -169,7 +169,8 @@ status()
     local PRECOMP
     echo "CIFS module status:"
     if is_moduled ; then
-        echo "    kernel module $MODULENAME is loaded"
+        echo "    kernel module $MODULENAME version $MODULEVERSION is loaded"
+        # `modinfo etercifs | grep ^version:`
     else
         if is_origmoduled ; then
             echo "    origin kernel module $ORIGMODULENAME loaded"
