@@ -22,7 +22,7 @@
 %define src_2_6_28_version 1.55
 
 Name: etercifs
-Version: 4.1.1
+Version: 4.1.2
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -118,6 +118,11 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Wed Feb 11 2009 Konstantin Baev <kipruss@altlinux.org> 4.1.2-alt1
+- CIFS_VERSION in module replaced by version of etercifs package
+- update sources/2.6.27 (up to 2.6.27.15)
+- update sources/2.6.28 (up to 2.6.28.4)
+
 * Mon Jan 19 2009 Konstantin Baev <kipruss@altlinux.org> 4.1.1-alt1
 - remove deprecated code from legacy sources
 - add sources/2.6.16 from SLES10SP2 kernel with Etersoft patches (Eter#3249)
