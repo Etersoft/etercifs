@@ -169,8 +169,18 @@ status()
     local PRECOMP
     echo "CIFS module status:"
     if is_moduled ; then
-        echo "    kernel module $MODULENAME version $MODULEVERSION is loaded"
-        # `modinfo etercifs | grep ^version:`
+        MODVER=`modinfo etercifs | grep ^version:`
+        MODVER=`echo $MODVER | sed 's|version:||g'`
+        MODVER=`echo $MODVER | sed 's| ||g'`
+        echo "    package $MODULENAME version $MODULEVERSION is installed"
+        if [ $MODVER ] ; then
+            echo "    kernel module $MODULENAME version $MODVER is loaded"
+        else
+            echo "    kernel module $MODULENAME is loaded"
+        fi
+        if [ "$MODULEVERSION" != "$MODVER" ] ; then
+            [ $MODVER ] && echo "    WARNING!!! Versions of package etercifs and module etercifs DON'T MATCH!!!"
+        fi
     else
         if is_origmoduled ; then
             echo "    origin kernel module $ORIGMODULENAME loaded"

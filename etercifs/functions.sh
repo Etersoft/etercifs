@@ -146,6 +146,21 @@ dkms_build_module()
     dkms install -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
 }
 
+change_cifsversion()
+{
+    if [ -f $BUILDDIR/cifsfs.h ] ; then
+        CIFSVERSION=`cat $BUILDDIR/cifsfs.h | grep CIFS_VERSION`
+        CIFSVERSION=`echo $CIFSVERSION | sed 's|#define CIFS_VERSION||g'`
+        CIFSVERSION=`echo $CIFSVERSION | sed 's|"||g'`
+        CIFSVERSION=`echo $CIFSVERSION | sed 's| ||g'`
+        cp $BUILDDIR/cifsfs.h $BUILDDIR/cifsfs.h.orig
+        sed -e "s/$CIFSVERSION/$MODULEVERSION/g" $BUILDDIR/cifsfs.h.orig > $BUILDDIR/cifsfs.h
+        echo "Setting etercifs version: OK"
+    else
+        echo "Setting etercifs version: FAIL"
+    fi
+}
+
 compile_module()
 {
     detect_etercifs_sources
@@ -175,6 +190,7 @@ compile_module()
         echo "WARNING: the .config file in kernel source directory does not exist!"
     fi
 
+    change_cifsversion
     make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
     make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR modules $MAKESMP
 }
