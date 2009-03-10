@@ -843,7 +843,7 @@ static void posix_fill_in_inode(struct inode *tmp_inode,
 	local_mtime = tmp_inode->i_mtime;
 	local_size  = tmp_inode->i_size;
 
-	cifs_unix_info_to_inode(tmp_inode, pData, 1);
+	cifs_unix_info_to_inode(tmp_inode, pData, 0);
 	cifs_set_ops(tmp_inode, false);
 
 	if (!S_ISREG(tmp_inode->i_mode))
