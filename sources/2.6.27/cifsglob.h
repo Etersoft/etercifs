@@ -246,6 +246,7 @@ struct cifsTconInfo {
 	atomic_t num_smbs_sent;
 	atomic_t num_writes;
 	atomic_t num_reads;
+	atomic_t num_flushes;
 	atomic_t num_oplock_brks;
 	atomic_t num_opens;
 	atomic_t num_closes;
@@ -358,7 +359,6 @@ struct cifsInodeInfo {
 	bool clientCanCacheRead:1;	/* read oplock */
 	bool clientCanCacheAll:1;	/* read and writebehind oplock */
 	bool oplockPending:1;
-	unsigned needForceInvalidate:1;
 	struct inode vfs_inode;
 };
 

@@ -604,19 +604,6 @@ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
 	return written;
 }
 
-static ssize_t cifs_file_read(struct file *file, char *user, size_t cnt, loff_t *pos)
-{
-	if( file!=NULL && file->f_dentry!=NULL && CIFS_I(file->f_dentry->d_inode)!=NULL ) {
-		int retval = 0;
-		CIFS_I(file->f_dentry->d_inode)->needForceInvalidate = 1;
-		retval = cifs_revalidate(file->f_dentry);
-		if( retval < 0 )
-			return (ssize_t)retval;
-	}
-
-	return do_sync_read(file,user,cnt,pos);
-}
-
 static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
 {
 	/* origin == SEEK_END => we must revalidate the cached file length */
@@ -726,7 +713,7 @@ const struct inode_operations cifs_symlink_inode_ops = {
 };
 
 const struct file_operations cifs_file_ops = {
-	.read = cifs_file_read,
+	.read = do_sync_read,
 	.write = do_sync_write,
 	.aio_read = generic_file_aio_read,
 	.aio_write = cifs_file_aio_write,
