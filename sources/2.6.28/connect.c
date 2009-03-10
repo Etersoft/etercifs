@@ -350,6 +350,7 @@ cifs_demultiplex_thread(struct TCP_Server_Info *server)
 	bool isMultiRsp;
 	int reconnect;
 
+	server->running = 1;
 	current->flags |= PF_MEMALLOC;
 	cFYI(1, ("Demultiplex PID: %d", task_pid_nr(current)));
 
@@ -760,6 +761,8 @@ multi_t2_fnd:
 
 	kfree(server->hostname);
 	task_to_wake = xchg(&server->tsk, NULL);
+	server->running = 0;
+	msleep(20);
 	kfree(server);
 
 	length = atomic_dec_return(&tcpSesAllocCount);
@@ -1427,6 +1430,9 @@ cifs_put_tcp_session(struct TCP_Server_Info *server)
 	task = xchg(&server->tsk, NULL);
 	if (task)
 		force_sig(SIGKILL, task);
+
+	while(server->running == 1)
+		msleep(10);
 }
 
 static struct cifsSesInfo *
