@@ -136,10 +136,14 @@ set_gcc()
 dkms_build_module()
 {
     detect_etercifs_sources
+    STATUS=`dkms status -m $MODULENAME -v $MODULEVERSION`
+    [ "$STATUS" ] || dkms add -m $MODULENAME -v $MODULEVERSION
     tar -xjf $KERNEL_SOURCE_ETERCIFS -C $SRC_DIR
     FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
     DIRNAME=${FILENAME%.tar.bz2}
     mv -f $SRC_DIR/$DIRNAME/* $SRC_DIR
+    BUILDDIR=$SRC_DIR
+    change_cifsversion
     rm -rf $SRC_DIR/$DIRNAME
     dkms uninstall -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
     dkms build -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
@@ -153,8 +157,7 @@ change_cifsversion()
         CIFSVERSION=`echo $CIFSVERSION | sed 's|#define CIFS_VERSION||g'`
         CIFSVERSION=`echo $CIFSVERSION | sed 's|"||g'`
         CIFSVERSION=`echo $CIFSVERSION | sed 's| ||g'`
-        cp $BUILDDIR/cifsfs.h $BUILDDIR/cifsfs.h.orig
-        sed -e "s/$CIFSVERSION/$MODULEVERSION/g" $BUILDDIR/cifsfs.h.orig > $BUILDDIR/cifsfs.h
+        sed -i "s/$CIFSVERSION/$MODULEVERSION/g" $BUILDDIR/cifsfs.h
         echo "Setting etercifs version: OK"
     else
         echo "Setting etercifs version: FAIL"
