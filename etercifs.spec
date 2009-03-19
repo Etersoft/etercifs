@@ -22,7 +22,7 @@
 %define src_2_6_28_version 1.55
 
 Name: etercifs
-Version: 4.2.0
+Version: 4.2.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -118,6 +118,11 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Thu Mar 19 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1
+- Fix bug Eter#3638 (solve some DKMS troubles)
+- update sources/2.6.27 (up to 2.6.27.20)
+- update sources/2.6.28 (up to 2.6.28.8)
+
 * Thu Mar 10 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.0-alt1
 - Send SMB flush in cifs_fsync [Backport from CIFS devel git]
 - Remove oplock part of Etersoft patches
