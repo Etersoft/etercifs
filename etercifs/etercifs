@@ -172,14 +172,23 @@ status()
         MODVER=`modinfo etercifs | grep ^version:`
         MODVER=`echo $MODVER | sed 's|version:||g'`
         MODVER=`echo $MODVER | sed 's| ||g'`
-        echo "    package $MODULENAME version $MODULEVERSION is installed"
+        echo "    package $MODULENAME version $MODULEVERSION"
         if [ $MODVER ] ; then
-            echo "    kernel module $MODULENAME version $MODVER is loaded"
+            echo "    kernel module $MODULENAME version $MODVER is built for current kernel"
         else
-            echo "    kernel module $MODULENAME is loaded"
+            echo "    kernel module $MODULENAME is built"
         fi
         if [ "$MODULEVERSION" != "$MODVER" ] ; then
-            [ $MODVER ] && echo "    WARNING!!! Versions of package etercifs and module etercifs DON'T MATCH!!!"
+            [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and built module $MODULENAME DON'T MATCH!!!"
+        fi
+        LOADEDMODVER=`cat /sys/module/$MODULENAME/version 2>/dev/null`
+        if [ $LOADEDMODVER ] ; then
+            echo "    kernel module $MODULENAME version $LOADEDMODVER is loaded"
+            if [ "$MODULEVERSION" != "$LOADEDMODVER" ] ; then
+                [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and loaded module $MODULENAME DON'T MATCH!!!"
+            fi
+        else
+            echo "    WARNING!!! Can't get version of loaded module $MODULENAME!"
         fi
     else
         if is_origmoduled ; then
