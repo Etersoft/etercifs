@@ -23,7 +23,7 @@
 
 Name: etercifs
 Version: 4.2.1
-Release: alt1
+Release: alt1.testing1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -118,6 +118,10 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Thu Mar 26 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1.testing1
+- Fix bug Eter#3660 (F_GETLK problem connected with wrong returning file_lock structure)
+- Refactoring code, which solved kmem_cache_destroy problem
+
 * Thu Mar 19 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1
 - Fix bug Eter#3638 (solve some DKMS troubles)
 - update sources/2.6.27 (up to 2.6.27.20)
