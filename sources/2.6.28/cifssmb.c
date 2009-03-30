@@ -1192,7 +1192,7 @@ access_flags_to_smbopen_mode(const int access_flags)
 int
 SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
 	    const char *fileName, const int openDisposition,
-	    const int access_flags, const int share_flags, const int create_options, __u16 *netfid,
+	    const int access_flags, const int create_options, __u16 *netfid,
 	    int *pOplock, FILE_ALL_INFO *pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
@@ -1304,7 +1304,7 @@ OldOpenRetry:
 int
 CIFSSMBOpen(const int xid, struct cifsTconInfo *tcon,
 	    const char *fileName, const int openDisposition,
-	    const int access_flags, const int create_options, __u16 *netfid,
+	    const int access_flags, const int share_flags, const int create_options, __u16 *netfid,
 	    int *pOplock, FILE_ALL_INFO *pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
