@@ -970,9 +970,6 @@ static int cifs_oplock_thread(void *dummyarg)
 				to server still is disconnected since oplock
 				already released by the server in that case */
 			if (!pTcon->need_reconnect) {
-				/* PV: disable caching if oplock missed  */
-				CIFS_I(inode)->clientCanCacheRead = false;
-				CIFS_I(inode)->clientCanCacheAll = false;
 				rc = CIFSSMBLock(0, pTcon, netfid,
 						0 /* len */ , 0 /* offset */, 0,
 						0, LOCKING_ANDX_OPLOCK_RELEASE,
