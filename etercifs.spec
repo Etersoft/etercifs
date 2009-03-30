@@ -20,10 +20,11 @@
 %define src_2_6_26_version 1.53
 %define src_2_6_27_version 1.54
 %define src_2_6_28_version 1.55
+%define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.2.1
-Release: alt1.testing2
+Version: 4.3.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -44,6 +45,7 @@ Source25: %src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
 Source26: %src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 Source27: %src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
 Source28: %src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
+Source29: %src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -103,6 +105,7 @@ cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_versi
 cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
 cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
 cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
+cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 
 %post
 %post_service %name
@@ -118,13 +121,13 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
-* Mon Mar 30 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1.testing2
-- Fixed F_GETLK problem with mount option forcemand
-- Some bugxixes near F_GETLK problem
-
-* Thu Mar 26 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1.testing1
-- Fix bug Eter#3660 (F_GETLK problem connected with wrong returning file_lock structure)
+* Mon Mar 30 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.0-alt1
+- add sources/2.6.29
+- Fix bugs Eter#1185 and Eter#3660 (F_GETLK problem connected with wrong returning file_lock structure)
+- Fix bugs Eter#3237 (problem remove lock at Windows share)
 - Refactoring code, which solved kmem_cache_destroy problem
+- Correct message about loaded version of etercifs module (in status command)
+- Some bugfixes
 
 * Thu Mar 19 2009 Konstantin Baev <kipruss@altlinux.org> 4.2.1-alt1
 - Fix bug Eter#3638 (solve some DKMS troubles)
