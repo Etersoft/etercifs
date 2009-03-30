@@ -38,6 +38,7 @@
 #include "cifs_unicode.h"
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
+#include "cifs_lock_storage.h"
 
 static inline struct cifsFileInfo *cifs_init_private(
 	struct cifsFileInfo *private_data, struct inode *inode,
@@ -491,8 +492,6 @@ int cifs_close(struct inode *inode, struct file *file)
 	cifs_sb = CIFS_SB(inode->i_sb);
 	pTcon = cifs_sb->tcon;
 	if (pSMBFile) {
-		struct cifsLockInfo *li, *tmp;
-
 		pSMBFile->closePend = TRUE;
 		if (pTcon) {
 			/* no sense reconnecting to close a file that is
@@ -520,15 +519,6 @@ int cifs_close(struct inode *inode, struct file *file)
 						  pSMBFile->netfid);
 			}
 		}
-
-		/* Delete any outstanding lock records.
-		   We'll lose them when the file is closed anyway. */
-		mutex_lock(&pSMBFile->lock_mutex);
-		list_for_each_entry_safe(li, tmp, &pSMBFile->llist, llist) {
-			list_del(&li->llist);
-			kfree(li);
-		}
-		mutex_unlock(&pSMBFile->lock_mutex);
 
 		write_lock(&GlobalSMBSeslock);
 		list_del(&pSMBFile->flist);
@@ -622,22 +612,6 @@ int cifs_closedir(struct inode *inode, struct file *file)
 	/* BB can we lock the filestruct while this is going on? */
 	FreeXid(xid);
 	return rc;
-}
-
-static int store_file_lock(struct cifsFileInfo *fid, __u64 len,
-				__u64 offset, __u8 lockType)
-{
-	struct cifsLockInfo *li =
-		kmalloc(sizeof(struct cifsLockInfo), GFP_KERNEL);
-	if (li == NULL)
-		return -ENOMEM;
-	li->offset = offset;
-	li->length = len;
-	li->type = lockType;
-	mutex_lock(&fid->lock_mutex);
-	list_add(&li->llist, &fid->llist);
-	mutex_unlock(&fid->lock_mutex);
-	return 0;
 }
 
 int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
@@ -811,33 +785,12 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 
 			if (rc == 0) {
 				/* For Windows locks we must store them. */
-				rc = store_file_lock(fid, length,
-						pfLock->fl_start, lockType);
+				rc = cifs_lock_storage_add_lock(fid->pid, fid->pInode->i_ino, fid->netfid, pfLock->fl_start, length, lockType);
 			}
 		} else if (numUnlock) {
 			/* For each stored lock that this unlock overlaps
 			   completely, unlock it. */
-			int stored_rc = 0;
-			struct cifsLockInfo *li, *tmp;
-
-			rc = 0;
-			mutex_lock(&fid->lock_mutex);
-			list_for_each_entry_safe(li, tmp, &fid->llist, llist) {
-				if (pfLock->fl_start <= li->offset &&
-						(pfLock->fl_start + length) >=
-						(li->offset + li->length)) {
-					stored_rc = CIFSSMBLock(xid, pTcon,
-							netfid,
-							li->length, li->offset,
-							1, 0, li->type, FALSE);
-					if (stored_rc)
-						rc = stored_rc;
-
-					list_del(&li->llist);
-					kfree(li);
-				}
-			}
-			mutex_unlock(&fid->lock_mutex);
+			rc = cifs_lock_storage_del_lock(xid, pTcon, fid->pid, fid->pInode->i_ino, pfLock->fl_start, length, lockType);
 		}
 	}
 
