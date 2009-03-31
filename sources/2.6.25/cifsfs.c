@@ -581,8 +581,11 @@ static ssize_t cifs_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 
 	if (CIFS_I(inode)->clientCanCacheRead)
 		read = generic_file_aio_read(iocb, iov, nr_segs, pos);
-	else
-		read = cifs_user_read(iocb->ki_filp, iov->iov_base, iov->iov_len, &pos);
+	else {
+		read = cifs_user_read(iocb->ki_filp, iov->iov_base,
+				      iov->iov_len, &pos);
+		iocb->ki_pos = pos;
+	}
 	return read;
 }
 
