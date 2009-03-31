@@ -629,18 +629,19 @@ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const char __user *buf,
 	return written;
 }
 
-static ssize_t cifs_file_read(struct file *file, char *user, size_t cnt, loff_t *pos)
+static ssize_t cifs_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+				  unsigned long nr_segs, loff_t pos)
 {
-	if( file!=NULL && file->f_dentry!=NULL && CIFS_I(file->f_dentry->d_inode)!=NULL ) {
-		int retval = 0;
-		CIFS_I(file->f_dentry->d_inode)->needForceInvalidate = 1;
-		retval = cifs_revalidate(file->f_dentry);
-		if( retval < 0 )
-			return (ssize_t)retval;
-	}
+	struct inode *inode = iocb->ki_filp->f_path.dentry->d_inode;
+	ssize_t read;
 
-	return do_sync_read(file,user,cnt,pos);
+	if (CIFS_I(inode)->clientCanCacheRead)
+		read = generic_file_aio_read(iocb, iov, nr_segs, pos);
+	else
+		read = cifs_user_read(iocb->ki_filp, iov->iov_base, iov->iov_len, &pos);
+	return read;
 }
+
 
 static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
 {
@@ -730,13 +731,13 @@ const struct inode_operations cifs_symlink_inode_ops = {
 };
 
 const struct file_operations cifs_file_ops = {
-	.read = cifs_file_read,
+	.read = do_sync_read,
 	.write = do_sync_write,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
 	.readv = generic_file_readv,
 	.writev = cifs_file_writev,
 #endif
-	.aio_read = generic_file_aio_read,
+	.aio_read = cifs_file_aio_read,
 	.aio_write = cifs_file_aio_write,
 	.open = cifs_open,
 	.release = cifs_close,
@@ -1073,9 +1074,6 @@ static int cifs_oplock_thread(void *dummyarg)
 				to server still is disconnected since oplock
 				already released by the server in that case */
 				if (pTcon->tidStatus != CifsNeedReconnect) {
-					/* PV: disable caching if oplock missed  */
-					CIFS_I(inode)->clientCanCacheRead = FALSE;
-					CIFS_I(inode)->clientCanCacheAll = FALSE;
 
 				    rc = CIFSSMBLock(0, pTcon, netfid,
 					    0 /* len */ , 0 /* offset */, 0,

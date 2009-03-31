@@ -23,7 +23,7 @@
 %define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.3.0
+Version: 4.3.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -121,6 +121,10 @@ cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_versi
 %doc README.ETER AUTHORS CHANGES README TODO
 
 %changelog
+* Tue Mar 31 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.1-alt1
+- Remove oplock part of Etersoft patches (sources < 2.6.27)
+- use cifs_file_aio_read instead of generic_file_aio_read in all sources
+
 * Mon Mar 30 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.0-alt1
 - add sources/2.6.29
 - Fix bugs Eter#1185 and Eter#3660 (F_GETLK problem connected with wrong returning file_lock structure)

@@ -363,7 +363,6 @@ struct cifsInodeInfo {
 	unsigned clientCanCacheRead:1; /* read oplock */
 	unsigned clientCanCacheAll:1;  /* read and writebehind oplock */
 	unsigned oplockPending:1;
-	unsigned needForceInvalidate:1;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0)
 	struct inode vfs_inode;
 #endif
