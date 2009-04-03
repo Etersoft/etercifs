@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.3.2
-Release: alt1.M41.2
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -127,7 +127,7 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
-* Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt1.M41.2
+* Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt2
 - Add etermount script
 
 * Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt1
