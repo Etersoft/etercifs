@@ -1,0 +1,50 @@
+#!/bin/bash
+# 2009 (c) Etersoft http://etersoft.ru
+# Author: Konstantin Baev <kipruss@etersoft.ru>
+# GNU Public License
+
+# Script for mount cifs shares with recommended mount options
+
+fatal()
+{
+    echo $@
+    exit 1
+}
+
+if [ -f /etc/etercifs.conf ] ; then
+  . /etc/etercifs.conf
+else
+  fatal "Not found configuration file /etc/etercifs.conf"
+fi
+
+[ "$UID" = "0" ] && SUDO= || SUDO=sudo
+
+create_share_dir()
+{
+    if [ -d "$1" ] ; then
+        [ -n "`ls $1`" ] && fatal "Error: the folder $1 is not empty!"
+        echo "Info: the folder $1 exists and empty"
+    else
+        if $(mkdir -p "$1") ; then
+            echo "Info: the folder $1 was created"
+        else
+            fatal "Error while creating the folder $1"
+        fi
+    fi
+}
+
+[ "$#" -ge 1 -a "$#" -le 2 ] || fatal 'Usage: etermount <//server/share> [</path/mountpoint>]'
+
+if [ "$2" == '' ] ; then
+    SHARE_PATH=$DEFAULT_MOUNTPOINT
+else
+    SHARE_PATH="$2"
+fi
+
+create_share_dir $SHARE_PATH
+
+if $($SUDO mount -t cifs "$1" $SHARE_PATH -o $MOUNT_OPTIONS) ; then
+    echo "Info: mount of share $1 in mountpoint $SHARE_PATH has been successfully"
+else
+    fatal "Warning: error while mount of share $1 in mountpoint $SHARE_PATH!"
+fi

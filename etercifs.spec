@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.3.2
-Release: alt1
+Release: alt1.etermount
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -81,6 +81,8 @@ echo DATADIR=%_datadir/%name > %buildroot%_sysconfdir/%name.conf
 echo SRC_DIR=%_usrsrc/%name-%version >> %buildroot%_sysconfdir/%name.conf
 echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
 echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
+echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct >> %buildroot%_sysconfdir/%name.conf
+echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
 
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh %buildroot%_datadir/%name
@@ -107,6 +109,9 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 
+mkdir -p %buildroot%_sbindir
+install -m755 etermount %buildroot%_sbindir/
+
 %post
 %post_service %name
 
@@ -119,8 +124,12 @@ cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_versi
 %_initdir/%name
 %_initdir/%name.outformat
 %doc README.ETER AUTHORS CHANGES README TODO
+%_sbindir/etermount
 
 %changelog
+* Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt1.etermount
+- Add etermount script
+
 * Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt1
 - Fixed bug connected with not moving pointer after cifs_user_read() in cifs_file_aio_read()
 
