@@ -732,12 +732,12 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 			if (lockType & LOCKING_ANDX_SHARED_LOCK) {
 				pfLock->fl_type = F_WRLCK;
 			} else {
-				rc = CIFSSMBLock(xid, pTcon, netfid, length,
+				rc = CIFSSMBLock(xid, tcon, netfid, length,
 					pfLock->fl_start, 0, 1,
 					lockType | LOCKING_ANDX_SHARED_LOCK,
 					0 /* wait flag */ );
 				if (rc == 0) {
-					rc = CIFSSMBLock(xid, pTcon, netfid,
+					rc = CIFSSMBLock(xid, tcon, netfid,
 						length, pfLock->fl_start, 1, 0,
 						lockType |
 						LOCKING_ANDX_SHARED_LOCK,
@@ -798,7 +798,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 		} else if (numUnlock) {
 			/* For each stored lock that this unlock overlaps
 			   completely, unlock it. */
-			rc = cifs_lock_storage_del_lock(xid, pTcon, fid->pid,
+			rc = cifs_lock_storage_del_lock(xid, tcon, fid->pid,
 							fid->pInode->i_ino,
 							pfLock->fl_start,
 							length, lockType);

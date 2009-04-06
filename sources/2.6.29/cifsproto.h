@@ -259,7 +259,7 @@ extern int CIFSSMBUnixQuerySymLink(const int xid,
 			const struct nls_table *nls_codepage);
 extern int CIFSSMBQueryReparseLinkInfo(const int xid,
 			struct cifsTconInfo *tcon,
-			const unsignedc har *searchName,
+			const unsigned char *searchName,
 			char *symlinkinfo, const int buflen, __u16 fid,
 			const struct nls_table *nls_codepage);
 
