@@ -84,6 +84,18 @@ get_pid()
     return $dpid
 }
 
+get_module_version()
+{
+    MODVER=`modinfo etercifs | grep ^version:`
+    MODVER=`echo $MODVER | sed 's|version:||g'`
+    MODVER=`echo $MODVER | sed 's| ||g'`
+}
+
+get_loaded_module_version()
+{
+    LOADEDMODVER=`cat /sys/module/$MODULENAME/version 2>/dev/null`
+}
+
 is_loaded()
 {
     get_pid $1
@@ -137,6 +149,18 @@ load_module()
     fi
 
     echo -n "Loading CIFS kernel module... "
+
+    get_module_version
+
+    if [ "$MODULEVERSION" != "$MODVER" ] ; then
+        [ $MODVER ] && {
+            failure
+            show_module_version
+            echo "    Pleace, run 'service etercifs build' to build the etercifs module!"
+            return
+        }
+    fi
+
     $MODPROBE $MODULENAME && { success ; return ; }
     echo -n "$MODULENAME from Etersoft is not found, "
     echo -n "trying to compile it..."
@@ -164,32 +188,40 @@ stop()
     success
 }
 
+show_module_version()
+{
+    echo "    package $MODULENAME version $MODULEVERSION"
+    if [ $MODVER ] ; then
+        echo "    kernel module $MODULENAME version $MODVER is built for current kernel"
+    else
+        echo "    kernel module $MODULENAME is built"
+    fi
+    if [ "$MODULEVERSION" != "$MODVER" ] ; then
+        [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and built module $MODULENAME DON'T MATCH!!!"
+    fi
+}
+
+show_loaded_module_version()
+{
+    if [ $LOADEDMODVER ] ; then
+        echo "    kernel module $MODULENAME version $LOADEDMODVER is loaded"
+        if [ "$MODULEVERSION" != "$LOADEDMODVER" ] ; then
+            [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and loaded module $MODULENAME DON'T MATCH!!!"
+        fi
+    else
+        echo "    WARNING!!! Can't get version of loaded module $MODULENAME!"
+    fi
+}
+
 status()
 {
     local PRECOMP
     echo "CIFS module status:"
     if is_moduled ; then
-        MODVER=`modinfo etercifs | grep ^version:`
-        MODVER=`echo $MODVER | sed 's|version:||g'`
-        MODVER=`echo $MODVER | sed 's| ||g'`
-        echo "    package $MODULENAME version $MODULEVERSION"
-        if [ $MODVER ] ; then
-            echo "    kernel module $MODULENAME version $MODVER is built for current kernel"
-        else
-            echo "    kernel module $MODULENAME is built"
-        fi
-        if [ "$MODULEVERSION" != "$MODVER" ] ; then
-            [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and built module $MODULENAME DON'T MATCH!!!"
-        fi
-        LOADEDMODVER=`cat /sys/module/$MODULENAME/version 2>/dev/null`
-        if [ $LOADEDMODVER ] ; then
-            echo "    kernel module $MODULENAME version $LOADEDMODVER is loaded"
-            if [ "$MODULEVERSION" != "$LOADEDMODVER" ] ; then
-                [ $MODVER ] && echo "    WARNING!!! Versions of package $MODULENAME and loaded module $MODULENAME DON'T MATCH!!!"
-            fi
-        else
-            echo "    WARNING!!! Can't get version of loaded module $MODULENAME!"
-        fi
+        get_module_version
+        show_module_version
+        get_loaded_module_version
+        show_loaded_module_version
     else
         if is_origmoduled ; then
             echo "    origin kernel module $ORIGMODULENAME loaded"
