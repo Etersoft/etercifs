@@ -169,9 +169,10 @@ static int __cifs_lock_storage_del_lock(int xid, struct cifsTconInfo *pTcon, str
 				1, 0, li->type, false);
 			if (tmp_rc) {
 				rc = tmp_rc;
+			} else {
+				list_del(&li->lock_list);
+				kfree(li);
 			}
-			list_del(&li->lock_list);
-			kfree(li);
 		}
 	}
 	if (list_empty(&((*exist)->lock_list))) {
