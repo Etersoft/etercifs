@@ -23,8 +23,8 @@
 %define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.3.2
-Release: alt2
+Version: 4.3.3
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -127,6 +127,12 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
+* Wed Apr 08 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.3-alt1
+- Fix compile problem in kernel 2.6.29 (RT#9966)
+- update sources/2.6.29 (up to 2.6.29.1)
+- Now old module don't loading if installed newer version of etercifs
+- fixed error in cifs_lock_storage: don't remove lock from pid list if unlocking failed by server
+
 * Wed Apr 01 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.2-alt2
 - Add etermount script
 
