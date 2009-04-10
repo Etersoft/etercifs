@@ -36,6 +36,54 @@ detect_etercifs_sources()
     [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
     [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
     KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
+
+    # CentOS specific part
+    grep 'CentOS' /etc/redhat-release &>/dev/null
+    if [ "$?" == 0 ] ; then
+        echo
+        echo "Found CentOS."
+
+        kernel_release4
+        N1=`echo $KERNEL4 | cut -d"." -f 1`
+        N2=`echo $KERNEL4 | cut -d"." -f 2`
+        N3=`echo $KERNEL4 | cut -d"." -f 3 | cut -d"-" -f 1`
+        N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
+
+        CENTOS53=0
+        if [ "$N1" -eq '2' ] && [ "$N2" -eq '6' ] ; then
+            if [ "$N3" -eq 18 ] ; then
+                if [ "$N4" -eq 128 ] ; then
+                    echo "Your kernel is 2.6.18-128.x"
+                    CENTOS53=1
+                elif [ "$N4" -gt 128 ] ; then
+                    echo "Warning! Your kernel is newer, then 2.6.18-128.x"
+                    CENTOS53=1
+                elif [ "$N4" -gt 92 ] && [ "$N4" -lt 128 ] ; then
+                    echo "Warning! Your kernel is newer, then 2.6.18-92.x and older, then 2.6.18-128.x"
+                elif [ "$N4" -lt 92 ] ; then
+                    echo "Warning! Your kernel is older, then 2.6.18-92.x"
+                else
+                    echo "Your kernel is 2.6.18-92.x"
+                fi
+            elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
+                echo "Warning! Your kernel is newer, then 2.6.18 and older, then 2.6.23"
+                CENTOS53=1
+            else
+                echo "Warning! Your kernel is older, then 2.6.18 or newer, then 2.6.22"
+            fi
+        else
+            echo "Warning! Your kernel in not 2.6.x"
+        fi
+        if [ "$CENTOS53" -eq 1 ] ; then
+            echo "Building from sources, adapted for kernels 2.6.18-128.x from CentOS 5.3."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos53' | sort -r | head -n 1`
+        else
+            echo "Building from legacy sources."
+        fi
+        echo
+    fi
+    # end of CentOS specific part
+
     [ -f "$KERNEL_SOURCE_ETERCIFS_LINK" ] || fatal "Etercifs kernel module sources for current kernel does not installed!"
     KERNEL_SOURCE_ETERCIFS=`readlink -f $KERNEL_SOURCE_ETERCIFS_LINK`
     [ "$KERNEL_SOURCE_ETERCIFS" ] || fatal "Etercifs kernel module sources for current kernel does not installed!"
@@ -57,7 +105,14 @@ create_builddir()
 
 kernel_release()
 {
+    # 2.6.27
     KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
+}
+
+kernel_release4()
+{
+    # 2.6.18-128 or 2.6.29.1
+    KERNEL4=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
 }
 
 # Heuristic
