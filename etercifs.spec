@@ -85,7 +85,7 @@ echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
 echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
 echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand >> %buildroot%_sysconfdir/%name.conf
 echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
-echo CHECK_VERSION=1 >> %buildroot%_sysconfdir/%name.conf
+echo '# CHECK_VERSION=0' >> %buildroot%_sysconfdir/%name.conf
 
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh %buildroot%_datadir/%name
