@@ -25,6 +25,7 @@ fi
 [ -n "$MODULENAME" ] || MODULENAME=etercifs
 [ -n "$BUILT" ] || BUILT=0
 [ -n "$DKMS" ] || DKMS=1
+[ -n "$CHECK_VERSION" ] || CHECK_VERSION=1
 
 ORIGMODULENAME=cifs
 
@@ -152,11 +153,12 @@ load_module()
 
     get_module_version
 
-    if [ "$MODULEVERSION" != "$MODVER" ] ; then
+    if [ "$MODULEVERSION" != "$MODVER" ] && [ "$CHECK_VERSION" -eq 1 ] ; then
         [ $MODVER ] && {
             failure
             show_module_version
-            echo "    Pleace, run 'service etercifs build' to build the etercifs module!"
+            echo "    Please, run 'service etercifs build' to build the etercifs module (recommended)"
+            echo "    or run 'CHECK_VERSION=0 service etercifs restart' to disableing check."
             return
         }
     fi

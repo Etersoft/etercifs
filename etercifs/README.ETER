@@ -12,10 +12,6 @@
 
 Отслеживание ошибок осуществляется в Bugzilla - http://bugs.etersoft.ru/
 
-Специальная бага "Выпуск etercifs", в которой анонсируется выпуск каждой
-новой версии etercifs и описаны изменения в нем -
-http://bugs.etersoft.ru/show_bug.cgi?id=2220
-
 Часть документации к WINE@Etersoft "Настройка совместной работы по протоколу
 CIFS" - http://www.etersoft.ru/content/view/56/156/#cifs
 
@@ -27,5 +23,5 @@ http://git.etersoft.ru/people/kipruss/packages/etercifs.git/
 ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 
 Файлы AUTHORS, CHANGES, README, TODO взяты из исходников модуля
-для ядра 2.6.28. Для остальных ядер подобные файлы нужно искать
+для ядра 2.6.29. Для остальных ядер подобные файлы нужно искать
 в соответствующих архивах в папке /usr/share/etercifs/sources.

@@ -37,11 +37,13 @@ detect_etercifs_sources()
     [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
     KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
 
-    # CentOS specific part
-    grep 'CentOS' /etc/redhat-release &>/dev/null
-    if [ "$?" == 0 ] ; then
+    # CentOS-RHEL specific part
+    SPECIFIC_CENTOS=0
+    grep 'CentOS' /etc/redhat-release &>/dev/null && SPECIFIC_CENTOS=1
+    grep 'Red Hat' /etc/redhat-release &>/dev/null && SPECIFIC_CENTOS=1
+    if [ "$SPECIFIC_CENTOS" -eq 1 ] ; then
         echo
-        echo "Found CentOS."
+        echo "Found CentOS or RHEL."
 
         kernel_release4
         N1=`echo $KERNEL4 | cut -d"." -f 1`
@@ -82,7 +84,7 @@ detect_etercifs_sources()
         fi
         echo
     fi
-    # end of CentOS specific part
+    # end of CentOS-RHEL specific part
 
     [ -f "$KERNEL_SOURCE_ETERCIFS_LINK" ] || fatal "Etercifs kernel module sources for current kernel does not installed!"
     KERNEL_SOURCE_ETERCIFS=`readlink -f $KERNEL_SOURCE_ETERCIFS_LINK`

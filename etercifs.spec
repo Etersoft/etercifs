@@ -13,6 +13,7 @@
 
 %define src_package_name kernel-source-etercifs
 %define src_legacy_version 1.50c
+%define src_centos53_version 1.54
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
@@ -24,7 +25,7 @@
 
 Name: etercifs
 Version: 4.3.4
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -38,6 +39,7 @@ BuildArch: noarch
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
+Source2: %src_package_name-centos53-%src_centos53_version.tar.bz2
 Source16: %src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
@@ -83,6 +85,7 @@ echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
 echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
 echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand >> %buildroot%_sysconfdir/%name.conf
 echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
+echo CHECK_VERSION=1 >> %buildroot%_sysconfdir/%name.conf
 
 mkdir -p %buildroot%_datadir/%name
 install -m644 buildmodule.sh %buildroot%_datadir/%name
@@ -96,6 +99,7 @@ install -m755 %name.outformat %buildroot%_initdir
 
 mkdir -p %buildroot/%etercifs_src
 cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
+cp %SOURCE2 %buildroot/%etercifs_src/%src_package_name-centos53-%src_centos53_version.tar.bz2
 for N in `seq 17 22`
 do
   ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
@@ -127,6 +131,12 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
+* Fri Apr 10 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.4-alt2
+- Bugfix in spec
+- Add RHEL support with CentOS
+- Add parameter CHECK_VERSION in /etc/etercifs.conf for disabeling
+  checking package version while loading the module
+
 * Fri Apr 10 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.4-alt1
 - Add etercifs sources for CentOS kernel 2.6.18-128 (fix bug Eter#3770)
 - Add CentOS specific part in building scripts
