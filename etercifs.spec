@@ -23,7 +23,7 @@
 %define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.3.3
+Version: 4.3.4
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -127,6 +127,10 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
+* Fri Apr 10 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.4-alt1
+- Add etercifs sources for CentOS kernel 2.6.18-128 (fix bug Eter#3770)
+- Add CentOS specific part in building scripts
+
 * Wed Apr 08 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.3-alt1
 - Fix compile problem in kernel 2.6.29 (RT#9966)
 - update sources/2.6.29 (up to 2.6.29.1)
