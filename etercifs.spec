@@ -13,6 +13,7 @@
 
 %define src_package_name kernel-source-etercifs
 %define src_legacy_version 1.50c
+%define src_centos52_version 1.50c
 %define src_centos53_version 1.54
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
@@ -24,8 +25,8 @@
 %define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.3.4
-Release: alt2
+Version: 4.3.5
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -39,7 +40,8 @@ BuildArch: noarch
 
 Source: %name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
-Source2: %src_package_name-centos53-%src_centos53_version.tar.bz2
+Source2: %src_package_name-centos52-%src_centos52_version.tar.bz2
+Source3: %src_package_name-centos53-%src_centos53_version.tar.bz2
 Source16: %src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
@@ -99,7 +101,8 @@ install -m755 %name.outformat %buildroot%_initdir
 
 mkdir -p %buildroot/%etercifs_src
 cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
-cp %SOURCE2 %buildroot/%etercifs_src/%src_package_name-centos53-%src_centos53_version.tar.bz2
+cp %SOURCE2 %buildroot/%etercifs_src/%src_package_name-centos52-%src_centos52_version.tar.bz2
+cp %SOURCE3 %buildroot/%etercifs_src/%src_package_name-centos53-%src_centos53_version.tar.bz2
 for N in `seq 17 22`
 do
   ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
@@ -131,6 +134,9 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
+* Mon Apr 13 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.5-alt1
+- Fix build in CentOS 5.2 default kernel 2.6.18-92.el5 (add sources/centos52)
+
 * Fri Apr 10 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.4-alt2
 - Bugfix in spec
 - Add RHEL support with CentOS
