@@ -51,34 +51,40 @@ detect_etercifs_sources()
         N3=`echo $KERNEL4 | cut -d"." -f 3 | cut -d"-" -f 1`
         N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
 
-        CENTOS53=0
+        CENTOS=0
         if [ "$N1" -eq '2' ] && [ "$N2" -eq '6' ] ; then
             if [ "$N3" -eq 18 ] ; then
                 if [ "$N4" -eq 128 ] ; then
                     echo "Your kernel is 2.6.18-128.x"
-                    CENTOS53=1
+                    CENTOS=53
                 elif [ "$N4" -gt 128 ] ; then
                     echo "Warning! Your kernel is newer, then 2.6.18-128.x"
-                    CENTOS53=1
+                    CENTOS=53
                 elif [ "$N4" -gt 92 ] && [ "$N4" -lt 128 ] ; then
                     echo "Warning! Your kernel is newer, then 2.6.18-92.x and older, then 2.6.18-128.x"
+                    CENTOS=52
                 elif [ "$N4" -lt 92 ] ; then
                     echo "Warning! Your kernel is older, then 2.6.18-92.x"
+                    CENTOS=52
                 else
                     echo "Your kernel is 2.6.18-92.x"
+                    CENTOS=52
                 fi
             elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
                 echo "Warning! Your kernel is newer, then 2.6.18 and older, then 2.6.23"
-                CENTOS53=1
+                CENTOS=53
             else
                 echo "Warning! Your kernel is older, then 2.6.18 or newer, then 2.6.22"
             fi
         else
             echo "Warning! Your kernel in not 2.6.x"
         fi
-        if [ "$CENTOS53" -eq 1 ] ; then
+        if [ "$CENTOS" -eq 53 ] ; then
             echo "Building from sources, adapted for kernels 2.6.18-128.x from CentOS 5.3."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos53' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 52 ] ; then
+            echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos52' | sort -r | head -n 1`
         else
             echo "Building from legacy sources."
         fi
