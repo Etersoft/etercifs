@@ -33,6 +33,27 @@ create_share_dir()
     fi
 }
 
+help_text()
+{
+    echo "The utility etermount performs mount network share on a protocol cifs"
+    echo "with pre-set parameters, which determined in MOUNT_OPTIONS variable"
+    echo "in the config file /etc/etercifs.conf"
+    echo "(current value of MOUNT_OPTIONS is '$MOUNT_OPTIONS')"
+    echo
+    echo "To mount the resource //server/share to the mountpoint /path/mountpoint"
+    echo "need to execute the command (with root permissions):"
+    echo
+    echo "etermount <//server/share> [</path/mountpoint>]"
+    echo
+    echo "If the mountpoint isn't specified, it's default value is determined"
+    echo "in the variable DEFAULT_MOUNTPOINT in the config file /etc/etercifs.conf"
+    echo "(current value of DEFAULT_MOUNTPOINT is '$DEFAULT_MOUNTPOINT')."
+    echo
+    echo "Report bugs to <support@etersoft.ru>."
+}
+
+[ "$1" == '--help' -o "$1" == '-h' ] && { help_text ; exit 0 ; }
+
 [ "$#" -ge 1 -a "$#" -le 2 ] || fatal 'Usage: etermount <//server/share> [</path/mountpoint>]'
 
 if [ "$2" == '' ] ; then
@@ -43,7 +64,7 @@ fi
 
 create_share_dir $SHARE_PATH
 
-if $($SUDO mount -t cifs "$1" $SHARE_PATH -o $MOUNT_OPTIONS) ; then
+if $($SUDO mount -t cifs "$1" $SHARE_PATH -o $MOUNT_OPTIONS &>/dev/null) ; then
     echo "Info: mount of share $1 in mountpoint $SHARE_PATH has been successfully"
 else
     fatal "Warning: error while mount of share $1 in mountpoint $SHARE_PATH!"
