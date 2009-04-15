@@ -705,22 +705,6 @@ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const char __user *buf,
 	return written;
 }
 
-static ssize_t cifs_file_aio_read(struct kiocb *iocb, char __user *buf,
-				  size_t count, loff_t pos)
-{
-	struct inode *inode = iocb->ki_filp->f_dentry->d_inode;
-	ssize_t read;
-
-	if (CIFS_I(inode)->clientCanCacheRead)
-		read = generic_file_aio_read(iocb, buf, count, pos);
-	else {
-		read = cifs_user_read(iocb->ki_filp, buf,
-				count, &pos);
-		iocb->ki_pos = pos;
-	}
-	return read;
-}
-
 static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
 {
 	/* origin == SEEK_END => we must revalidate the cached file length */
@@ -828,7 +812,7 @@ struct file_operations cifs_file_ops = {
 	.readv = generic_file_readv,
 	.writev = cifs_file_writev,
 #endif
-	.aio_read = cifs_file_aio_read,
+	.aio_read = generic_file_aio_read,
 	.aio_write = cifs_file_aio_write,
 	.open = cifs_open,
 	.release = cifs_close,
