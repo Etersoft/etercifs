@@ -25,7 +25,7 @@
 %define src_2_6_29_version 1.57
 
 Name: etercifs
-Version: 4.3.5
+Version: 4.3.6
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -85,7 +85,7 @@ echo DATADIR=%_datadir/%name > %buildroot%_sysconfdir/%name.conf
 echo SRC_DIR=%_usrsrc/%name-%version >> %buildroot%_sysconfdir/%name.conf
 echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
 echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
-echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand >> %buildroot%_sysconfdir/%name.conf
+echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct >> %buildroot%_sysconfdir/%name.conf
 echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
 echo '# CHECK_VERSION=0' >> %buildroot%_sysconfdir/%name.conf
 
@@ -134,6 +134,11 @@ install -m755 etermount %buildroot%_sbindir/
 %_sbindir/etermount
 
 %changelog
+* Wed Apr 15 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.6-alt1
+- Revert "use cifs_file_aio_read instead of generic_file_aio_read" in all sources
+- Add etermount --help and remove not necessary messages
+- Re-add mount option 'direct' in /etc/etercifs.conf
+
 * Mon Apr 13 2009 Konstantin Baev <kipruss@altlinux.org> 4.3.5-alt1
 - Fix build in CentOS 5.2 default kernel 2.6.18-92.el5 (add sources/centos52)
 
