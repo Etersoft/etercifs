@@ -26,7 +26,7 @@
 
 Name: etercifs
 Version: 4.3.6
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -52,6 +52,20 @@ Source28: %src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 Source29: %src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 
 Conflicts: linux-cifs
+
+Provides: %src_package_name-2.6.24 = %version-%release
+Provides: %src_package_name-2.6.25 = %version-%release
+Provides: %src_package_name-2.6.26 = %version-%release
+Provides: %src_package_name-2.6.27 = %version-%release
+Provides: %src_package_name-2.6.28 = %version-%release
+Provides: %src_package_name-2.6.29 = %version-%release
+
+Obsoletes: %src_package_name-2.6.24
+Obsoletes: %src_package_name-2.6.25
+Obsoletes: %src_package_name-2.6.26
+Obsoletes: %src_package_name-2.6.27
+Obsoletes: %src_package_name-2.6.28
+Obsoletes: %src_package_name-2.6.29
 
 %description
 The CIFS VFS is a virtual file system for Linux to allow access to
@@ -119,6 +133,20 @@ cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_versi
 mkdir -p %buildroot%_sbindir
 install -m755 etermount %buildroot%_sbindir/
 
+mkdir -p %buildroot%_usrsrc/kernel/sources/
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.24-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.25-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.26-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.27-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.28-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.29-%version.tar.bz2
+
 %post
 %post_service %name
 
@@ -132,8 +160,12 @@ install -m755 etermount %buildroot%_sbindir/
 %_initdir/%name.outformat
 %doc README.ETER AUTHORS CHANGES README TODO
 %_sbindir/etermount
+%_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue May 05 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.6-alt3
+- Add kernel-source-etercifs packages providing and support
+
 * Mon May 04 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.6-alt2
 - Rebuild with git.eter builder
 
