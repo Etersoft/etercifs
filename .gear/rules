@@ -9,4 +9,5 @@ tar.bz2: sources/2.6.26 name=kernel-source-etercifs-2.6.26-1.53
 tar.bz2: sources/2.6.27 name=kernel-source-etercifs-2.6.27-1.54
 tar.bz2: sources/2.6.28 name=kernel-source-etercifs-2.6.28-1.55
 tar.bz2: sources/2.6.29 name=kernel-source-etercifs-2.6.29-1.57
+tar.bz2: sources/2.6.30 name=kernel-source-etercifs-2.6.30-1.58
 tar.bz2: etercifs
