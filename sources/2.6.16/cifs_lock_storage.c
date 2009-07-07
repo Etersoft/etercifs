@@ -51,10 +51,18 @@ struct cifsPidTree {
 static struct cifsPidTree *LOCK_STORAGE;
 static struct mutex storage_mutex;
 
+static __u32 cifsRandStart;
+
+static __u32 cifs_random(void)
+{
+	return cifsRandStart = (8253729 * cifsRandStart + 2396403);
+}
+
 void cifs_lock_storage_init(void)
 {
 	mutex_init(&storage_mutex);
 	LOCK_STORAGE = NULL;
+	cifsRandStart = jiffies;
 }
 
 static int vertex_init(struct cifsPidTree **root, __u32 pid)
@@ -65,7 +73,7 @@ static int vertex_init(struct cifsPidTree **root, __u32 pid)
 	}
 	(*root)->pid = pid;
 	(*root)->left = (*root)->right = NULL;
-	(*root)->priority = ((get_random_int() << 16) ^ get_random_int());
+	(*root)->priority = ((cifs_random() << 16) ^ cifs_random());
 	INIT_LIST_HEAD(&(*root)->lock_list);
 	return 0;
 }
