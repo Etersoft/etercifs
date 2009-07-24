@@ -182,6 +182,7 @@ struct TCP_Server_Info {
 	struct mac_key mac_signing_key;
 	char ntlmv2_hash[16];
 	unsigned long lstrp; /* when we got last response from this server */
+	struct completion done;
 };
 
 /*
@@ -369,7 +370,6 @@ struct cifsInodeInfo {
 	bool clientCanCacheRead:1;	/* read oplock */
 	bool clientCanCacheAll:1;	/* read and writebehind oplock */
 	bool oplockPending:1;
-	unsigned needForceInvalidate:1;
 	bool delete_pending:1;		/* DELETE_ON_CLOSE is set */
 	u64  server_eof;		/* current file size on server */
 	struct inode vfs_inode;

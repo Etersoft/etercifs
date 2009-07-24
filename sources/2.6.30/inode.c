@@ -1079,7 +1079,7 @@ void posix_fill_in_inode(struct inode *tmp_inode,
 	local_mtime = tmp_inode->i_mtime;
 	local_size  = tmp_inode->i_size;
 
-	cifs_unix_info_to_inode(tmp_inode, pData, 1);
+	cifs_unix_info_to_inode(tmp_inode, pData, 0);
 	cifs_set_ops(tmp_inode, false);
 
 	if (!S_ISREG(tmp_inode->i_mode))
@@ -1519,7 +1519,7 @@ int cifs_revalidate(struct dentry *direntry)
 		 direntry->d_inode->i_count.counter, direntry,
 		 direntry->d_time, jiffies));
 
-	if (cifsInode->time == 0 || cifsInode->needForceInvalidate ) {
+	if (cifsInode->time == 0) {
 		/* was set to zero previously to force revalidate */
 	} else if (time_before(jiffies, cifsInode->time + HZ) &&
 		   lookupCacheEnabled) {
@@ -1561,10 +1561,9 @@ int cifs_revalidate(struct dentry *direntry)
 	/* if not oplocked, we invalidate inode pages if mtime or file size
 	   had changed on server */
 
-	if (!cifsInode->needForceInvalidate &&
-		timespec_equal(&local_mtime,&direntry->d_inode->i_mtime) && 
-	    (local_size == direntry->d_inode->i_size) ) {
-		cFYI(1, ("************** cifs_revalidate - inode unchanged"));
+	if (timespec_equal(&local_mtime, &direntry->d_inode->i_mtime) &&
+	    (local_size == direntry->d_inode->i_size)) {
+		cFYI(1, ("cifs_revalidate - inode unchanged"));
 	} else {
 		/* file may have changed on server */
 		if (cifsInode->clientCanCacheRead) {
@@ -1596,15 +1595,11 @@ int cifs_revalidate(struct dentry *direntry)
 		if (S_ISREG(direntry->d_inode->i_mode)) {
 			if (direntry->d_inode->i_mapping) {
 				wbrc = filemap_fdatawait(direntry->d_inode->i_mapping);
-			if( cifsInode->needForceInvalidate ) {
-				cFYI(1, ("Force invalidating."));
-				invalidate_remote_inode(direntry->d_inode);
-				cifsInode->needForceInvalidate = 0;
 				if (wbrc)
 					CIFS_I(direntry->d_inode)->write_behind_rc = wbrc;
 			}
 			/* may eventually have to do this for open files too */
-			} else if (list_empty(&(cifsInode->openFileList))) {
+			if (list_empty(&(cifsInode->openFileList))) {
 				/* changed on server - flush read ahead pages */
 				cFYI(1, ("Invalidating read ahead data on "
 					 "closed file"));

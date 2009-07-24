@@ -43,6 +43,7 @@
 #include "cifsproto.h"
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
+#include "cifs_lock_storage.h"
 #include <linux/mm.h>
 #include <linux/key-type.h>
 #include "dns_resolve.h"
@@ -622,19 +623,6 @@ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
 	return written;
 }
 
-static ssize_t cifs_file_read(struct file *file, char *user, size_t cnt, loff_t *pos)
-{
-	if( file!=NULL && file->f_dentry!=NULL && CIFS_I(file->f_dentry->d_inode)!=NULL ) {
-		int retval = 0;
-		CIFS_I(file->f_dentry->d_inode)->needForceInvalidate = 1;
-		retval = cifs_revalidate(file->f_dentry);
-		if( retval < 0 )
-			return (ssize_t)retval;
-	}
-
-	return do_sync_read(file,user,cnt,pos);
-}
-
 static loff_t cifs_llseek(struct file *file, loff_t offset, int origin)
 {
 	/* origin == SEEK_END => we must revalidate the cached file length */
@@ -744,7 +732,7 @@ const struct inode_operations cifs_symlink_inode_ops = {
 };
 
 const struct file_operations cifs_file_ops = {
-	.read = cifs_file_read,
+	.read = do_sync_read,
 	.write = do_sync_write,
 	.aio_read = generic_file_aio_read,
 	.aio_write = cifs_file_aio_write,
@@ -1039,9 +1027,6 @@ static int cifs_oplock_thread(void *dummyarg)
 				to server still is disconnected since oplock
 				already released by the server in that case */
 			if (!pTcon->need_reconnect) {
-				/* PV: disable caching if oplock missed  */
-				CIFS_I(inode)->clientCanCacheRead = false;
-				CIFS_I(inode)->clientCanCacheAll = false;
 				rc = CIFSSMBLock(0, pTcon, netfid,
 						0 /* len */ , 0 /* offset */, 0,
 						0, LOCKING_ANDX_OPLOCK_RELEASE,
@@ -1091,6 +1076,7 @@ init_cifs(void)
 	rwlock_init(&GlobalSMBSeslock);
 	rwlock_init(&cifs_tcp_ses_lock);
 	spin_lock_init(&GlobalMid_Lock);
+	cifs_lock_storage_init();
 
 	if (cifs_max_pending < 2) {
 		cifs_max_pending = 2;

@@ -794,6 +794,12 @@ typedef struct smb_com_close_req {
 	__u16 ByteCount;	/* 0 */
 } __attribute__((packed)) CLOSE_REQ;
 
+typedef struct smb_com_flush_req {
+	struct smb_hdr hdr;	/* wct = 1 */
+	__u16 FileID;
+	__u16 ByteCount;	/* 0 */
+} __attribute__((packed)) FLUSH_REQ;
+
 typedef struct smb_com_close_rsp {
 	struct smb_hdr hdr;	/* wct = 0 */
 	__u16 ByteCount;	/* bct = 0 */
