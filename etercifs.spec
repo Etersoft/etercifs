@@ -27,7 +27,7 @@
 
 Name: etercifs
 Version: 4.3.7
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -169,6 +169,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Jul 25 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.7-alt3
+- Update and fix broken module for 2.6.30
+
 * Tue Jul 07 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.7-alt2
 - Try to fix #10754 like Eter#4059 for SLES
 
