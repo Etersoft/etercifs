@@ -782,7 +782,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 					stored_rc = CIFSSMBLock(xid, pTcon,
 							netfid,
 							li->length, li->offset,
-							1, 0, li->type, false);
+							1, 0, li->type, FALSE);
 					if (stored_rc)
 						rc = stored_rc;
 
