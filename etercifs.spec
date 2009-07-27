@@ -26,8 +26,8 @@
 %define src_2_6_30_version 1.58
 
 Name: etercifs
-Version: 4.3.7
-Release: alt4
+Version: 4.3.8
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -69,6 +69,8 @@ Obsoletes: %src_package_name-2.6.26
 Obsoletes: %src_package_name-2.6.27
 Obsoletes: %src_package_name-2.6.28
 Obsoletes: %src_package_name-2.6.29
+
+Requires: gcc make
 
 %description
 The CIFS VFS is a virtual file system for Linux to allow access to
@@ -169,6 +171,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Jul 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.8-alt1
+- Revert fix for POSIX locks behavior during close() using storage_lock
+- Add requries for gcc and make
+
 * Mon Jul 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.7-alt4
 - Fix build for 2.6.30
 
