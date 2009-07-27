@@ -42,7 +42,6 @@
 #include "cifsproto.h"
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
-#include "cifs_lock_storage.h"
 #include <linux/mm.h>
 #include <linux/key-type.h>
 #include "dns_resolve.h"
@@ -1050,7 +1049,6 @@ init_cifs(void)
 	memset(Local_System_Name, 0, 15);
 	rwlock_init(&GlobalSMBSeslock);
 	spin_lock_init(&GlobalMid_Lock);
-	cifs_lock_storage_init();
 
 	if (cifs_max_pending < 2) {
 		cifs_max_pending = 2;
