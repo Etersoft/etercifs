@@ -1,4 +1,4 @@
-# Etersoft (c) 2007, 2008
+# Etersoft (c) 2007, 2008, 2009
 # Multiplatform spec for autobuild system
 
 # in kernel build dir you can have gcc_version.inc file with export GCC_VERSION=x.xx
@@ -27,7 +27,7 @@
 
 Name: etercifs
 Version: 4.3.8
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -35,11 +35,11 @@ Packager: Konstantin Baev <kipruss@altlinux.org>
 
 License: GPLv2
 Group: System/Kernel and hardware
-Url: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
+Url: http://wiki.etersoft.ru/etercifs
 
 BuildArch: noarch
 
-Source: %name-%version.tar.bz2
+Source: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/%version/sources/tarball/%name-%version.tar.bz2
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
 Source2: %src_package_name-centos52-%src_centos52_version.tar.bz2
 Source3: %src_package_name-centos53-%src_centos53_version.tar.bz2
@@ -171,6 +171,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Jul 27 2009 Vitaly Lipatov <lav@altlinux.ru> 4.3.8-alt2
+- fix messages, fix url and source path
+
 * Mon Jul 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.8-alt1
 - Revert fix for POSIX locks behavior during close() using storage_lock
 - Add requries for gcc and make
