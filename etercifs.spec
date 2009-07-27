@@ -27,7 +27,7 @@
 
 Name: etercifs
 Version: 4.3.8
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -171,6 +171,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Jul 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.8-alt3
+- Fix buildin for legacy code with FALSE using
+- Fix missing definition for 2.6.29
+
 * Mon Jul 27 2009 Vitaly Lipatov <lav@altlinux.ru> 4.3.8-alt2
 - fix messages, fix url and source path
 
