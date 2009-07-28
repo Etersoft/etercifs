@@ -169,9 +169,11 @@ Please install package
     linux-headers-XXXX for Debian / Ubuntu
     kernel-source-XXXX for SuSe
     kernel-source-XXXX for Slackware / MOPSLinux
-or use KERNSRC variable to set correct location
+or use KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
+(use KERNSRC variable to set correct kernel headers location)
 Exiting...
 EOF
+# FIXME: check detect
         exit 1
     fi
 }
