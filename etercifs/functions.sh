@@ -164,11 +164,12 @@ check_headers()
 Error: no kernel headers found at $KERNSRC
 Please install package
     kernel-headers-modules-XXXX for ALT Linux
-    kernel-XXXX-devel for FCx / ASP Linux
-    dkms-etercifs for Mandriva 2009
+    kernel-XXXX-devel for Fedora / ASP Linux
+    dkms-etercifs for Mandriva 2009 and newer
     linux-headers-XXXX for Debian / Ubuntu
-    kernel-source-XXXX for SuSe
+    kernel-source-XXXX for SUSE
     kernel-source-XXXX for Slackware / MOPSLinux
+where XXXX is your current version from uname -r: $(uname -r)
 or use KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
 (use KERNSRC variable to set correct kernel headers location)
 Exiting...
