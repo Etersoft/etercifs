@@ -32,18 +32,16 @@
 #include <linux/buffer_head.h>
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
-static inline void clear_nlink(struct inode *inode)
+static inline void legacy_clear_nlink(struct inode *inode)
 {
 	inode->i_nlink = 0;
 }
-static inline void drop_nlink(struct inode *inode)
+static inline void legacy_drop_nlink(struct inode *inode)
 {
 	inode->i_nlink--;
 }
-#endif
 
-static inline void fc8_inc_nlink(struct inode *inode)
+static inline void legacy_inc_nlink(struct inode *inode)
 {
 	inode->i_nlink++;
 }
@@ -657,7 +655,7 @@ int cifs_unlink(struct inode *inode, struct dentry *direntry)
 psx_del_no_retry:
 	if (!rc) {
 		if (direntry->d_inode)
-			drop_nlink(direntry->d_inode);
+			legacy_drop_nlink(direntry->d_inode);
 	} else if (rc == -ENOENT) {
 		d_drop(direntry);
 	} else if (rc == -ETXTBSY) {
@@ -676,7 +674,7 @@ psx_del_no_retry:
 						CIFS_MOUNT_MAP_SPECIAL_CHR);
 			CIFSSMBClose(xid, pTcon, netfid);
 			if (direntry->d_inode)
-				drop_nlink(direntry->d_inode);
+				legacy_drop_nlink(direntry->d_inode);
 		}
 	} else if (rc == -EACCES) {
 		/* try only if r/o attribute set in local lookup data? */
@@ -729,7 +727,7 @@ psx_del_no_retry:
 						CIFS_MOUNT_MAP_SPECIAL_CHR);
 			if (!rc) {
 				if (direntry->d_inode)
-					drop_nlink(direntry->d_inode);
+					legacy_drop_nlink(direntry->d_inode);
 			} else if (rc == -ETXTBSY) {
 				int oplock = FALSE;
 				__u16 netfid;
@@ -750,7 +748,7 @@ psx_del_no_retry:
 						    CIFS_MOUNT_MAP_SPECIAL_CHR);
 					CIFSSMBClose(xid, pTcon, netfid);
 					if (direntry->d_inode)
-						drop_nlink(direntry->d_inode);
+						legacy_drop_nlink(direntry->d_inode);
 				}
 			/* BB if rc = -ETXTBUSY goto the rename logic BB */
 			}
@@ -957,7 +955,7 @@ int cifs_mkdir(struct inode *inode, struct dentry *direntry, int mode)
 			}
 /*BB check (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID ) to see if need
 	to set uid/gid */
-			fc8_inc_nlink(inode);
+			legacy_inc_nlink(inode);
 			if (pTcon->nocase)
 				direntry->d_op = &cifs_ci_dentry_ops;
 			else
@@ -1007,7 +1005,7 @@ mkdir_retry_old:
 		d_drop(direntry);
 	} else {
 mkdir_get_info:
-		fc8_inc_nlink(inode);
+		legacy_inc_nlink(inode);
 		if (pTcon->unix_ext)
 			rc = cifs_get_inode_info_unix(&newinode, full_path,
 						      inode->i_sb, xid);
@@ -1092,10 +1090,10 @@ int cifs_rmdir(struct inode *inode, struct dentry *direntry)
 			  cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
 
 	if (!rc) {
-		drop_nlink(inode);
+		legacy_drop_nlink(inode);
 		spin_lock(&direntry->d_inode->i_lock);
 		i_size_write(direntry->d_inode, 0);
-		clear_nlink(direntry->d_inode);
+		legacy_clear_nlink(direntry->d_inode);
 		spin_unlock(&direntry->d_inode->i_lock);
 	}
 
