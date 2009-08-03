@@ -2751,6 +2751,7 @@ CIFSTCon(unsigned int xid, struct cifsSesInfo *ses,
 		strncpy(tcon->treeName, tree, MAX_TREE_SIZE);
 
 		/* mostly informational -- no need to fail on error here */
+		kfree(tcon->nativeFileSystem);
 		tcon->nativeFileSystem = cifs_strndup_from_ucs(bcc_ptr,
 						      bytes_left, is_unicode,
 						      nls_codepage);
