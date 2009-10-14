@@ -95,7 +95,7 @@ extern int CIFS_SessSetup(unsigned int xid, struct cifsSesInfo *ses,
 			     const int stage,
 			     const struct nls_table *nls_cp);
 extern __u16 GetNextMid(struct TCP_Server_Info *server);
-extern struct oplock_q_entry *AllocOplockQEntry(struct inode *, u16,
+extern struct oplock_q_entry *AllocOplockQEntry(struct inode *, u16, __u32,
 						 struct cifsTconInfo *);
 extern void DeleteOplockQEntry(struct oplock_q_entry *);
 extern void DeleteTconOplockQEntries(struct cifsTconInfo *);
@@ -338,12 +338,12 @@ extern int cifsConvertToUCS(__le16 *target, const char *source, int maxlen,
 			const struct nls_table *cp, int mapChars);
 
 extern int CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
-			const __u16 netfid, const __u64 len,
+			const __u16 netfid, const __u32 netpid, const __u64 len,
 			const __u64 offset, const __u32 numUnlock,
 			const __u32 numLock, const __u8 lockType,
 			const bool waitFlag);
 extern int CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
-			const __u16 smb_file_id, const int get_flag,
+			const __u16 smb_file_id, const __u32 netpid, const int get_flag,
 			const __u64 len, struct file_lock *,
 			const __u16 lock_type, const bool waitFlag);
 extern int CIFSSMBTDis(const int xid, struct cifsTconInfo *tcon);
