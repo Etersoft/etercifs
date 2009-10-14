@@ -580,6 +580,7 @@ is_valid_oplock_break(struct smb_hdr *buf, struct TCP_Server_Info *srv)
 					pCifsInode->oplockPending = TRUE;
 					AllocOplockQEntry(netfile->pInode,
 							  netfile->netfid,
+							  netfile->pid,
 							  tcon);
 					cFYI(1,
 					    ("about to wake up oplock thread"));
