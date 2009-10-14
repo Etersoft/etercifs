@@ -448,6 +448,7 @@ struct oplock_q_entry {
 	struct inode *pinode;
 	struct cifsTconInfo *tcon;
 	__u16 netfid;
+	__u32 netpid;
 };
 
 /* for pending dnotify requests */
@@ -545,9 +546,9 @@ require use of the stronger protocol */
 #define   CIFSSEC_MUST_LANMAN	0x10010
 #define   CIFSSEC_MUST_PLNTXT	0x20020
 #ifdef CONFIG_CIFS_UPCALL
-#define   CIFSSEC_MASK          0xAF0AF /* allows weak security but also krb5 */
+#define   CIFSSEC_MASK          0xBF0BF /* allows weak security but also krb5 */
 #else
-#define   CIFSSEC_MASK          0xA70A7 /* current flags supported if weak */
+#define   CIFSSEC_MASK          0xB70B7 /* current flags supported if weak */
 #endif /* UPCALL */
 #else /* do not allow weak pw hash */
 #ifdef CONFIG_CIFS_UPCALL
