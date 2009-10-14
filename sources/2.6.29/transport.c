@@ -104,7 +104,7 @@ DeleteMidQEntry(struct mid_q_entry *midEntry)
 }
 
 struct oplock_q_entry *
-AllocOplockQEntry(struct inode *pinode, __u16 fid, struct cifsTconInfo *tcon)
+AllocOplockQEntry(struct inode *pinode, __u16 fid, __u32 pid, struct cifsTconInfo *tcon)
 {
 	struct oplock_q_entry *temp;
 	if ((pinode == NULL) || (tcon == NULL)) {
@@ -119,6 +119,7 @@ AllocOplockQEntry(struct inode *pinode, __u16 fid, struct cifsTconInfo *tcon)
 		temp->pinode = pinode;
 		temp->tcon = tcon;
 		temp->netfid = fid;
+		temp->netpid = pid;
 		spin_lock(&GlobalMid_Lock);
 		list_add_tail(&temp->qhead, &GlobalOplock_Q);
 		spin_unlock(&GlobalMid_Lock);
