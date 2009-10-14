@@ -24,6 +24,7 @@
 %define src_2_6_28_version 1.55
 %define src_2_6_29_version 1.57
 %define src_2_6_30_version 1.58
+%define src_2_6_31_version 1.60
 
 Name: etercifs
 Version: 4.3.8
@@ -52,6 +53,7 @@ Source27: %src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
 Source28: %src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 Source29: %src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 Source30: %src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
+Source31: %src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -62,6 +64,7 @@ Provides: %src_package_name-2.6.27 = %version-%release
 Provides: %src_package_name-2.6.28 = %version-%release
 Provides: %src_package_name-2.6.29 = %version-%release
 Provides: %src_package_name-2.6.30 = %version-%release
+Provides: %src_package_name-2.6.31 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -135,6 +138,7 @@ cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_versi
 cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 cp %SOURCE30 %buildroot/%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
+cp %SOURCE31 %buildroot/%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
 
 mkdir -p %buildroot%_sbindir
 install -m755 etermount %buildroot%_sbindir/
@@ -154,6 +158,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.29-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.30-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.31-%version.tar.bz2
 
 %post
 %post_service %name
