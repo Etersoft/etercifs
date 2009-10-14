@@ -1690,7 +1690,7 @@ CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
 
 int
 CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
-	    const __u16 smb_file_id, const __u64 len,
+	    const __u16 smb_file_id, const __u32 net_pid, const __u64 len,
 	    const __u64 offset, const __u32 numUnlock,
 	    const __u32 numLock, const __u8 lockType, const int waitFlag)
 {
@@ -1726,7 +1726,7 @@ CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
 	pSMB->Fid = smb_file_id; /* netfid stays le */
 
 	if ((numLock != 0) || (numUnlock != 0)) {
-		pSMB->Locks[0].Pid = cpu_to_le16(current->tgid);
+		pSMB->Locks[0].Pid = cpu_to_le16(net_pid);
 		/* BB where to store pid high? */
 		pSMB->Locks[0].LengthLow = cpu_to_le32((u32)len);
 		pSMB->Locks[0].LengthHigh = cpu_to_le32((u32)(len>>32));
@@ -1760,7 +1760,7 @@ CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
 
 int
 CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
-		const __u16 smb_file_id, const int get_flag, const __u64 len,
+		const __u16 smb_file_id, const __u32 net_pid, const int get_flag, const __u64 len,
 		struct file_lock *pLockData, const __u16 lock_type,
 		const int waitFlag)
 {
@@ -1820,7 +1820,7 @@ CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
 	} else
 		pSMB->Timeout = 0;
 
-	parm_data->pid = cpu_to_le32(current->tgid);
+	parm_data->pid = cpu_to_le32(net_pid);
 	parm_data->start = cpu_to_le64(pLockData->fl_start);
 	parm_data->length = cpu_to_le64(len);  /* normalize negative numbers */
 

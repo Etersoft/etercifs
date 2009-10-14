@@ -458,6 +458,7 @@ struct oplock_q_entry {
 	struct inode *pinode;
 	struct cifsTconInfo *tcon;
 	__u16 netfid;
+	__u32 netpid;
 };
 
 /* for pending dnotify requests */
