@@ -854,6 +854,7 @@ static int cifs_oplock_thread(void *dummyarg)
 	struct cifsTconInfo *pTcon;
 	struct inode *inode;
 	__u16  netfid;
+	__u32  netpid;
 	int rc;
 
 	set_freezable();
@@ -874,6 +875,7 @@ static int cifs_oplock_thread(void *dummyarg)
 				pTcon = oplock_item->tcon;
 				inode = oplock_item->pinode;
 				netfid = oplock_item->netfid;
+				netpid = oplock_item->netpid;
 				spin_unlock(&GlobalMid_Lock);
 				DeleteOplockQEntry(oplock_item);
 				/* can not grab inode sem here since it would
@@ -903,7 +905,7 @@ static int cifs_oplock_thread(void *dummyarg)
 				to server still is disconnected since oplock
 				already released by the server in that case */
 				if (pTcon->tidStatus != CifsNeedReconnect) {
-				    rc = CIFSSMBLock(0, pTcon, netfid,
+				    rc = CIFSSMBLock(0, pTcon, netfid, netpid,
 					    0 /* len */ , 0 /* offset */, 0,
 					    0, LOCKING_ANDX_OPLOCK_RELEASE,
 					    0 /* wait flag */);
