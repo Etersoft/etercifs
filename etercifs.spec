@@ -28,7 +28,7 @@
 
 Name: etercifs
 Version: 4.3.9
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -177,6 +177,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Oct 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.9-alt2
+- Update fixes for 2.6.31
+
 * Wed Oct 14 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.3.9-alt1
 - Fixed fd duplicate problem with locks
 - Add sources for 2.6.31
