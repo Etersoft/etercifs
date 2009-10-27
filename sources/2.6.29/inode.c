@@ -1582,13 +1582,9 @@ int cifs_revalidate(struct dentry *direntry)
 				if (wbrc)
 					CIFS_I(direntry->d_inode)->write_behind_rc = wbrc;
 			}
-			/* may eventually have to do this for open files too */
-			if (list_empty(&(cifsInode->openFileList))) {
-				/* changed on server - flush read ahead pages */
-				cFYI(1, ("Invalidating read ahead data on "
-					 "closed file"));
-				invalidate_remote_inode(direntry->d_inode);
-			}
+			cFYI(1, ("Invalidating read ahead data on "
+				 "closed file"));
+			invalidate_remote_inode(direntry->d_inode);
 		}
 	}
 /*	mutex_unlock(&direntry->d_inode->i_mutex); */
