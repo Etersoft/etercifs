@@ -1345,13 +1345,9 @@ int cifs_revalidate(struct dentry *direntry)
 			if (direntry->d_inode->i_mapping)
 				filemap_fdatawait(direntry->d_inode->i_mapping);
 
-			/* may eventually have to do this for open files too */
-			if (list_empty(&(cifsInode->openFileList))) {
-				/* changed on server - flush read ahead pages */
-				cFYI(1, ("Invalidating read ahead data on "
-					 "closed file"));
-				invalidate_remote_inode(direntry->d_inode);
-			}
+			cFYI(1, ("Invalidating read ahead data on "
+				 "closed file"));
+			invalidate_remote_inode(direntry->d_inode);
 		}
 	}
 /*	mutex_unlock(&direntry->d_inode->i_mutex); */
