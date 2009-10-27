@@ -560,6 +560,49 @@ cifs_get_sb(struct file_system_type *fs_type,
 	return simple_set_mnt(mnt, sb);
 }
 
+static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos)
+{
+	int retval, read, posix_locking = 0;
+	struct file_lock pfLock;
+	struct cifsInodeInfo *cifsInode;
+	struct cifs_sb_info *cifs_sb;
+	struct cifsTconInfo *tcon;
+
+	cifs_sb = CIFS_SB(filp->f_path.dentry->d_sb);
+	tcon = cifs_sb->tcon;
+	if ((tcon->ses->capabilities & CAP_UNIX) &&
+	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0))
+		posix_locking = 1;
+
+	retval = cifs_revalidate(filp->f_path.dentry);
+	if (retval < 0)
+		return (ssize_t)retval;
+
+	memset(&pfLock, 0, sizeof(pfLock));
+	pfLock.fl_type = F_RDLCK;
+	pfLock.fl_start = *ppos;
+	pfLock.fl_end = *ppos+len;
+	cifsInode = CIFS_I(filp->f_path.dentry->d_inode);
+	if (cifsInode == NULL)
+		return -ENOENT;
+
+	if (!CIFS_I(filp->f_path.dentry->d_inode)->clientCanCacheRead && !posix_locking) {
+		retval = cifs_lock(filp, F_GETLK, &pfLock);
+		if (retval < 0)
+			return (ssize_t)retval;
+		if (pfLock.fl_type == F_UNLCK)
+			read = do_sync_read(filp, buf, len, ppos);
+		else
+			return -EACCES;
+	} else
+		read = do_sync_read(filp, buf, len, ppos);
+
+	if (read == -EACCES && !posix_locking)
+		read = cifs_user_read(filp, buf, len, ppos);
+	return read;
+}
+
 static ssize_t cifs_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
 				   unsigned long nr_segs, loff_t pos)
 {
@@ -650,7 +693,7 @@ const struct inode_operations cifs_symlink_inode_ops = {
 };
 
 const struct file_operations cifs_file_ops = {
-	.read = do_sync_read,
+	.read = cifs_sync_read,
 	.write = do_sync_write,
 	.aio_read = generic_file_aio_read,
 	.aio_write = cifs_file_aio_write,
