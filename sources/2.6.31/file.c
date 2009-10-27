@@ -328,6 +328,7 @@ int cifs_open(struct inode *inode, struct file *file)
 
 	if (!tcon->broken_posix_open && tcon->unix_ext &&
 	    (tcon->ses->capabilities & CAP_UNIX) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0) &&
 	    (CIFS_UNIX_POSIX_PATH_OPS_CAP &
 			le64_to_cpu(tcon->fsUnixInfo.Capability))) {
 		int oflags = (int) cifs_posix_convert_flags(file->f_flags);
@@ -550,6 +551,7 @@ reopen_error_exit:
 		oplock = 0;
 
 	if (tcon->unix_ext && (tcon->ses->capabilities & CAP_UNIX) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0) &&
 	    (CIFS_UNIX_POSIX_PATH_OPS_CAP &
 			le64_to_cpu(tcon->fsUnixInfo.Capability))) {
 		int oflags = (int) cifs_posix_convert_flags(file->f_flags);
