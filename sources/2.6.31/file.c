@@ -909,12 +909,12 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 			if (lockType & LOCKING_ANDX_SHARED_LOCK) {
 				pfLock->fl_type = F_WRLCK;
 			} else {
-				rc = CIFSSMBLock(xid, tcon, netfid, length,
+				rc = CIFSSMBLock(xid, tcon, netfid, netpid, length,
 					pfLock->fl_start, 0, 1,
 					lockType | LOCKING_ANDX_SHARED_LOCK,
 					0 /* wait flag */ );
 				if (rc == 0) {
-					rc = CIFSSMBLock(xid, tcon, netfid,
+					rc = CIFSSMBLock(xid, tcon, netfid, netpid,
 						length, pfLock->fl_start, 1, 0,
 						lockType |
 						LOCKING_ANDX_SHARED_LOCK,
