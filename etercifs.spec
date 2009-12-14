@@ -28,7 +28,7 @@
 
 Name: etercifs
 Version: 4.4.0
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -177,6 +177,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Dec 14 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.4.0-alt2
+- Fixed forcemand open problems for 2.6.30 and 2.6.31
+- Fixed test version of 2.6.31 for build and update
+
 * Tue Oct 27 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.4.0-alt1
 - Fixed mandatory reading problems
 
