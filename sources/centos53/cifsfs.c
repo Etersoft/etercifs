@@ -881,7 +881,7 @@ struct file_operations cifs_file_ops = {
 const
 #endif
 struct file_operations cifs_file_direct_ops = {
-	/* no mmap, no aio, no readv -
+	/* no aio, no readv -
 	   BB reevaluate whether they can be done with directio, no cache */
 	.read = cifs_user_read,
 	.write = cifs_user_write,
@@ -890,6 +890,7 @@ struct file_operations cifs_file_direct_ops = {
 	.lock = cifs_lock,
 	.fsync = cifs_fsync,
 	.flush = cifs_flush,
+	.mmap = cifs_file_mmap,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
 	.sendfile = generic_file_sendfile, /* BB removeme BB */
 #else
