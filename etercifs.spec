@@ -27,8 +27,8 @@
 %define src_2_6_31_version 1.60
 
 Name: etercifs
-Version: 4.4.0
-Release: alt2
+Version: 4.4.1
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -177,6 +177,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Dec 29 2009 Pavel Shilovsky <piastry@altlinux.org> 4.4.1-alt1
+- Fixed direct problem
+
 * Mon Dec 14 2009 Evgeny Sinelnikov <sin@altlinux.ru> 4.4.0-alt2
 - Fixed forcemand open problems for 2.6.30 and 2.6.31
 - Fixed test version of 2.6.31 for build and update
