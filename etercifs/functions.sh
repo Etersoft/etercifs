@@ -79,7 +79,10 @@ detect_etercifs_sources()
         else
             echo "Warning! Your kernel in not 2.6.x"
         fi
-        if [ "$CENTOS" -eq 53 ] ; then
+        if [ "$CENTOS" -eq 54 ] ; then
+            echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos54' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 53 ] ; then
             echo "Building from sources, adapted for kernels 2.6.18-128.x from CentOS 5.3."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos53' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 52 ] ; then
