@@ -15,6 +15,7 @@
 %define src_legacy_version 1.50c
 %define src_centos52_version 1.50c
 %define src_centos53_version 1.54
+%define src_centos54_version 1.58
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
@@ -27,7 +28,7 @@
 %define src_2_6_31_version 1.60
 
 Name: etercifs
-Version: 4.4.1
+Version: 4.4.2
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -44,6 +45,7 @@ Source: ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/%version/sources/ta
 Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
 Source2: %src_package_name-centos52-%src_centos52_version.tar.bz2
 Source3: %src_package_name-centos53-%src_centos53_version.tar.bz2
+Source4: %src_package_name-centos54-%src_centos54_version.tar.bz2
 Source16: %src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
@@ -125,6 +127,7 @@ mkdir -p %buildroot/%etercifs_src
 cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
 cp %SOURCE2 %buildroot/%etercifs_src/%src_package_name-centos52-%src_centos52_version.tar.bz2
 cp %SOURCE3 %buildroot/%etercifs_src/%src_package_name-centos53-%src_centos53_version.tar.bz2
+cp %SOURCE4 %buildroot/%etercifs_src/%src_package_name-centos54-%src_centos54_version.tar.bz2
 for N in `seq 17 22`
 do
   ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
@@ -177,6 +180,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Jan 14 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt1
+- Add sources for CentOS 5.4
+- Bugfixes
+
 * Tue Dec 29 2009 Pavel Shilovsky <piastry@altlinux.org> 4.4.1-alt1
 - Fixed direct problem
 
