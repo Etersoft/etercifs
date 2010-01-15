@@ -687,7 +687,8 @@ cifs_get_sb(struct file_system_type *fs_type,
 #endif
 }
 
-static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos)
+static ssize_t cifs_sync_read(struct file *filp, char __user *buf,
+			      size_t len, loff_t *ppos)
 {
 	int retval, read, posix_locking = 0;
 	struct file_lock pfLock;
@@ -714,7 +715,8 @@ static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, l
 	if (cifsInode == NULL)
 		return -ENOENT;
 
-	if (!CIFS_I(filp->f_path.dentry->d_inode)->clientCanCacheRead && !posix_locking) {
+	if (!CIFS_I(filp->f_path.dentry->d_inode)->clientCanCacheRead
+							&& !posix_locking) {
 #else
 	cifs_sb = CIFS_SB(filp->f_dentry->d_sb);
 	tcon = cifs_sb->tcon;
@@ -735,7 +737,8 @@ static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, l
 	if (cifsInode == NULL)
 		return -ENOENT;
 
-	if (!CIFS_I(filp->f_dentry->d_inode)->clientCanCacheRead && !posix_locking) {
+	if (!CIFS_I(filp->f_dentry->d_inode)->clientCanCacheRead
+							&& !posix_locking) {
 #endif
 		retval = cifs_lock(filp, F_GETLK, &pfLock);
 		if (retval < 0)

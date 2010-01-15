@@ -670,14 +670,15 @@ cifs_get_sb(struct file_system_type *fs_type,
 #endif
 }
 
-static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos)
+static ssize_t cifs_sync_read(struct file *filp, char __user *buf,
+			      size_t len, loff_t *ppos)
 {
 	int retval, read, posix_locking = 0;
 	struct file_lock pfLock;
 	struct cifsInodeInfo *cifsInode;
 	struct cifs_sb_info *cifs_sb;
 	struct cifsTconInfo *tcon;
-
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)
 	cifs_sb = CIFS_SB(filp->f_path.dentry->d_sb);
 	tcon = cifs_sb->tcon;
 	if ((tcon->ses->capabilities & CAP_UNIX) &&
@@ -697,7 +698,31 @@ static ssize_t cifs_sync_read(struct file *filp, char __user *buf, size_t len, l
 	if (cifsInode == NULL)
 		return -ENOENT;
 
-	if (!CIFS_I(filp->f_path.dentry->d_inode)->clientCanCacheRead && !posix_locking) {
+	if (!CIFS_I(filp->f_path.dentry->d_inode)->clientCanCacheRead
+							&& !posix_locking) {
+#else
+	cifs_sb = CIFS_SB(filp->f_dentry->d_sb);
+	tcon = cifs_sb->tcon;
+	if ((tcon->ses->capabilities & CAP_UNIX) &&
+	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0))
+		posix_locking = 1;
+
+	retval = cifs_revalidate(filp->f_dentry);
+	if (retval < 0)
+		return (ssize_t)retval;
+
+	memset(&pfLock, 0, sizeof(pfLock));
+	pfLock.fl_type = F_RDLCK;
+	pfLock.fl_start = *ppos;
+	pfLock.fl_end = *ppos+len;
+	cifsInode = CIFS_I(filp->f_dentry->d_inode);
+	if (cifsInode == NULL)
+		return -ENOENT;
+
+	if (!CIFS_I(filp->f_dentry->d_inode)->clientCanCacheRead
+						&& !posix_locking) {
+#endif
 		retval = cifs_lock(filp, F_GETLK, &pfLock);
 		if (retval < 0)
 			return (ssize_t)retval;
@@ -940,7 +965,7 @@ struct file_operations cifs_file_nobrl_ops = {
 const
 #endif
 struct file_operations cifs_file_direct_nobrl_ops = {
-	/* no mmap, no aio, no readv -
+	/* no aio, no readv -
 	   BB reevaluate whether they can be done with directio, no cache */
 	.read = cifs_user_read,
 	.write = cifs_user_write,
@@ -948,6 +973,7 @@ struct file_operations cifs_file_direct_nobrl_ops = {
 	.release = cifs_close,
 	.fsync = cifs_fsync,
 	.flush = cifs_flush,
+	.mmap  = cifs_file_mmap,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
 	.sendfile = generic_file_sendfile, /* BB removeme BB */
 #else
