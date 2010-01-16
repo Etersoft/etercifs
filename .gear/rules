@@ -1,6 +1,7 @@
 tar.bz2: sources/legacy name=kernel-source-etercifs-legacy-1.50c
 tar.bz2: sources/centos52 name=kernel-source-etercifs-centos52-1.50c
 tar.bz2: sources/centos53 name=kernel-source-etercifs-centos53-1.54
+tar.bz2: sources/centos54 name=kernel-source-etercifs-centos54-1.58
 tar.bz2: sources/2.6.16 name=kernel-source-etercifs-2.6.16-1.50
 tar.bz2: sources/2.6.23 name=kernel-source-etercifs-2.6.23-1.50
 tar.bz2: sources/2.6.24 name=kernel-source-etercifs-2.6.24-1.52

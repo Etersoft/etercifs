@@ -29,7 +29,7 @@
 
 Name: etercifs
 Version: 4.4.2
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -180,6 +180,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Jan 16 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt2
+- Missing .gear/rules for CentOS 5.4
+
 * Thu Jan 14 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt1
 - Add sources for CentOS 5.4
 - Bugfixes
