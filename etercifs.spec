@@ -105,13 +105,20 @@ This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %install
 mkdir -p %buildroot%_sysconfdir/
-echo DATADIR=%_datadir/%name > %buildroot%_sysconfdir/%name.conf
-echo SRC_DIR=%_usrsrc/%name-%version >> %buildroot%_sysconfdir/%name.conf
-echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
-echo MODULEVERSION=%version >> %buildroot%_sysconfdir/%name.conf
-echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct >> %buildroot%_sysconfdir/%name.conf
-echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
-echo '# CHECK_VERSION=0' >> %buildroot%_sysconfdir/%name.conf
+cat <<EOF >%buildroot%_sysconfdir/%name.conf
+DATADIR=%_datadir/%name
+SRC_DIR=%_usrsrc/%name-%version
+MODULENAME=%name
+MODULEVERSION=%version
+
+# this options useful only for wine share using and security=share setting in smb.conf
+MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct,nounix
+
+# default path for share mounting
+DEFAULT_MOUNTPOINT=/net/sharebase
+# disable version checking
+# CHECK_VERSION=0
+EOF
 
 mkdir -p %buildroot%_datadir/%name/
 install -m644 buildmodule.sh %buildroot%_datadir/%name/
@@ -181,7 +188,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 
 %changelog
 * Fri Feb 19 2010 Vitaly Lipatov <lav@altlinux.ru> 4.4.3-alt2
-- cleanup spec, rewrite changelog
+- cleanup spec, rewrite changelog, add comments to etercifs.conf
+- update README, CHANGES
 
 * Wed Feb 17 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.3-alt1
 - fix using port mount option for kernel 2.6.29, 2.6.30 (eterbug #4875)
