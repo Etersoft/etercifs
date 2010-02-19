@@ -28,12 +28,12 @@
 %define src_2_6_31_version 1.60
 
 Name: etercifs
-Version: 4.4.2
+Version: 4.4.3
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
-Packager: Konstantin Baev <kipruss@altlinux.org>
+Packager: Evgeny Sinelnikov <sin@altlinux.ru>
 
 License: GPLv2
 Group: System/Kernel and hardware
@@ -180,6 +180,19 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Wed Feb 17 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.3-alt1
+- Fix ssh port forwarding problem
+- Bugfixes
+
+* Wed Jan 27 2010 Evgeny Sinelnikov <sin@altlinux.ru> 4.4.2-alt4
+- Update for Sisiyphus
+
+* Wed Jan 20 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt3
+- Fix build for CentOS 5.4
+
+* Sat Jan 16 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt2
+- Missing .gear/rules for CentOS 5.4
+
 * Thu Jan 14 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt1
 - Add sources for CentOS 5.4
 - Bugfixes

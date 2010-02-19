@@ -54,27 +54,33 @@ detect_etercifs_sources()
         CENTOS=0
         if [ "$N1" -eq '2' ] && [ "$N2" -eq '6' ] ; then
             if [ "$N3" -eq 18 ] ; then
-                if [ "$N4" -eq 128 ] ; then
+                if [ "$N4" -eq 164 ] ; then
+                    echo "You kernel is 2.6.18-164.x"
+                    CENTOS=54
+                elif [ "$N4" -gt 164 ] ; then
+                    echo "Warning! Your kernel is newer then 2.6.18-164.x"
+                    CENTOS=54
+                elif [ "$N4" -eq 128 ] ; then
                     echo "Your kernel is 2.6.18-128.x"
                     CENTOS=53
                 elif [ "$N4" -gt 128 ] ; then
-                    echo "Warning! Your kernel is newer, then 2.6.18-128.x"
+                    echo "Warning! Your kernel is newer then 2.6.18-128.x and older then 2.6.18-164.x"
                     CENTOS=53
-                elif [ "$N4" -gt 92 ] && [ "$N4" -lt 128 ] ; then
-                    echo "Warning! Your kernel is newer, then 2.6.18-92.x and older, then 2.6.18-128.x"
+                elif [ "$N4" -eq 92 ] ; then
+                    echo "You kernel is 2.6.18-92.x"
                     CENTOS=52
-                elif [ "$N4" -lt 92 ] ; then
-                    echo "Warning! Your kernel is older, then 2.6.18-92.x"
+                elif [ "$N4" -gt 92 ] ; then
+                    echo "Warning! Your kernel is newer then 2.6.18-92.x and older then 2.6.18-128.x"
                     CENTOS=52
                 else
-                    echo "Your kernel is 2.6.18-92.x"
+                    echo "Warning! Your kernel is older then 2.6.18-92.x"
                     CENTOS=52
                 fi
             elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
-                echo "Warning! Your kernel is newer, then 2.6.18 and older, then 2.6.23"
+                echo "Warning! Your kernel is newer then 2.6.18 and older then 2.6.23"
                 CENTOS=53
             else
-                echo "Warning! Your kernel is older, then 2.6.18 or newer, then 2.6.22"
+                echo "Warning! Your kernel is older then 2.6.18 or newer then 2.6.22"
             fi
         else
             echo "Warning! Your kernel in not 2.6.x"
@@ -83,7 +89,7 @@ detect_etercifs_sources()
             echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos54' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 53 ] ; then
-            echo "Building from sources, adapted for kernels 2.6.18-128.x from CentOS 5.3."
+            echo "Building from legacy sources with patch for kernels 2.6.18-128.x from CentOS 5.3."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos53' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 52 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
@@ -195,10 +201,10 @@ set_gcc()
         export GCCNAME=gcc
     fi
 
-    [ `which make` ] || fatal "GNU make utility have not found. Please install make package."
+    [ `which make` ] || fatal "GNU make utility have not found. Please, install make package."
 
     PATHGCC=`which $GCCNAME`
-    [ $PATHGCC ] || fatal "GCC compiler have not found. Please install gcc package."
+    [ $PATHGCC ] || fatal "GCC compiler have not found. Please, install gcc package."
     echo $PATHGCC
 }
 
