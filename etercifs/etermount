@@ -54,6 +54,7 @@ help_text()
 
 [ "$1" == '--help' -o "$1" == '-h' ] && { help_text ; exit 0 ; }
 
+# FIXME: Lav 19.02.10: I think, default mount path is useless
 [ "$#" -ge 1 -a "$#" -le 2 ] || fatal 'Usage: etermount <//server/share> [</path/mountpoint>]'
 
 if [ "$2" == '' ] ; then
@@ -62,9 +63,9 @@ else
     SHARE_PATH="$2"
 fi
 
-create_share_dir $SHARE_PATH
+create_share_dir "$SHARE_PATH"
 
-if $($SUDO mount -t cifs "$1" $SHARE_PATH -o $MOUNT_OPTIONS &>/dev/null) ; then
+if $($SUDO mount -t cifs "$1" "$SHARE_PATH" -o $MOUNT_OPTIONS) ; then
     echo "Info: mount of share $1 in mountpoint $SHARE_PATH has been successfully"
 else
     fatal "Warning: error while mount of share $1 in mountpoint $SHARE_PATH!"
