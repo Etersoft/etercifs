@@ -1,4 +1,4 @@
-# Etersoft (c) 2007, 2008, 2009
+# Etersoft (c) 2007, 2008, 2009, 2010
 # Multiplatform spec for autobuild system
 
 # in kernel build dir you can have gcc_version.inc file with export GCC_VERSION=x.xx
@@ -29,7 +29,7 @@
 
 Name: etercifs
 Version: 4.4.3
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -101,10 +101,10 @@ though.
 This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %prep
-%setup -q
+%setup
 
 %install
-mkdir -p %buildroot%_sysconfdir
+mkdir -p %buildroot%_sysconfdir/
 echo DATADIR=%_datadir/%name > %buildroot%_sysconfdir/%name.conf
 echo SRC_DIR=%_usrsrc/%name-%version >> %buildroot%_sysconfdir/%name.conf
 echo MODULENAME=%name >> %buildroot%_sysconfdir/%name.conf
@@ -113,9 +113,9 @@ echo MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct >>
 echo DEFAULT_MOUNTPOINT=/net/sharebase >> %buildroot%_sysconfdir/%name.conf
 echo '# CHECK_VERSION=0' >> %buildroot%_sysconfdir/%name.conf
 
-mkdir -p %buildroot%_datadir/%name
-install -m644 buildmodule.sh %buildroot%_datadir/%name
-install -m644 functions.sh %buildroot%_datadir/%name
+mkdir -p %buildroot%_datadir/%name/
+install -m644 buildmodule.sh %buildroot%_datadir/%name/
+install -m644 functions.sh %buildroot%_datadir/%name/
 
 mkdir -p %buildroot%_initdir
 install -m755 %name %buildroot%_initdir
@@ -171,21 +171,24 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %preun_service %name
 
 %files
+%doc README.ETER AUTHORS CHANGES README TODO
 %config %_sysconfdir/%name.conf
-%_datadir/%name
+%_datadir/%name/
 %_initdir/%name
 %_initdir/%name.outformat
-%doc README.ETER AUTHORS CHANGES README TODO
 %_sbindir/etermount
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Fri Feb 19 2010 Vitaly Lipatov <lav@altlinux.ru> 4.4.3-alt2
+- cleanup spec, rewrite changelog
+
 * Wed Feb 17 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.3-alt1
-- Fix ssh port forwarding problem
-- Bugfixes
+- fix using port mount option for kernel 2.6.29, 2.6.30 (eterbug #4875)
+- add mmap for nobrl direct shares for legacy kernel
 
 * Wed Jan 27 2010 Evgeny Sinelnikov <sin@altlinux.ru> 4.4.2-alt4
-- Update for Sisiyphus
+- Update for Sisyphus
 
 * Wed Jan 20 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.2-alt3
 - Fix build for CentOS 5.4
