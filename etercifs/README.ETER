@@ -23,5 +23,5 @@ http://git.etersoft.ru/projects/etercifs.git/
 ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 
 Файлы AUTHORS, CHANGES, README, TODO взяты из исходников модуля
-для ядра 2.6.31. Для остальных ядер подобные файлы нужно искать
+для ядра 2.6.32. Для остальных ядер подобные файлы нужно искать
 в соответствующих архивах в папке /usr/share/etercifs/sources.
