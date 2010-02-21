@@ -26,10 +26,11 @@
 %define src_2_6_29_version 1.57
 %define src_2_6_30_version 1.58
 %define src_2_6_31_version 1.60
+%define src_2_6_32_version 1.61
 
 Name: etercifs
-Version: 4.4.3
-Release: alt2
+Version: 4.4.4
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -56,6 +57,7 @@ Source28: %src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
 Source29: %src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 Source30: %src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
 Source31: %src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
+Source32: %src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -67,6 +69,7 @@ Provides: %src_package_name-2.6.28 = %version-%release
 Provides: %src_package_name-2.6.29 = %version-%release
 Provides: %src_package_name-2.6.30 = %version-%release
 Provides: %src_package_name-2.6.31 = %version-%release
+Provides: %src_package_name-2.6.32 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -149,6 +152,7 @@ cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_versi
 cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 cp %SOURCE30 %buildroot/%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
 cp %SOURCE31 %buildroot/%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
+cp %SOURCE32 %buildroot/%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
 
 mkdir -p %buildroot%_sbindir
 install -m755 etermount %buildroot%_sbindir/
@@ -170,6 +174,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.30-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.31-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.32-%version.tar.bz2
 
 %post
 %post_service %name
@@ -187,6 +193,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sun Feb 21 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.4-alt1
+- Add sources for 2.6.32
+- Update README.ETER, CHANGES and .gear/rules
+
 * Fri Feb 19 2010 Vitaly Lipatov <lav@altlinux.ru> 4.4.3-alt2
 - cleanup spec, rewrite changelog, add comments to etercifs.conf
 - update README, CHANGES
