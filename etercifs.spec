@@ -29,7 +29,7 @@
 %define src_2_6_32_version 1.61
 
 Name: etercifs
-Version: 4.4.4
+Version: 4.4.5
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -193,6 +193,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Mar 02 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.5-alt1
+- Implement WINE logic
+- Fix losing locks during fork()
+
 * Sun Feb 21 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.4-alt1
 - Add sources for 2.6.32
 - Update README.ETER, CHANGES and .gear/rules
