@@ -428,7 +428,7 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode,
 					pdev->minor =
 					      cpu_to_le64(MINOR(device_number));
 					rc = CIFSSMBWrite(xid, pTcon,
-						fileHandle,
+						fileHandle, current->tgid,
 						sizeof(struct win_dev),
 						0, &bytes_written, (char *)pdev,
 						NULL, 0);
@@ -439,7 +439,7 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode,
 					pdev->minor =
 					      cpu_to_le64(MINOR(device_number));
 					rc = CIFSSMBWrite(xid, pTcon,
-						fileHandle,
+						fileHandle, current->tgid,
 						sizeof(struct win_dev),
 						0, &bytes_written, (char *)pdev,
 						NULL, 0);
