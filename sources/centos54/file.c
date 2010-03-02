@@ -892,8 +892,15 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 		FreeXid(xid);
 		return -EBADF;
 	}
-	netpid = ((struct cifsFileInfo *)file->private_data)->pid;
 	netfid = ((struct cifsFileInfo *)file->private_data)->netfid;
+
+	if ((cmd & CIFS_NOPOSIXBRL_READ) &&
+		(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE))
+		netpid = ((struct cifsFileInfo *)file->private_data)->pid;
+	else
+		netpid = current->tgid;
+
+	cmd &= ~CIFS_NOPOSIXBRL_READ;
 
 	if ((tcon->ses->capabilities & CAP_UNIX) &&
 	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
@@ -1015,9 +1022,10 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 							1, 0, li->type, false);
 					if (stored_rc)
 						rc = stored_rc;
-
-					list_del(&li->llist);
-					kfree(li);
+					else {
+						list_del(&li->llist);
+						kfree(li);
+					}
 				}
 			}
 			mutex_unlock(&fid->lock_mutex);
@@ -1077,6 +1085,7 @@ ssize_t cifs_user_write(struct file *file, const char __user *write_data,
 	int xid, long_op;
 	struct cifsFileInfo *open_file;
 	struct cifsInodeInfo *cifsi = CIFS_I(file->f_dentry->d_inode);
+	__u32 netpid;
 
 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
 
@@ -1089,6 +1098,11 @@ ssize_t cifs_user_write(struct file *file, const char __user *write_data,
 	if (file->private_data == NULL)
 		return -EBADF;
 	open_file = (struct cifsFileInfo *) file->private_data;
+
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+		netpid = open_file->pid;
+	else
+		netpid = current->tgid;
 
 	rc = generic_write_checks(file, poffset, &write_size, 0);
 	if (rc)
@@ -1127,7 +1141,7 @@ ssize_t cifs_user_write(struct file *file, const char __user *write_data,
 			}
 
 			rc = CIFSSMBWrite(xid, pTcon,
-				open_file->netfid,
+				open_file->netfid, netpid,
 				min_t(const int, cifs_sb->wsize,
 				      write_size - total_written),
 				*poffset, &bytes_written,
@@ -1196,6 +1210,7 @@ static ssize_t cifs_write(struct file *file, const char *write_data,
 	int xid, long_op;
 	struct cifsFileInfo *open_file;
 	struct cifsInodeInfo *cifsi = CIFS_I(file->f_dentry->d_inode);
+	__u32 netpid;
 
 	cifs_sb = CIFS_SB(file->f_dentry->d_sb);
 
@@ -1207,6 +1222,11 @@ static ssize_t cifs_write(struct file *file, const char *write_data,
 	if (file->private_data == NULL)
 		return -EBADF;
 	open_file = (struct cifsFileInfo *)file->private_data;
+
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+		netpid = open_file->pid;
+	else
+		netpid = current->tgid;
 
 	xid = GetXid();
 
@@ -1254,12 +1274,13 @@ static ssize_t cifs_write(struct file *file, const char *write_data,
 						  total_written;
 				iov[1].iov_len = len;
 				rc = CIFSSMBWrite2(xid, pTcon,
-						open_file->netfid, len,
-						*poffset, &bytes_written,
-						iov, 1, long_op);
+						open_file->netfid,
+						netpid, len, *poffset,
+						&bytes_written, iov,
+						1, long_op);
 			} else
 				rc = CIFSSMBWrite(xid, pTcon,
-					 open_file->netfid,
+					 open_file->netfid, netpid,
 					 min_t(const int, cifs_sb->wsize,
 					       write_size - total_written),
 					 *poffset, &bytes_written,
@@ -1519,6 +1540,7 @@ static int cifs_writepages(struct address_space *mapping,
 	int rc = 0;
 	int scanned = 0;
 	int xid, long_op;
+	__u32 netpid;
 
 	cifs_sb = CIFS_SB(mapping->host->i_sb);
 
@@ -1678,13 +1700,18 @@ retry:
 			 * we used to still be valid
 			 */
 			open_file = find_writable_file(CIFS_I(mapping->host));
+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+				netpid = open_file->pid;
+			else
+				netpid = current->tgid;
+
 			if (!open_file) {
 				cERROR(1, ("No writable handles for inode"));
 				rc = -EBADF;
 			} else {
 				long_op = cifs_write_timeout(cifsi, offset);
 				rc = CIFSSMBWrite2(xid, cifs_sb->tcon,
-						   open_file->netfid,
+						   open_file->netfid, netpid,
 						   bytes_to_write, offset,
 						   &bytes_written, iov, n_iov,
 						   long_op);
@@ -1946,6 +1973,7 @@ ssize_t cifs_user_read(struct file *file, char __user *read_data,
 	char *smb_read_data;
 	char __user *current_offset;
 	struct smb_com_read_rsp *pSMBr;
+	__u32 netpid;
 
 	xid = GetXid();
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 20)
@@ -1960,6 +1988,11 @@ ssize_t cifs_user_read(struct file *file, char __user *read_data,
 		return -EBADF;
 	}
 	open_file = (struct cifsFileInfo *)file->private_data;
+
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+		netpid = open_file->pid;
+	else
+		netpid = current->tgid;
 
 	if ((file->f_flags & O_ACCMODE) == O_WRONLY)
 		cFYI(1, ("attempting read on write only file instance"));
@@ -1980,7 +2013,7 @@ ssize_t cifs_user_read(struct file *file, char __user *read_data,
 					break;
 			}
 			rc = CIFSSMBRead(xid, pTcon,
-					 open_file->netfid,
+					 open_file->netfid, netpid,
 					 current_read_size, *poffset,
 					 &bytes_read, &smb_read_data,
 					 &buf_type);
@@ -2030,6 +2063,7 @@ static ssize_t cifs_read(struct file *file, char *read_data, size_t read_size,
 	char *current_offset;
 	struct cifsFileInfo *open_file;
 	int buf_type = CIFS_NO_BUFFER;
+	__u32 netpid;
 
 	xid = GetXid();
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 20)
@@ -2044,6 +2078,11 @@ static ssize_t cifs_read(struct file *file, char *read_data, size_t read_size,
 		return -EBADF;
 	}
 	open_file = (struct cifsFileInfo *)file->private_data;
+
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+		netpid = open_file->pid;
+	else
+		netpid = current->tgid;
 
 	if ((file->f_flags & O_ACCMODE) == O_WRONLY)
 		cFYI(1, ("attempting read on write only file instance"));
@@ -2069,7 +2108,7 @@ static ssize_t cifs_read(struct file *file, char *read_data, size_t read_size,
 					break;
 			}
 			rc = CIFSSMBRead(xid, pTcon,
-					 open_file->netfid,
+					 open_file->netfid, netpid,
 					 current_read_size, *poffset,
 					 &bytes_read, &current_offset,
 					 &buf_type);
@@ -2175,6 +2214,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 	struct pagevec lru_pvec;
 	struct cifsFileInfo *open_file;
 	int buf_type = CIFS_NO_BUFFER;
+	__u32 netpid;
 
 	xid = GetXid();
 	if (file->private_data == NULL) {
@@ -2188,6 +2228,11 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 	cifs_sb = CIFS_SB(file->f_path.dentry->d_sb);
 #endif
 	pTcon = cifs_sb->tcon;
+
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+		netpid = open_file->pid;
+	else
+		netpid = current->tgid;
 
 	pagevec_init(&lru_pvec, 0);
 	cFYI(DBG2, ("rpages: num pages %d", num_pages));
@@ -2235,10 +2280,9 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 			}
 
 			rc = CIFSSMBRead(xid, pTcon,
-					 open_file->netfid,
-					 read_size, offset,
-					 &bytes_read, &smb_read_data,
-					 &buf_type);
+					 open_file->netfid, netpid,
+					 read_size, offset, &bytes_read,
+					 &smb_read_data, &buf_type);
 			/* BB more RC checks ? */
 			if (rc == -EAGAIN) {
 				if (smb_read_data) {
