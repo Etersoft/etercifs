@@ -91,6 +91,7 @@ struct smb_vol {
 	unsigned nocase;     /* request case insensitive filenames */
 	unsigned nobrl;      /* disable sending byte range locks to srv */
 	unsigned mand_lock:1;  /* send mandatory not posix byte range lock reqs */
+	bool wine_mode:1;
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned int sockopt;
@@ -1231,6 +1232,10 @@ cifs_parse_mount_options(char *options, const char *devname,
 			vol->server_ino = 1;
 		} else if (strnicmp(data, "noserverino", 9) == 0) {
 			vol->server_ino = 0;
+		} else if (strnicmp(data, "wine", 4) == 0) {
+			vol->wine_mode = 1;
+			vol->mand_lock = 1;
+			vol->direct_io = 1;
 		} else if (strnicmp(data, "cifsacl", 7) == 0) {
 			vol->cifs_acl = 1;
 		} else if (strnicmp(data, "nocifsacl", 9) == 0) {
@@ -2067,6 +2072,8 @@ cifs_mount(struct super_block *sb, struct cifs_sb_info *cifs_sb,
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_UNX_EMUL;
 		if (volume_info.nobrl)
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NO_BRL;
+		if (volume_info.wine_mode)
+			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_WINE_MODE;
 		if (volume_info.mand_lock)
 			cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NOPOSIXBRL;
 		if (volume_info.cifs_acl)
