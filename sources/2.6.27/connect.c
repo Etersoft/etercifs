@@ -93,6 +93,7 @@ struct smb_vol {
 	bool seal:1;       /* request transport encryption on share */
 	bool noblocksnd:1;
 	bool noautotune:1;
+	bool wine_mode:1;
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned int sockopt;
@@ -1291,6 +1292,10 @@ cifs_parse_mount_options(char *options, const char *devname,
 			vol->server_ino = 1;
 		} else if (strnicmp(data, "noserverino", 9) == 0) {
 			vol->server_ino = 0;
+		} else if (strnicmp(data, "wine", 4) == 0) {
+			vol->wine_mode = 1;
+			vol->mand_lock = 1;
+			vol->direct_io = 1;
 		} else if (strnicmp(data, "cifsacl", 7) == 0) {
 			vol->cifs_acl = 1;
 		} else if (strnicmp(data, "nocifsacl", 9) == 0) {
@@ -2022,6 +2027,8 @@ static void setup_cifs_sb(struct smb_vol *pvolume_info,
 		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NO_BRL;
 	if (pvolume_info->mand_lock)
 		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_NOPOSIXBRL;
+	if (pvolume_info->wine_mode)
+		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_WINE_MODE;
 	if (pvolume_info->cifs_acl)
 		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_CIFS_ACL;
 	if (pvolume_info->override_uid)
