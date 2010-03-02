@@ -261,8 +261,7 @@ static int decode_sfu_inode(struct inode *inode, __u64 size,
 	if (rc == 0) {
 		int buf_type = CIFS_NO_BUFFER;
 			/* Read header */
-		rc = CIFSSMBRead(xid, pTcon,
-				 netfid,
+		rc = CIFSSMBRead(xid, pTcon, netfid, current->tgid,
 				 24 /* length */, 0 /* offset */,
 				 &bytes_read, &pbuf, &buf_type);
 		if ((rc == 0) && (bytes_read >= 8)) {
@@ -1522,8 +1521,8 @@ int cifs_setattr(struct dentry *direntry, struct iattr *attrs)
 			cFYI(1, ("SetFSize for attrs rc = %d", rc));
 			if ((rc == -EINVAL) || (rc == -EOPNOTSUPP)) {
 				unsigned int bytes_written;
-				rc = CIFSSMBWrite(xid, pTcon,
-						  nfid, 0, attrs->ia_size,
+				rc = CIFSSMBWrite(xid, pTcon, nfid,
+						  npid, 0, attrs->ia_size,
 						  &bytes_written, NULL, NULL,
 						  1 /* 45 seconds */);
 				cFYI(1, ("Wrt seteof rc %d", rc));
@@ -1556,7 +1555,7 @@ int cifs_setattr(struct dentry *direntry, struct iattr *attrs)
 				if (rc == 0) {
 					unsigned int bytes_written;
 					rc = CIFSSMBWrite(xid, pTcon,
-							netfid, 0,
+							netfid, current->tgid, 0,
 							attrs->ia_size,
 							&bytes_written, NULL,
 							NULL, 1 /* 45 sec */);
