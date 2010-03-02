@@ -1381,8 +1381,8 @@ openRetry:
 
 int
 CIFSSMBRead(const int xid, struct cifsTconInfo *tcon, const int netfid,
-	    const unsigned int count, const __u64 lseek, unsigned int *nbytes,
-	    char **buf, int *pbuf_type)
+	    const u32 netpid, const unsigned int count, const __u64 lseek,
+	    unsigned int *nbytes, char **buf, int *pbuf_type)
 {
 	int rc = -EACCES;
 	READ_REQ *pSMB = NULL;
@@ -1407,6 +1407,9 @@ CIFSSMBRead(const int xid, struct cifsTconInfo *tcon, const int netfid,
 	rc = small_smb_init(SMB_COM_READ_ANDX, wct, tcon, (void **) &pSMB);
 	if (rc)
 		return rc;
+
+	pSMB->hdr.Pid = cpu_to_le16((__u16)netpid);
+	pSMB->hdr.PidHigh = cpu_to_le16((__u16)(netpid >> 16));
 
 	/* tcon and ses pointer are checked in smb_init */
 	if (tcon->ses->server == NULL)
@@ -1486,7 +1489,7 @@ CIFSSMBRead(const int xid, struct cifsTconInfo *tcon, const int netfid,
 
 int
 CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
-	     const int netfid, const unsigned int count,
+	     const int netfid, const u32 netpid, const unsigned int count,
 	     const __u64 offset, unsigned int *nbytes, const char *buf,
 	     const char __user *ubuf, const int long_op)
 {
@@ -1515,6 +1518,10 @@ CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
 		      (void **) &pSMBr);
 	if (rc)
 		return rc;
+
+	pSMB->hdr.Pid = cpu_to_le16((__u16)netpid);
+	pSMB->hdr.PidHigh = cpu_to_le16((__u16)(netpid >> 16));
+
 	/* tcon and ses pointer are checked in smb_init */
 	if (tcon->ses->server == NULL)
 		return -ECONNABORTED;
@@ -1596,7 +1603,7 @@ CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
 
 int
 CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
-	     const int netfid, const unsigned int count,
+	     const int netfid, const u32 netpid, const unsigned int count,
 	     const __u64 offset, unsigned int *nbytes, struct kvec *iov,
 	     int n_vec, const int long_op)
 {
@@ -1622,6 +1629,10 @@ CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
 	rc = small_smb_init(SMB_COM_WRITE_ANDX, wct, tcon, (void **) &pSMB);
 	if (rc)
 		return rc;
+
+	pSMB->hdr.Pid = cpu_to_le16((__u16)netpid);
+	pSMB->hdr.PidHigh = cpu_to_le16((__u16)(netpid >> 16));
+
 	/* tcon and ses pointer are checked in smb_init */
 	if (tcon->ses->server == NULL)
 		return -ECONNABORTED;
