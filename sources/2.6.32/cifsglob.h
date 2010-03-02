@@ -318,6 +318,8 @@ struct cifsLockInfo {
 	__u8 type;
 };
 
+#define   CIFS_NOPOSIXBRL_READ 64
+
 /*
  * One of these for each open instance of a file
  */
@@ -466,6 +468,7 @@ struct oplock_q_entry {
 	struct inode *pinode;
 	struct cifsTconInfo *tcon;
 	__u16 netfid;
+	__u32 netpid;
 };
 
 /* for pending dnotify requests */

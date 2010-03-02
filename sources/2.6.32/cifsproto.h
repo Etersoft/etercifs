@@ -298,16 +298,16 @@ extern int CIFSSMBFlush(const int xid, struct cifsTconInfo *tcon,
 			const int smb_file_id);
 
 extern int CIFSSMBRead(const int xid, struct cifsTconInfo *tcon,
-			const int netfid, unsigned int count,
+			const int netfid, const u32 netpid, unsigned int count,
 			const __u64 lseek, unsigned int *nbytes, char **buf,
 			int *return_buf_type);
 extern int CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
-			const int netfid, const unsigned int count,
-			const __u64 lseek, unsigned int *nbytes,
-			const char *buf, const char __user *ubuf,
-			const int long_op);
+			const int netfid, const u32 netpid,
+			const unsigned int count, const __u64 lseek,
+			unsigned int *nbytes, const char *buf,
+			const char __user *ubuf, const int long_op);
 extern int CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
-			const int netfid, const unsigned int count,
+			const int netfid, u32 netpid, const unsigned int count,
 			const __u64 offset, unsigned int *nbytes,
 			struct kvec *iov, const int nvec, const int long_op);
 extern int CIFSGetSrvInodeNumber(const int xid, struct cifsTconInfo *tcon,
@@ -318,12 +318,12 @@ extern int cifsConvertToUCS(__le16 *target, const char *source, int maxlen,
 			const struct nls_table *cp, int mapChars);
 
 extern int CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
-			const __u16 netfid, const __u64 len,
+			const __u16 netfid, const __u32 netpid, const __u64 len,
 			const __u64 offset, const __u32 numUnlock,
 			const __u32 numLock, const __u8 lockType,
 			const bool waitFlag);
 extern int CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
-			const __u16 smb_file_id, const int get_flag,
+			const __u16 smb_file_id, const __u32 netpid, const int get_flag,
 			const __u64 len, struct file_lock *,
 			const __u16 lock_type, const bool waitFlag);
 extern int CIFSSMBTDis(const int xid, struct cifsTconInfo *tcon);
