@@ -317,6 +317,8 @@ struct cifsLockInfo {
 	__u8 type;
 };
 
+#define   CIFS_NOPOSIXBRL_READ 64
+
 /*
  * One of these for each open instance of a file
  */
