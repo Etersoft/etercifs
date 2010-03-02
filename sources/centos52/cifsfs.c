@@ -348,6 +348,10 @@ cifs_show_options(struct seq_file *s, struct vfsmount *m)
 					seq_printf(s, ",domain=%s",
 					   cifs_sb->tcon->ses->domainName);
 			}
+			if (cifs_sb->tcon->unix_ext)
+				seq_printf(s, ",unix");
+			else
+				seq_printf(s, ",nounix");
 		}
 		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_POSIX_PATHS)
 			seq_printf(s, ",posixpaths");
@@ -357,6 +361,12 @@ cifs_show_options(struct seq_file *s, struct vfsmount *m)
 		if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_OVERR_GID) ||
 		   !(cifs_sb->tcon->unix_ext))
 			seq_printf(s, ",gid=%d", cifs_sb->mnt_gid);
+		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
+			seq_printf(s, ",wine");
+		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL)
+			seq_printf(s, ",forcemand");
+		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
+			seq_printf(s, ",directio");
 		seq_printf(s, ",rsize=%d", cifs_sb->rsize);
 		seq_printf(s, ",wsize=%d", cifs_sb->wsize);
 	}
@@ -647,7 +657,7 @@ static ssize_t cifs_sync_read(struct file *filp, char __user *buf,
 	if (!CIFS_I(filp->f_dentry->d_inode)->clientCanCacheRead
 							&& !posix_locking) {
 #endif
-		retval = cifs_lock(filp, F_GETLK, &pfLock);
+		retval = cifs_lock(filp, F_GETLK | CIFS_NOPOSIXBRL_READ, &pfLock);
 		if (retval < 0)
 			return (ssize_t)retval;
 		if (pfLock.fl_type == F_UNLCK)
