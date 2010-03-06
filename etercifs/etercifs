@@ -9,7 +9,7 @@
 #
 # description:  linux cifs module \
 #               Multiplatform init script \
-#               2006, 2007, 2008, 2009 Public domain
+#               2006, 2007, 2008, 2009, 2010 Public domain
 #
 # modulename: etercifs
 #
@@ -220,7 +220,7 @@ show_loaded_module_version()
 status()
 {
     local PRECOMP
-    echo "CIFS module status:"
+    echo "CIFS kernel module status:"
     if is_moduled ; then
         get_module_version
         show_module_version

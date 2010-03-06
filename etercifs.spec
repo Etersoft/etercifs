@@ -1,17 +1,8 @@
 # Etersoft (c) 2007, 2008, 2009, 2010
-# Multiplatform spec for autobuild system
-
-# in kernel build dir you can have gcc_version.inc file with export GCC_VERSION=x.xx
-
-# For build install,
-# 	kernel-headers-modules-XXXX for ALT Linux
-# 	kernel-devel-XXXX for FCx / ASP Linux
-# 	dkms-etercifs for Mandriva 2009
-# 	linux-headers for Debian / Ubuntu
-# 	kernel-source-XXXX for SuSe
-# 	kernel-source-XXXX for Slackware / MOPSLinux
+# Multiplatform spec for Korinf autobuild system (ALT Linux package spec policy)
 
 %define src_package_name kernel-source-etercifs
+
 %define src_legacy_version 1.50c
 %define src_centos52_version 1.50c
 %define src_centos53_version 1.54
@@ -81,6 +72,9 @@ Obsoletes: %src_package_name-2.6.29
 Requires: gcc make
 
 %description
+This package contains Etersoft modified CIFS kernel module,
+supports WINE@Etersoft sharing access support.
+
 The CIFS VFS is a virtual file system for Linux to allow access to
 servers and storage appliances compliant with the SNIA CIFS Specification
 version 1.0 or later.
@@ -100,8 +94,6 @@ helper file are not required in order to enable the CIFS VFS). With the
 addition of upcoming improvements to the mount helper (mount.cifs) the
 CIFS VFS will be able to take advantage of the new CIFS URL specification
 though.
-
-This package has Etersoft's patches for WINE@Etersoft sharing access support.
 
 %prep
 %setup
