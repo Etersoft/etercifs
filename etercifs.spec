@@ -202,6 +202,12 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Mar 06 2010 Vitaly Lipatov <lav@altlinux.ru> 4.4.5-alt2
+- move etermount to /usr/bin
+- move etercifs.conf to /etc/sysconfig
+- add print mounted resources in etermount
+- update readme, messages and comments
+
 * Tue Mar 02 2010 Pavel Shilovsky <piastry@altlinux.org> 4.4.5-alt1
 - Implement WINE logic
 - Fix losing locks during fork()
