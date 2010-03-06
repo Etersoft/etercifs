@@ -163,8 +163,8 @@ cp %SOURCE30 %buildroot/%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_versi
 cp %SOURCE31 %buildroot/%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
 cp %SOURCE32 %buildroot/%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
 
-mkdir -p %buildroot%_sbindir
-install -m755 etermount %buildroot%_sbindir/
+mkdir -p %buildroot%_bindir
+install -m755 etermount %buildroot%_bindir/
 
 mkdir -p %buildroot%_usrsrc/kernel/sources/
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_version.tar.bz2 \
@@ -198,7 +198,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_datadir/%name/
 %_initdir/%name
 %_initdir/%name.outformat
-%_sbindir/etermount
+%_bindir/etermount
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
