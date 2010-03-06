@@ -7,13 +7,20 @@
 
 # Build kernel modules for all kernel and all platforms
 
-if [ -f /etc/etercifs.conf ] ; then
-  . /etc/etercifs.conf
+PACKAGEINFO=@DATADIR@/package.conf
+if [ -f "$PACKAGEINFO" ] ; then
+  . $PACKAGEINFO/package.conf
 else
-  fatal "Not found configuration file /etc/etercifs.conf"
+  fatal "Not found package information file $PACKAGEINFO"
 fi
 
-MODULEFILENAME=etercifs.ko
+CONFIGFILE=@SYSCONFIGDIR@/etercifs.conf
+if [ -f $CONFIGFILE ] ; then
+  . $CONFIGFILE
+else
+  fatal "Not found configuration file $CONFIGFILE"
+fi
+
 [ -n "$TESTBUILD" ] || TESTBUILD=0
 [ -n "$DKMSBUILD" ] || DKMSBUILD=0
 
@@ -169,6 +176,7 @@ detect_host_kernel()
 check_headers()
 {
     if [ ! -f $KERNSRC/include/linux/version.h ]; then
+# TODO: use distr_vendor
         cat >&2 <<EOF
 Error: no kernel headers found at $KERNSRC
 Please install package

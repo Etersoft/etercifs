@@ -19,9 +19,12 @@
 %define src_2_6_31_version 1.60
 %define src_2_6_32_version 1.61
 
+# TODO: moved to rpm-build-altlinux-compat
+%define _sysconfigdir %_sysconfdir/sysconfig
+
 Name: etercifs
 Version: 4.4.5
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -99,29 +102,42 @@ though.
 %setup
 
 %install
-mkdir -p %buildroot%_sysconfdir/
-cat <<EOF >%buildroot%_sysconfdir/%name.conf
-DATADIR=%_datadir/%name
-SRC_DIR=%_usrsrc/%name-%version
-MODULENAME=%name
-MODULEVERSION=%version
+mkdir -p %buildroot%_sysconfigdir
+cat <<EOF >%buildroot%_sysconfigdir/%name.conf
+# etercifs configuration file
 
 # this options useful only for wine share using and security=share setting in smb.conf
-MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct,nounix
+#MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct,nounix
+# wine options since etercifs 4.4.5 enable full wine support
+MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,wine
 
 # default path for share mounting
 DEFAULT_MOUNTPOINT=/net/sharebase
-# disable version checking
+
+# disable package version checking
 # CHECK_VERSION=0
 EOF
+
+%__subst "s|@DATADIR@|%_datadir/%name|g" functions.sh etercifs etermount
+%__subst "s|@SYSCONFIGDIR@|%_sysconfigdir|g" functions.sh etercifs etermount
 
 mkdir -p %buildroot%_datadir/%name/
 install -m644 buildmodule.sh %buildroot%_datadir/%name/
 install -m644 functions.sh %buildroot%_datadir/%name/
 
-mkdir -p %buildroot%_initdir
-install -m755 %name %buildroot%_initdir
-install -m755 %name.outformat %buildroot%_initdir
+cat <<EOF >%buildroot%_datadir/%name/package.conf
+DATADIR=%_datadir/%name
+SRC_DIR=%_usrsrc/%name-%version
+MODULENAME=%name
+MODULEFILENAME=%name.ko
+MODULEVERSION=%version
+CHECK_VERSION=1
+EOF
+
+mkdir -p %buildroot%_initdir/
+install -m755 %name %buildroot%_initdir/
+install -m755 %name.outformat %buildroot%_initdir/
+
 
 %define etercifs_src %_datadir/%name/sources
 
@@ -177,7 +193,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 
 %files
 %doc README.ETER AUTHORS CHANGES README TODO
-%config %_sysconfdir/%name.conf
+%config %_sysconfigdir/%name.conf
 %_datadir/%name/
 %_initdir/%name
 %_initdir/%name.outformat

@@ -17,19 +17,26 @@ RMMOD=/sbin/rmmod
 MODPROBE=/sbin/modprobe
 INSMOD=/sbin/insmod
 
-if [ -f /etc/etercifs.conf ] ; then
-  . /etc/etercifs.conf
+PACKAGEINFO=@DATADIR@/package.conf
+if [ -f "$PACKAGEINFO" ] ; then
+  . $PACKAGEINFO/package.conf
+else
+  fatal "Not found package information file $PACKAGEINFO"
 fi
 
-[ -n "$SRC_DIR" ] || SRC_DIR=/usr/src
-[ -n "$DATADIR" ] || DATADIR=/usr/share/etercifs
-[ -n "$MODULENAME" ] || MODULENAME=etercifs
+CONFIGFILE=@SYSCONFIGDIR@/etercifs.conf
+if [ -f $CONFIGFILE ] ; then
+  . $CONFIGFILE
+else
+  fatal "Not found configuration file $CONFIGFILE"
+fi
+
 [ -n "$BUILT" ] || BUILT=0
 [ -n "$DKMS" ] || DKMS=1
-[ -n "$CHECK_VERSION" ] || CHECK_VERSION=1
 
 ORIGMODULENAME=cifs
 
+# FIXME: %_initdir
 OUTFORMAT=/etc/init.d/outformat
 [ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/etercifs.outformat
 
