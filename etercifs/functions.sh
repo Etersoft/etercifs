@@ -9,7 +9,7 @@
 
 PACKAGEINFO=@DATADIR@/package.conf
 if [ -f "$PACKAGEINFO" ] ; then
-  . $PACKAGEINFO/package.conf
+  . $PACKAGEINFO
 else
   fatal "Not found package information file $PACKAGEINFO"
 fi

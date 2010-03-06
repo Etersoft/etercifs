@@ -19,7 +19,7 @@ INSMOD=/sbin/insmod
 
 PACKAGEINFO=@DATADIR@/package.conf
 if [ -f "$PACKAGEINFO" ] ; then
-  . $PACKAGEINFO/package.conf
+  . $PACKAGEINFO
 else
   fatal "Not found package information file $PACKAGEINFO"
 fi
@@ -158,18 +158,16 @@ load_module()
         success
     fi
 
-    echo -n "Loading kernel module $MODULENAME... "
-
     get_module_version
 
+    echo -n "Loading kernel module $MODULENAME $MODVER... "
+
     if [ "$MODULEVERSION" != "$MODVER" ] && [ "$CHECK_VERSION" -eq 1 ] ; then
-        [ $MODVER ] && {
             failure
             show_module_version
             echo "    Please, run 'service etercifs build' to build the etercifs module (recommended)"
             #echo "    or run 'CHECK_VERSION=0 service etercifs restart' to disable check."
             return
-        }
     fi
 
     $MODPROBE $MODULENAME && { success ; return ; }
@@ -201,7 +199,6 @@ stop()
 
 show_module_version()
 {
-    echo "    package $MODULENAME version $MODULEVERSION"
     if [ $MODVER ] ; then
         echo "    kernel module $MODULENAME version $MODVER is built for current kernel"
     else
@@ -227,6 +224,7 @@ show_loaded_module_version()
 status()
 {
     local PRECOMP
+    echo "Package $MODULENAME $PACKAGEVEREL"
     echo "CIFS kernel module status:"
     if is_moduled ; then
         get_module_version

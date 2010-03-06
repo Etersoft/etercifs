@@ -131,6 +131,7 @@ SRC_DIR=%_usrsrc/%name-%version
 MODULENAME=%name
 MODULEFILENAME=%name.ko
 MODULEVERSION=%version
+PACKAGEVEREL=%version-%release
 CHECK_VERSION=1
 EOF
 
