@@ -45,10 +45,12 @@ detect_etercifs_sources()
     KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
 
     # CentOS-RHEL specific part
-    SPECIFIC_CENTOS=0
-    grep 'CentOS' /etc/redhat-release &>/dev/null && SPECIFIC_CENTOS=1
-    grep 'Red Hat' /etc/redhat-release &>/dev/null && SPECIFIC_CENTOS=1
-    if [ "$SPECIFIC_CENTOS" -eq 1 ] ; then
+    SPECIFIC_CENTOS=
+    if [ -r "/etc/redhat-release" ] ; then
+        grep 'CentOS' /etc/redhat-release >/dev/null && SPECIFIC_CENTOS=1
+        grep 'Red Hat' /etc/redhat-release >/dev/null && SPECIFIC_CENTOS=1
+    fi
+    if [ -n "$SPECIFIC_CENTOS" ] ; then
         echo
         echo "Found CentOS or RHEL."
 
@@ -303,6 +305,7 @@ check_build_module()
     else
         echo "can't locate built module $MODULEFILENAME"
         echo "$KERNELVERSION - FAIL"
+        BUILTLIST="$BUILTLIST---FAILURE"
     fi
 }
 

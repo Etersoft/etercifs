@@ -46,7 +46,7 @@ else
         fi
     done
     echo "====================================================================="
-    echo "CIFS Linux kernel module built for follow kernels (marked as ---DONE):"
+    echo "CIFS Linux kernel module $MODULENAME $MODULEVERSION built for follow kernels (marked as ---DONE or ---FAILURE):"
     echo "---------------------------------------------------------------------"
     for i in $BUILTLIST ; do echo "    $i" ; done
     echo "====================================================================="
