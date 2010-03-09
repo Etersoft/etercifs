@@ -16,6 +16,9 @@
 RMMOD=/sbin/rmmod
 MODPROBE=/sbin/modprobe
 INSMOD=/sbin/insmod
+MODINFO=/sbin/modinfo
+# against run with sudo
+export PATH=$PATH:/sbin:/usr/sbin
 
 PACKAGEINFO=@DATADIR@/package.conf
 if [ -f "$PACKAGEINFO" ] ; then
@@ -95,7 +98,7 @@ get_pid()
 
 get_module_version()
 {
-    MODVER=`modinfo etercifs | grep ^version:`
+    MODVER=`$MODINFO etercifs | grep ^version:`
     MODVER=`echo $MODVER | sed 's|version:||g'`
     MODVER=`echo $MODVER | sed 's| ||g'`
 }
