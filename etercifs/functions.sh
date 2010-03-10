@@ -269,10 +269,10 @@ compile_module()
                 echo "OK"
                 ;;
             "y")
-                echo "WARNING: the kernel is configured with cifs supporting, but not as a module!"
+                fatal "ERROR: the kernel is configured with CIFS support, but not as a module!"
                 ;;
             *)
-                echo "WARNING: the kernel is configured without cifs supporting!"
+                fatal "ERROR: the kernel is configured without CIFS support!"
         esac
     else
         echo "WARNING: the .config file in kernel source directory does not exist!"
@@ -288,7 +288,7 @@ install_module()
     if [ -z "$INSTALL_MOD_PATH" ]; then
         INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/fs/cifs
     fi
-    test -r "$BUILDDIR/$MODULEFILENAME" || { echo "can't locate built module $MODULEFILENAME" ; exit 1 ; }
+    test -r "$BUILDDIR/$MODULEFILENAME" || fatal "can't locate built module $MODULEFILENAME"
     strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
     echo "Copying built module to $INSTALL_MOD_PATH"
 
