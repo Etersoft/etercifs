@@ -23,8 +23,8 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.4.5
-Release: alt2
+Version: 4.5.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -202,6 +202,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Fri Mar 12 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.0-alt1
+- Fix share flags shift for 2.6.32
+- Change default permissions (except 2.6.31, 2.6.32)
+
 * Sat Mar 06 2010 Vitaly Lipatov <lav@altlinux.ru> 4.4.5-alt2
 - move etermount to /usr/bin
 - move etercifs.conf to /etc/sysconfig
