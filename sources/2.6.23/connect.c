@@ -798,9 +798,9 @@ cifs_parse_mount_options(char *options, const char *devname,
 	vol->target_rfc1001_name[0] = 0;
 	vol->linux_uid = current->uid;	/* current->euid instead? */
 	vol->linux_gid = current->gid;
-	vol->dir_mode = S_IRWXUGO;
-	/* 2767 perms indicate mandatory locking support */
-	vol->file_mode = S_IALLUGO & ~(S_ISUID | S_IXGRP);
+
+	/* default to only allowing write access to owner of the mount */
+	vol->dir_mode = vol->file_mode = S_IRUGO | S_IXUGO | S_IWUSR;
 
 	/* vol->retry default is 0 (i.e. "soft" limited retry not hard retry) */
 	vol->rw = TRUE;
