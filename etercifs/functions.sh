@@ -38,13 +38,8 @@ exit_handler()
     exit $rc
 }
 
-detect_etercifs_sources()
+check_for_centos()
 {
-    [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
-    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
-    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
-
-    # CentOS-RHEL specific part
     SPECIFIC_CENTOS=
     if [ -r "/etc/redhat-release" ] ; then
         grep 'CentOS' /etc/redhat-release >/dev/null && SPECIFIC_CENTOS=1
@@ -61,7 +56,7 @@ detect_etercifs_sources()
         N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
 
         CENTOS=0
-        if [ "$N1" -eq '2' ] && [ "$N2" -eq '6' ] ; then
+        if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
             if [ "$N3" -eq 18 ] ; then
                 if [ "$N4" -eq 164 ] ; then
                     echo "You kernel is 2.6.18-164.x"
@@ -94,6 +89,18 @@ detect_etercifs_sources()
         else
             echo "Warning! Your kernel in not 2.6.x"
         fi
+    fi
+}
+
+detect_etercifs_sources()
+{
+    [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
+    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
+    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
+
+    # CentOS-RHEL specific part
+    check_for_centos
+    if [ -n "$SPECIFIC_CENTOS" ] ; then
         if [ "$CENTOS" -eq 54 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos54' | sort -r | head -n 1`
@@ -106,7 +113,6 @@ detect_etercifs_sources()
         else
             echo "Building from legacy sources."
         fi
-        echo
     fi
     # end of CentOS-RHEL specific part
 

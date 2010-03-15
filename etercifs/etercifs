@@ -20,18 +20,20 @@ MODINFO=/sbin/modinfo
 # against run with sudo
 export PATH=$PATH:/sbin:/usr/sbin
 
+. @DATADIR@/functions.sh
+
 PACKAGEINFO=@DATADIR@/package.conf
 if [ -f "$PACKAGEINFO" ] ; then
-  . $PACKAGEINFO
+   . $PACKAGEINFO
 else
-  fatal "Not found package information file $PACKAGEINFO"
+   fatal "Not found package information file $PACKAGEINFO"
 fi
 
 CONFIGFILE=@SYSCONFIGDIR@/etercifs.conf
 if [ -f $CONFIGFILE ] ; then
-  . $CONFIGFILE
+    . $CONFIGFILE
 else
-  fatal "Not found configuration file $CONFIGFILE"
+    fatal "Not found configuration file $CONFIGFILE"
 fi
 
 [ -n "$BUILT" ] || BUILT=0
@@ -124,6 +126,24 @@ is_origmoduled()
     lsmod | grep "^$ORIGMODULENAME" > /dev/null
 }
 
+check_for_old_kernel()
+{
+    detect_host_kernel
+    N1=`echo $KERNEL | cut -d"." -f 1`
+    N2=`echo $KERNEL | cut -d"." -f 2`
+    N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
+    if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
+        if [ "$N3" -ge 29 ] ; then
+            return 0
+        fi
+    fi
+    check_for_centos > /dev/null
+    if [ -n "$SPECIFIC_CENTOS" ] && [ "$CENTOS" -ge 54 ] ; then
+        return 0
+    fi
+    return 1
+}
+
 umount_cifs()
 {
     WASCIFS=
@@ -142,6 +162,7 @@ umount_cifs()
         done
         success
     fi
+    return 0
 }
 
 mount_cifs()
@@ -156,8 +177,15 @@ load_module()
     local i
     if is_origmoduled ; then
         umount_cifs
+        if [ "$?" -eq 1 ] ; then
+            return
+        fi
+        check_for_old_kernel
+        if [ "$?" -eq 1 ]; then
+            sleep 2s
+        fi
         echo -n "Removing vanilla kernel module $ORIGMODULENAME... "
-        $RMMOD $ORIGMODULENAME || { failure ; return ; }
+        $RMMOD $ORIGMODULENAME --wait
         success
     fi
 
@@ -194,9 +222,16 @@ start()
 stop()
 {
     umount_cifs
+    if [ "$?" -eq 1 ] ; then
+        return
+    fi
+    check_for_old_kernel
+    if [ "$?" -eq 1 ]; then
+        sleep 2s
+    fi
     echo -n "Unloading kernel module $MODULENAME... "
     is_moduled || { passed ; return ; }
-    $RMMOD $MODULENAME || { failure ; echo "You have to umount all CIFS resources before module unloading."; return ; }
+    $RMMOD $MODULENAME --wait
     success
 }
 
