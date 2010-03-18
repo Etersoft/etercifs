@@ -38,6 +38,13 @@ exit_handler()
     exit $rc
 }
 
+split_kernel_version()
+{
+    N1=`echo $KERNEL | cut -d"." -f 1`
+    N2=`echo $KERNEL | cut -d"." -f 2`
+    N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
+}
+
 check_for_centos()
 {
     SPECIFIC_CENTOS=

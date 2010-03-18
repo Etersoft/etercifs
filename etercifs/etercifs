@@ -129,9 +129,7 @@ is_origmoduled()
 check_for_old_kernel()
 {
     detect_host_kernel
-    N1=`echo $KERNEL | cut -d"." -f 1`
-    N2=`echo $KERNEL | cut -d"." -f 2`
-    N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
+    split_kernel_version
     if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
         if [ "$N3" -ge 29 ] ; then
             return 0
