@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.5.0
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -202,6 +202,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Mar 18 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.0-alt3
+- Fix gprintf problem on Mandriva
+
 * Mon Mar 15 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.0-alt2
 - Fix rmmod after umount problem
 
