@@ -80,8 +80,12 @@ fi
 
 create_share_dir "$SHARE_PATH"
 
+if [ ! -x /sbin/mount.cifs ] ; then
+	fatal "Please install package with /sbin/mount.cifs command (samba-client or smbfs)"
+fi
+
 echo "Mouting share $1 to $SHARE_PATH with $MOUNT_OPTIONS options..."
-if $SUDO mount -t cifs "$1" "$SHARE_PATH" -o $MOUNT_OPTIONS ; then
+if $SUDO /sbin/mount.cifs "$1" "$SHARE_PATH" -o $MOUNT_OPTIONS ; then
     echo "Info: mount of share $1 in mountpoint $SHARE_PATH has been successfully"
 else
     fatal "Warning: error while mount of share $1 in mountpoint $SHARE_PATH!"

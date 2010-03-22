@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.5.0
-Release: alt3
+Release: alt4
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -73,6 +73,9 @@ Obsoletes: %src_package_name-2.6.28
 Obsoletes: %src_package_name-2.6.29
 
 Requires: gcc make
+
+# We definitely needs mount.cifs command
+Requires: samba-client
 
 %description
 This package contains Etersoft modified CIFS kernel module,
@@ -202,6 +205,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Mar 22 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.0-alt4
+- add requires for samba-client and direct using /sbin/mount.cifs
+
 * Thu Mar 18 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.0-alt3
 - Fix gprintf problem on Mandriva
 

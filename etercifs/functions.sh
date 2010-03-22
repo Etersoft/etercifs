@@ -1,9 +1,9 @@
 #!/bin/sh
-# 2007 (c) Etersoft http://etersoft.ru
-# Author: Vitaly Lipatov <lav@etersoft.ru>
+# 2007-2010 (c) Etersoft http://etersoft.ru
+# Vitaly Lipatov <lav@etersoft.ru>
+# Konstantin Baev <kipruss@etersoft.ru>
+# Pavel Shilovsky <piastry@etersoft.ru>
 # GNU Public License
-
-# modified: Konstantin Baev <kipruss@etersoft.ru>
 
 # Build kernel modules for all kernel and all platforms
 
