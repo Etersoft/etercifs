@@ -302,11 +302,14 @@ install_module()
         INSTALL_MOD_PATH=/lib/modules/$KERNELVERSION/kernel/fs/cifs
     fi
     test -r "$BUILDDIR/$MODULEFILENAME" || fatal "can't locate built module $MODULEFILENAME"
+    echo "Stripping module $MODULEFILENAME ..."
     strip --strip-debug --discard-all $BUILDDIR/$MODULEFILENAME
-    echo "Copying built module to $INSTALL_MOD_PATH"
 
+    echo "Copying built module to $INSTALL_MOD_PATH"
     mkdir -p $INSTALL_MOD_PATH
     install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
+
+    echo "Do depmod -Ae for $KERNELVERSION kernel"
     depmod -Ae $KERNELVERSION || exit 1
 }
 
