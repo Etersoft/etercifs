@@ -60,6 +60,13 @@ else
     SETCOLOR_NORMAL(){ :; }
 fi
 
+# TODO: use /etc/init.d/functions (see eterbug 5283 too)
+# Mandriva compatibility (eterbug 5283)
+gprintf()
+{
+	printf
+}
+
 # TODO: use printf?
 success()
 {
