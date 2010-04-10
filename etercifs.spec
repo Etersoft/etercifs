@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.5.0
-Release: alt4
+Release: alt5
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -208,6 +208,12 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Apr 10 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.0-alt5
+- add gprintf function instead /etc/init.d/functions include (see eterbug #5283)
+- fix init scripts according to LSB
+- cleanup install section in spec
+- fix depmod after build for using KERNELVERSION
+
 * Mon Mar 22 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.0-alt4
 - add requires for samba-client and direct using /sbin/mount.cifs
 
