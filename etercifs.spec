@@ -146,25 +146,28 @@ install -m755 %name.outformat %buildroot%_initdir/
 %define etercifs_src %_datadir/%name/sources
 
 mkdir -p %buildroot/%etercifs_src
+# Legacy support
 cp %SOURCE1 %buildroot/%etercifs_src/%src_package_name-legacy-%src_legacy_version.tar.bz2
-cp %SOURCE2 %buildroot/%etercifs_src/%src_package_name-centos52-%src_centos52_version.tar.bz2
-cp %SOURCE3 %buildroot/%etercifs_src/%src_package_name-centos53-%src_centos53_version.tar.bz2
-cp %SOURCE4 %buildroot/%etercifs_src/%src_package_name-centos54-%src_centos54_version.tar.bz2
-for N in `seq 17 22`
-do
-  ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.$N-%src_legacy_version.tar.bz2
-done
-cp %SOURCE16 %buildroot/%etercifs_src/%src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
-cp %SOURCE23 %buildroot/%etercifs_src/%src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
-cp %SOURCE24 %buildroot/%etercifs_src/%src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
-cp %SOURCE25 %buildroot/%etercifs_src/%src_package_name-2.6.25-%src_2_6_25_version.tar.bz2
-cp %SOURCE26 %buildroot/%etercifs_src/%src_package_name-2.6.26-%src_2_6_26_version.tar.bz2
-cp %SOURCE27 %buildroot/%etercifs_src/%src_package_name-2.6.27-%src_2_6_27_version.tar.bz2
-cp %SOURCE28 %buildroot/%etercifs_src/%src_package_name-2.6.28-%src_2_6_28_version.tar.bz2
-cp %SOURCE29 %buildroot/%etercifs_src/%src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
-cp %SOURCE30 %buildroot/%etercifs_src/%src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
-cp %SOURCE31 %buildroot/%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
-cp %SOURCE32 %buildroot/%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
+ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.17-%src_legacy_version.tar.bz2
+ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.22-%src_legacy_version.tar.bz2
+
+# CentOS 5.x
+cp %SOURCE2 %buildroot/%etercifs_src/
+cp %SOURCE3 %buildroot/%etercifs_src/
+cp %SOURCE4 %buildroot/%etercifs_src/
+
+
+cp %SOURCE16 %buildroot/%etercifs_src/
+cp %SOURCE23 %buildroot/%etercifs_src/
+cp %SOURCE24 %buildroot/%etercifs_src/
+cp %SOURCE25 %buildroot/%etercifs_src/
+cp %SOURCE26 %buildroot/%etercifs_src/
+cp %SOURCE27 %buildroot/%etercifs_src/
+cp %SOURCE28 %buildroot/%etercifs_src/
+cp %SOURCE29 %buildroot/%etercifs_src/
+cp %SOURCE30 %buildroot/%etercifs_src/
+cp %SOURCE31 %buildroot/%etercifs_src/
+cp %SOURCE32 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
