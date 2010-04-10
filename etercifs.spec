@@ -19,7 +19,7 @@
 %define src_2_6_31_version 1.60
 %define src_2_6_32_version 1.61
 
-# TODO: moved to rpm-build-altlinux-compat
+# TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
