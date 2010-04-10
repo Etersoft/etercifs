@@ -64,7 +64,7 @@ fi
 # Mandriva compatibility (eterbug 5283)
 gprintf()
 {
-	printf "$@"
+    printf "$@"
 }
 
 # TODO: use printf?
