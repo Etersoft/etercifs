@@ -307,7 +307,7 @@ install_module()
 
     mkdir -p $INSTALL_MOD_PATH
     install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
-    depmod -ae || exit 1
+    depmod -Ae $KERNELVERSION || exit 1
 }
 
 check_build_module()
