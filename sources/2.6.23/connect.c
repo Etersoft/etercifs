@@ -91,7 +91,7 @@ struct smb_vol {
 	unsigned nocase;     /* request case insensitive filenames */
 	unsigned nobrl;      /* disable sending byte range locks to srv */
 	unsigned mand_lock:1;  /* send mandatory not posix byte range lock reqs */
-	bool wine_mode:1;
+	unsigned wine_mode:1;
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned int sockopt;
