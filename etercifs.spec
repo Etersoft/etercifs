@@ -24,7 +24,7 @@
 
 Name: etercifs
 Version: 4.5.2
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -208,6 +208,11 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Jun 08 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.2-alt2
+- fix etermount with 2 params
+- cleanup install section in spec
+- fix depmod after build for using KERNELVERSION
+
 * Sat Apr 10 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.2-alt1
 - Fix build for legacy, CentOS 5.2, 2.6.23, 2.6.24
 
