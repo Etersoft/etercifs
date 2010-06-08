@@ -7,7 +7,7 @@
 
 fatal()
 {
-    echo $@
+    echo "$@"
     exit 1
 }
 
@@ -64,7 +64,7 @@ help_text()
 
 [ "$1" == '--help' -o "$1" == '-h' ] && { help_text ; exit 0 ; }
 
-if [ -z "$@" ] ; then
+if [ -z "$*" ] ; then
     cat /proc/mounts | grep cifs
     exit
 fi
@@ -80,6 +80,7 @@ fi
 
 create_share_dir "$SHARE_PATH"
 
+# we have samba-client requires in spec
 if [ ! -x /sbin/mount.cifs ] ; then
 	fatal "Please install package with /sbin/mount.cifs command (samba-client or smbfs)"
 fi
