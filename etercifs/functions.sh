@@ -123,7 +123,17 @@ detect_etercifs_sources()
     fi
     # end of CentOS-RHEL specific part
 
-    [ -f "$KERNEL_SOURCE_ETERCIFS_LINK" ] || fatal "Etercifs kernel module sources for current kernel does not installed!"
+    if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
+        ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
+        KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r | head -n 1`
+        OLD_IFS=$IFS
+        IFS="-"
+        set -- $KERNEL_SOURCE_ETERCIFS_LINK
+        echo "Warning: using the lates supported sources ($4) that is not for current kernel version!"
+        IFS=$OLD_IFS
+        ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
+    fi
+
     KERNEL_SOURCE_ETERCIFS=`readlink -f $KERNEL_SOURCE_ETERCIFS_LINK`
     [ "$KERNEL_SOURCE_ETERCIFS" ] || fatal "Etercifs kernel module sources for current kernel does not installed!"
 }
