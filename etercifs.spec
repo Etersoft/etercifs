@@ -18,13 +18,14 @@
 %define src_2_6_30_version 1.58
 %define src_2_6_31_version 1.60
 %define src_2_6_32_version 1.61
+%define src_2_6_33_version 1.62
 
 # TODO: moved to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.2
-Release: alt2
+Version: 4.5.3
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -52,6 +53,7 @@ Source29: %src_package_name-2.6.29-%src_2_6_29_version.tar.bz2
 Source30: %src_package_name-2.6.30-%src_2_6_30_version.tar.bz2
 Source31: %src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
 Source32: %src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
+Source33: %src_package_name-2.6.33-%src_2_6_33_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -64,6 +66,7 @@ Provides: %src_package_name-2.6.29 = %version-%release
 Provides: %src_package_name-2.6.30 = %version-%release
 Provides: %src_package_name-2.6.31 = %version-%release
 Provides: %src_package_name-2.6.32 = %version-%release
+Provides: %src_package_name-2.6.33 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -168,6 +171,7 @@ cp %SOURCE29 %buildroot/%etercifs_src/
 cp %SOURCE30 %buildroot/%etercifs_src/
 cp %SOURCE31 %buildroot/%etercifs_src/
 cp %SOURCE32 %buildroot/%etercifs_src/
+cp %SOURCE33 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -191,6 +195,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.31-%src_2_6_31_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.31-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.32-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.33-%src_2_6_33_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.33-%version.tar.bz2
 
 %post
 %post_service %name
@@ -208,6 +214,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.32-%src_2_6_32_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Jun 28 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.3-alt1
+- Add testing support for new kernels
+- Add sources for 2.6.33
+
 * Tue Jun 08 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.2-alt2
 - fix etermount with 2 params
 - cleanup install section in spec
