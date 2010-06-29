@@ -20,7 +20,7 @@
 %define src_2_6_32_version 1.61
 %define src_2_6_33_version 1.62
 
-# TODO: moved to rpm-build-altlinux-compat
+# TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
@@ -229,6 +229,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.33-%src_2_6_33_version.tar
 * Sat Apr 10 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.0-alt5
 - add gprintf function instead /etc/init.d/functions include (see eterbug #5283)
 - fix init scripts according to LSB
+- cleanup install section in spec
+- fix depmod after build for using KERNELVERSION
 
 * Mon Mar 22 2010 Vitaly Lipatov <lav@altlinux.ru> 4.5.0-alt4
 - add requires for samba-client and direct using /sbin/mount.cifs
