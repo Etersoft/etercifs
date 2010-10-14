@@ -24,7 +24,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.3
+Version: 4.5.4
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -214,6 +214,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.33-%src_2_6_33_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Oct 14 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.4-alt1
+- Fix missing share flags during creating for 2.6.31, 2.6.32, 2.6.33
+
 * Mon Jun 28 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.3-alt1
 - Add testing support for new kernels
 - Add sources for 2.6.33
