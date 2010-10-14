@@ -1124,6 +1124,7 @@ psx_create_err:
 	return rc;
 }
 
+#ifdef ETERSOFT_USE_SMB_LEGACY_OPEN
 static __u16 convert_disposition(int disposition)
 {
 	__u16 ofun = 0;
@@ -1167,6 +1168,7 @@ access_flags_to_smbopen_mode(const int access_flags)
 	/* just go for read/write */
 	return SMBOPEN_READWRITE;
 }
+#endif
 
 int
 SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
@@ -1175,6 +1177,10 @@ SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
 	    int *pOplock, FILE_ALL_INFO *pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
+#ifndef ETERSOFT_USE_SMB_LEGACY_OPEN
+	printk("Etersoft: Do not use SMBLegacyOpen!\n");
+	return -EACCES;
+#else
 	int rc = -EACCES;
 	OPENX_REQ *pSMB = NULL;
 	OPENX_RSP *pSMBr = NULL;
@@ -1182,10 +1188,6 @@ SMBLegacyOpen(const int xid, struct cifsTconInfo *tcon,
 	int name_len;
 	__u16 count;
 
-#ifndef ETERSOFT_USE_SMB_LEGACY_OPEN
-	printk("Etersoft: Do not use SMBLegacyOpen!\n");
-	return rc;
-#else
 OldOpenRetry:
 	rc = smb_init(SMB_COM_OPEN_ANDX, 15, tcon, (void **) &pSMB,
 		      (void **) &pSMBr);
