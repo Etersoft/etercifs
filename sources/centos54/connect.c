@@ -1425,6 +1425,9 @@ cifs_find_tcp_session(struct sockaddr_storage *addr, unsigned short int port)
 	struct sockaddr_in *addr4 = (struct sockaddr_in *) addr;
 	struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) addr;
 
+	if (!port)
+		port = CIFS_PORT;
+
 	write_lock(&cifs_tcp_ses_lock);
 	list_for_each(tmp, &cifs_tcp_ses_list) {
 		server = list_entry(tmp, struct TCP_Server_Info,
