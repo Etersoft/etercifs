@@ -25,7 +25,7 @@
 
 Name: etercifs
 Version: 4.5.5
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -214,6 +214,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.33-%src_2_6_33_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Nov 08 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.5-alt2
+- Fix port bug for CentOs 5.4
+
 * Sat Nov 07 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.5-alt1
 - Fix tunnel port problem
 
