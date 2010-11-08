@@ -1389,6 +1389,10 @@ cifs_find_tcp_session(struct sockaddr_storage *addr, unsigned short int port)
 	struct sockaddr_in *addr4 = (struct sockaddr_in *) addr;
 	struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) addr;
 
+	/* looking for CIFS_PORT if user doens't specify the port manually */
+	if (!port)
+		port = CIFS_PORT;
+
 	write_lock(&cifs_tcp_ses_lock);
 	list_for_each(tmp, &cifs_tcp_ses_list) {
 		server = list_entry(tmp, struct TCP_Server_Info,
@@ -1404,34 +1408,23 @@ cifs_find_tcp_session(struct sockaddr_storage *addr, unsigned short int port)
 
 		switch (addr->ss_family) {
 		case AF_INET:
-			if (addr4->sin_addr.s_addr ==
-			    server->addr.sockAddr.sin_addr.s_addr) {
-				addr4->sin_port = htons(port);
-				/* user overrode default port? */
-				if (addr4->sin_port) {
-					if (addr4->sin_port !=
-					    server->addr.sockAddr.sin_port)
-						continue;
-				}
-				break;
-			} else
+			addr4->sin_port = htons(port);
+			if ((addr4->sin_addr.s_addr !=
+			    server->addr.sockAddr.sin_addr.s_addr) ||
+			    (addr4->sin_port != server->addr.sockAddr.sin_port))
 				continue;
+			break;
 
 		case AF_INET6:
-			if (ipv6_addr_equal(&addr6->sin6_addr,
-			    &server->addr.sockAddr6.sin6_addr) &&
-			    (addr6->sin6_scope_id ==
-			    server->addr.sockAddr6.sin6_scope_id)) {
-				addr6->sin6_port = htons(port);
-				/* user overrode default port? */
-				if (addr6->sin6_port) {
-					if (addr6->sin6_port !=
-					   server->addr.sockAddr6.sin6_port)
-						continue;
-				}
-				break;
-			} else
+			addr6->sin6_port = htons(port);
+			if (!ipv6_addr_equal(&addr6->sin6_addr,
+			    &server->addr.sockAddr6.sin6_addr) ||
+			    (addr6->sin6_scope_id !=
+			    server->addr.sockAddr6.sin6_scope_id) ||
+			    (addr6->sin6_port !=
+					server->addr.sockAddr6.sin6_port))
 				continue;
+			break;
 		}
 
 		++server->srv_count;
@@ -1770,7 +1763,7 @@ ipv4_connect(struct TCP_Server_Info *server)
 {
 	int rc = 0;
 	bool connected = false;
-	__be16 orig_port = 0;
+	bool orig_port_error = false;
 	struct socket *socket = server->ssocket;
 
 	if (socket == NULL) {
@@ -1788,20 +1781,18 @@ ipv4_connect(struct TCP_Server_Info *server)
 		cifs_reclassify_socket4(socket);
 	}
 
-	/* user overrode default port */
+	/* user overrode default port or we perform reconnect */
 	if (server->addr.sockAddr.sin_port) {
 		rc = socket->ops->connect(socket, (struct sockaddr *)
 					  &server->addr.sockAddr,
 					  sizeof(struct sockaddr_in), 0);
 		if (rc >= 0)
 			connected = true;
+		else
+			orig_port_error = true;
 	}
 
-	if (!connected) {
-		/* save original port so we can retry user specified port
-			later if fall back ports fail this time  */
-		orig_port = server->addr.sockAddr.sin_port;
-
+	if (!orig_port_error && !connected) {
 		/* do not retry on the same port we just failed on */
 		if (server->addr.sockAddr.sin_port != htons(CIFS_PORT)) {
 			server->addr.sockAddr.sin_port = htons(CIFS_PORT);
@@ -1813,7 +1804,8 @@ ipv4_connect(struct TCP_Server_Info *server)
 				connected = true;
 		}
 	}
-	if (!connected) {
+
+	if (!orig_port_error && !connected) {
 		server->addr.sockAddr.sin_port = htons(RFC1001_PORT);
 		rc = socket->ops->connect(socket, (struct sockaddr *)
 					      &server->addr.sockAddr,
@@ -1825,14 +1817,11 @@ ipv4_connect(struct TCP_Server_Info *server)
 	/* give up here - unless we want to retry on different
 		protocol families some day */
 	if (!connected) {
-		if (orig_port)
-			server->addr.sockAddr.sin_port = orig_port;
 		cFYI(1, ("Error %d connecting to server via ipv4", rc));
 		sock_release(socket);
 		server->ssocket = NULL;
 		return rc;
 	}
-
 
 	/*
 	 * Eventually check for other socket options to change from
@@ -1922,7 +1911,7 @@ ipv6_connect(struct TCP_Server_Info *server)
 {
 	int rc = 0;
 	bool connected = false;
-	__be16 orig_port = 0;
+	bool orig_port_error = false;
 	struct socket *socket = server->ssocket;
 
 	if (socket == NULL) {
@@ -1948,13 +1937,11 @@ ipv6_connect(struct TCP_Server_Info *server)
 				sizeof(struct sockaddr_in6), 0);
 		if (rc >= 0)
 			connected = true;
+		else
+			orig_port_error = true;
 	}
 
-	if (!connected) {
-		/* save original port so we can retry user specified port
-			later if fall back ports fail this time  */
-
-		orig_port = server->addr.sockAddr6.sin6_port;
+	if (!orig_port_error && !connected) {
 		/* do not retry on the same port we just failed on */
 		if (server->addr.sockAddr6.sin6_port != htons(CIFS_PORT)) {
 			server->addr.sockAddr6.sin6_port = htons(CIFS_PORT);
@@ -1965,7 +1952,8 @@ ipv6_connect(struct TCP_Server_Info *server)
 				connected = true;
 		}
 	}
-	if (!connected) {
+
+	if (!orig_port_error && !connected) {
 		server->addr.sockAddr6.sin6_port = htons(RFC1001_PORT);
 		rc = socket->ops->connect(socket, (struct sockaddr *)
 				&server->addr.sockAddr6,
@@ -1977,8 +1965,6 @@ ipv6_connect(struct TCP_Server_Info *server)
 	/* give up here - unless we want to retry on different
 		protocol families some day */
 	if (!connected) {
-		if (orig_port)
-			server->addr.sockAddr6.sin6_port = orig_port;
 		cFYI(1, ("Error %d connecting to server via ipv6", rc));
 		sock_release(socket);
 		server->ssocket = NULL;
