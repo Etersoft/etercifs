@@ -1785,16 +1785,13 @@ ipv4_connect(struct TCP_Server_Info *server)
 	}
 
 	if (!orig_port_error && !connected) {
-		/* do not retry on the same port we just failed on */
-		if (server->addr.sockAddr.sin_port != htons(CIFS_PORT)) {
-			server->addr.sockAddr.sin_port = htons(CIFS_PORT);
-			rc = socket->ops->connect(socket,
-						(struct sockaddr *)
-						&server->addr.sockAddr,
-						sizeof(struct sockaddr_in), 0);
-			if (rc >= 0)
-				connected = true;
-		}
+		server->addr.sockAddr.sin_port = htons(CIFS_PORT);
+		rc = socket->ops->connect(socket,
+					(struct sockaddr *)
+					&server->addr.sockAddr,
+					sizeof(struct sockaddr_in), 0);
+		if (rc >= 0)
+			connected = true;
 	}
 
 	if (!orig_port_error && !connected) {
@@ -1934,15 +1931,12 @@ ipv6_connect(struct TCP_Server_Info *server)
 	}
 
 	if (!orig_port_error && !connected) {
-		/* do not retry on the same port we just failed on */
-		if (server->addr.sockAddr6.sin6_port != htons(CIFS_PORT)) {
-			server->addr.sockAddr6.sin6_port = htons(CIFS_PORT);
-			rc = socket->ops->connect(socket, (struct sockaddr *)
-					&server->addr.sockAddr6,
-					sizeof(struct sockaddr_in6), 0);
-			if (rc >= 0)
-				connected = true;
-		}
+		server->addr.sockAddr6.sin6_port = htons(CIFS_PORT);
+		rc = socket->ops->connect(socket, (struct sockaddr *)
+				&server->addr.sockAddr6,
+				sizeof(struct sockaddr_in6), 0);
+		if (rc >= 0)
+			connected = true;
 	}
 
 	if (!orig_port_error && !connected) {
