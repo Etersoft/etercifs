@@ -1410,10 +1410,9 @@ cifs_find_tcp_session(struct sockaddr_storage *addr, unsigned short int port)
 
 		switch (addr->ss_family) {
 		case AF_INET:
-			addr4->sin_port = htons(port);
 			if ((addr4->sin_addr.s_addr !=
 			    server->addr.sockAddr.sin_addr.s_addr) ||
-			    (addr4->sin_port != server->addr.sockAddr.sin_port))
+			    (htons(port) != server->addr.sockAddr.sin_port))
 				continue;
 			break;
 
@@ -1423,7 +1422,7 @@ cifs_find_tcp_session(struct sockaddr_storage *addr, unsigned short int port)
 			    &server->addr.sockAddr6.sin6_addr) ||
 			    (addr6->sin6_scope_id !=
 			    server->addr.sockAddr6.sin6_scope_id) ||
-			    (addr6->sin6_port !=
+			    (htons(port) !=
 					server->addr.sockAddr6.sin6_port))
 				continue;
 			break;
