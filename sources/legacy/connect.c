@@ -1558,16 +1558,13 @@ ipv4_connect(struct sockaddr_in *psin_server, struct socket **csocket,
 	}
 
 	if (!orig_port_error && !connected) {
-		/* do not retry on the same port we just failed on */
-		if (psin_server->sin_port != htons(CIFS_PORT)) {
-			psin_server->sin_port = htons(CIFS_PORT);
+		psin_server->sin_port = htons(CIFS_PORT);
 
-			rc = (*csocket)->ops->connect(*csocket,
-					(struct sockaddr *) psin_server,
-					sizeof (struct sockaddr_in), 0);
-			if (rc >= 0)
-				connected = 1;
-		}
+		rc = (*csocket)->ops->connect(*csocket,
+				(struct sockaddr *) psin_server,
+				sizeof (struct sockaddr_in), 0);
+		if (rc >= 0)
+			connected = 1;
 	}
 
 	if (!orig_port_error && !connected) {
@@ -1703,16 +1700,13 @@ ipv6_connect(struct sockaddr_in6 *psin_server, struct socket **csocket)
 	}
 
 	if (!orig_port_error && !connected) {
-		/* do not retry on the same port we just failed on */
-		if (psin_server->sin6_port != htons(CIFS_PORT)) {
-			psin_server->sin6_port = htons(CIFS_PORT);
+		psin_server->sin6_port = htons(CIFS_PORT);
 
-			rc = (*csocket)->ops->connect(*csocket,
-					(struct sockaddr *) psin_server,
-					sizeof (struct sockaddr_in6), 0);
-			if (rc >= 0)
-				connected = 1;
-		}
+		rc = (*csocket)->ops->connect(*csocket,
+				(struct sockaddr *) psin_server,
+				sizeof (struct sockaddr_in6), 0);
+		if (rc >= 0)
+			connected = 1;
 	}
 
 	if (!orig_port_error && !connected) {
