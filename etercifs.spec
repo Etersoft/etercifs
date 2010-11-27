@@ -20,12 +20,14 @@
 %define src_2_6_32_version 1.61
 %define src_2_6_33_version 1.62
 %define src_2_6_34_version 1.62
+%define src_2_6_35_version 1.62
+%define src_2_6_36_version 1.62
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.6
+Version: 4.5.7
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -56,6 +58,8 @@ Source31: %src_package_name-2.6.31-%src_2_6_31_version.tar.bz2
 Source32: %src_package_name-2.6.32-%src_2_6_32_version.tar.bz2
 Source33: %src_package_name-2.6.33-%src_2_6_33_version.tar.bz2
 Source34: %src_package_name-2.6.34-%src_2_6_34_version.tar.bz2
+Source35: %src_package_name-2.6.35-%src_2_6_35_version.tar.bz2
+Source36: %src_package_name-2.6.36-%src_2_6_36_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -70,6 +74,8 @@ Provides: %src_package_name-2.6.31 = %version-%release
 Provides: %src_package_name-2.6.32 = %version-%release
 Provides: %src_package_name-2.6.33 = %version-%release
 Provides: %src_package_name-2.6.34 = %version-%release
+Provides: %src_package_name-2.6.35 = %version-%release
+Provides: %src_package_name-2.6.36 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -176,6 +182,8 @@ cp %SOURCE31 %buildroot/%etercifs_src/
 cp %SOURCE32 %buildroot/%etercifs_src/
 cp %SOURCE33 %buildroot/%etercifs_src/
 cp %SOURCE34 %buildroot/%etercifs_src/
+cp %SOURCE35 %buildroot/%etercifs_src/
+cp %SOURCE36 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -203,6 +211,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.33-%src_2_6_33_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.33-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.34-%src_2_6_34_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.34-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.35-%src_2_6_35_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.35-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.36-%version.tar.bz2
 
 %post
 %post_service %name
@@ -220,6 +232,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.34-%src_2_6_34_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Nov 27 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.7-alt1
+- Add sources for 2.6.35 and 2.6.36
+
 * Thu Nov 25 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.6-alt1
 - Add sources for 2.6.34
 
