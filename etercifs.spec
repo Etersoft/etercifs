@@ -20,8 +20,8 @@
 %define src_2_6_32_version 1.61
 %define src_2_6_33_version 1.62
 %define src_2_6_34_version 1.62
-%define src_2_6_35_version 1.62
-%define src_2_6_36_version 1.62
+%define src_2_6_35_version 1.64
+%define src_2_6_36_version 1.65
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
