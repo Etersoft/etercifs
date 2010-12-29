@@ -119,6 +119,7 @@ detect_etercifs_sources()
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos52' | sort -r | head -n 1`
         else
             echo "Building from legacy sources."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'legacy' | sort -r | head -n 1`
         fi
     fi
     # end of CentOS-RHEL specific part
