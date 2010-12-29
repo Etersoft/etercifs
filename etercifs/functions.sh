@@ -65,33 +65,39 @@ check_for_centos()
         CENTOS=0
         if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
             if [ "$N3" -eq 18 ] ; then
-                if [ "$N4" -eq 164 ] ; then
-                    echo "You kernel is 2.6.18-164.x"
+                if [ "$N4" -eq 194 ] ; then
+                    echo "Your kernel is 2.6.18-194.x"
+                    CENTOS=55
+                elif [ "$N4" -gt 194 ] ; then
+                    echo "Warning! Your kernel is newer than 2.6.18-194.x"
+                    CENTOS=55
+                elif [ "$N4" -eq 164 ] ; then
+                    echo "Your kernel is 2.6.18-164.x"
                     CENTOS=54
                 elif [ "$N4" -gt 164 ] ; then
-                    echo "Warning! Your kernel is newer then 2.6.18-164.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-164.x"
                     CENTOS=54
                 elif [ "$N4" -eq 128 ] ; then
                     echo "Your kernel is 2.6.18-128.x"
                     CENTOS=53
                 elif [ "$N4" -gt 128 ] ; then
-                    echo "Warning! Your kernel is newer then 2.6.18-128.x and older then 2.6.18-164.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-128.x and older than 2.6.18-164.x"
                     CENTOS=53
                 elif [ "$N4" -eq 92 ] ; then
                     echo "You kernel is 2.6.18-92.x"
                     CENTOS=52
                 elif [ "$N4" -gt 92 ] ; then
-                    echo "Warning! Your kernel is newer then 2.6.18-92.x and older then 2.6.18-128.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-92.x and older than 2.6.18-128.x"
                     CENTOS=52
                 else
-                    echo "Warning! Your kernel is older then 2.6.18-92.x"
+                    echo "Warning! Your kernel is older than 2.6.18-92.x"
                     CENTOS=52
                 fi
             elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
-                echo "Warning! Your kernel is newer then 2.6.18 and older then 2.6.23"
+                echo "Warning! Your kernel is newer than 2.6.18 and older than 2.6.23"
                 CENTOS=53
             else
-                echo "Warning! Your kernel is older then 2.6.18 or newer then 2.6.22"
+                echo "Warning! Your kernel is older than 2.6.18 or newer than 2.6.23"
             fi
         else
             echo "Warning! Your kernel in not 2.6.x"
@@ -108,7 +114,10 @@ detect_etercifs_sources()
     # CentOS-RHEL specific part
     check_for_centos
     if [ -n "$SPECIFIC_CENTOS" ] ; then
-        if [ "$CENTOS" -eq 54 ] ; then
+        if [ "$CENTOS" -eq 55 ] ; then
+            echo "Building from legacy sources with patch for kernels 2.6.18-194.x from CentOS 5.5."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos55' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 54 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos54' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 53 ] ; then
