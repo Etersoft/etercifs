@@ -7,6 +7,7 @@
 %define src_centos52_version 1.50c
 %define src_centos53_version 1.54
 %define src_centos54_version 1.58
+%define src_centos55_version 1.60
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
@@ -27,7 +28,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.7
+Version: 4.5.8
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -45,6 +46,7 @@ Source1: %src_package_name-legacy-%src_legacy_version.tar.bz2
 Source2: %src_package_name-centos52-%src_centos52_version.tar.bz2
 Source3: %src_package_name-centos53-%src_centos53_version.tar.bz2
 Source4: %src_package_name-centos54-%src_centos54_version.tar.bz2
+Source5: %src_package_name-centos55-%src_centos55_version.tar.bz2
 Source16: %src_package_name-2.6.16-%src_2_6_16_version.tar.bz2
 Source23: %src_package_name-2.6.23-%src_2_6_23_version.tar.bz2
 Source24: %src_package_name-2.6.24-%src_2_6_24_version.tar.bz2
@@ -167,7 +169,7 @@ ln -s %src_package_name-legacy-%src_legacy_version.tar.bz2 %buildroot/%etercifs_
 cp %SOURCE2 %buildroot/%etercifs_src/
 cp %SOURCE3 %buildroot/%etercifs_src/
 cp %SOURCE4 %buildroot/%etercifs_src/
-
+cp %SOURCE5 %buildroot/%etercifs_src/
 
 cp %SOURCE16 %buildroot/%etercifs_src/
 cp %SOURCE23 %buildroot/%etercifs_src/
@@ -232,6 +234,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Wed Dec 29 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.8-alt1
+- Add sources for CentOS 5.5
+- Bugs' fixing
+
 * Sat Nov 27 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.7-alt1
 - Add sources for 2.6.35 and 2.6.36
 
