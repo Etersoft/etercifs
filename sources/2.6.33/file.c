@@ -1559,16 +1559,16 @@ retry:
 			 * we used to still be valid
 			 */
 			open_file = find_writable_file(CIFS_I(mapping->host));
-			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE)
-				netpid = open_file->pid;
-			else
-				netpid = current->tgid;
-
 			if (!open_file) {
 				cERROR(1, ("No writable handles for inode"));
 				rc = -EBADF;
 			} else {
 				long_op = cifs_write_timeout(cifsi, offset);
+				if (cifs_sb->mnt_cifs_flags &
+							CIFS_MOUNT_WINE_MODE)
+					netpid = open_file->pid;
+				else
+					netpid = current->tgid;
 				rc = CIFSSMBWrite2(xid, cifs_sb->tcon,
 						   open_file->netfid, netpid,
 						   bytes_to_write, offset,
