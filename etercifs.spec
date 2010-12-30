@@ -28,7 +28,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.8
+Version: 4.5.9
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -234,6 +234,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Dec 30 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.9-alt1
+- Fix pid-forward in cifs_writepages
+
 * Wed Dec 29 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.8-alt1
 - Add sources for CentOS 5.5
 - Bugs' fixing
