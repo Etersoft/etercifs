@@ -23,12 +23,13 @@
 %define src_2_6_34_version 1.62
 %define src_2_6_35_version 1.64
 %define src_2_6_36_version 1.65
+%define src_2_6_37_version 1.68
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.5.9
+Version: 4.6.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -62,6 +63,7 @@ Source33: %src_package_name-2.6.33-%src_2_6_33_version.tar.bz2
 Source34: %src_package_name-2.6.34-%src_2_6_34_version.tar.bz2
 Source35: %src_package_name-2.6.35-%src_2_6_35_version.tar.bz2
 Source36: %src_package_name-2.6.36-%src_2_6_36_version.tar.bz2
+Source37: %src_package_name-2.6.37-%src_2_6_37_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -78,6 +80,7 @@ Provides: %src_package_name-2.6.33 = %version-%release
 Provides: %src_package_name-2.6.34 = %version-%release
 Provides: %src_package_name-2.6.35 = %version-%release
 Provides: %src_package_name-2.6.36 = %version-%release
+Provides: %src_package_name-2.6.37 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -186,6 +189,7 @@ cp %SOURCE33 %buildroot/%etercifs_src/
 cp %SOURCE34 %buildroot/%etercifs_src/
 cp %SOURCE35 %buildroot/%etercifs_src/
 cp %SOURCE36 %buildroot/%etercifs_src/
+cp %SOURCE37 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -217,6 +221,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.35-%src_2_6_35_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.35-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.36-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.37-%src_2_6_37_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.37-%version.tar.bz2
 
 %post
 %post_service %name
@@ -234,6 +240,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Jan 12 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.0-alt1
+- Fix share flags' shift during creating
+- Add sources for 2.6.37
+
 * Thu Dec 30 2010 Pavel Shilovsky <piastry@altlinux.org> 4.5.9-alt1
 - Fix pid-forward in cifs_writepages
 
