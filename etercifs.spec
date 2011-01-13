@@ -240,7 +240,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.37-%src_2_6_37_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
-* Tue Jan 12 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.0-alt1
+* Wed Jan 12 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.0-alt1
 - Fix share flags' shift during creating
 - Add sources for 2.6.37
 
