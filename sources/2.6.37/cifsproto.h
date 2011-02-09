@@ -346,7 +346,8 @@ extern int cifsConvertToUCS(__le16 *target, const char *source, int maxlen,
 extern int CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
 			const __u16 netfid, const __u64 len, const __u64 offset,
 			const __u32 numUnlock, const __u32 numLock,
-			const __u8 lockType, const bool waitFlag);
+			const __u8 lockType, const bool waitFlag,
+			const __u8 oplock_level);
 extern int CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
 			const __u16 smb_file_id, const int get_flag,
 			const __u64 len, struct file_lock *,
