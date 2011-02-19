@@ -925,12 +925,12 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 
 		/* BB we could chain these into one lock request BB */
 		rc = CIFSSMBLock(xid, tcon, netfid, netpid, length, pfLock->fl_start,
-				 0, 1, lockType, 0 /* wait flag */ );
+				 0, 1, lockType, 0 /* wait flag */, 0 );
 		if (rc == 0) {
 			rc = CIFSSMBLock(xid, tcon, netfid, netpid, length,
 					 pfLock->fl_start, 1 /* numUnlock */ ,
 					 0 /* numLock */ , lockType,
-					 0 /* wait flag */ );
+					 0 /* wait flag */, 0);
 			pfLock->fl_type = F_UNLCK;
 			if (rc != 0)
 				cERROR(1, ("Error unlocking previously locked "
@@ -947,14 +947,14 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 				rc = CIFSSMBLock(xid, tcon, netfid, netpid,
 					length, pfLock->fl_start, 0, 1,
 					lockType | LOCKING_ANDX_SHARED_LOCK,
-					0 /* wait flag */ );
+					0 /* wait flag */, 0);
 				if (rc == 0) {
 					rc = CIFSSMBLock(xid, tcon, netfid,
 						netpid, length,
 						pfLock->fl_start, 1, 0,
 						lockType |
 						LOCKING_ANDX_SHARED_LOCK,
-						0 /* wait flag */ );
+						0 /* wait flag */, 0);
 					pfLock->fl_type = F_RDLCK;
 					if (rc != 0)
 						cERROR(1, ("Error unlocking "
@@ -997,7 +997,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 		if (numLock) {
 			rc = CIFSSMBLock(xid, tcon, netfid, netpid, length,
 					pfLock->fl_start,
-					0, numLock, lockType, wait_flag);
+					0, numLock, lockType, wait_flag, 0);
 
 			if (rc == 0) {
 				/* For Windows locks we must store them. */
@@ -1019,7 +1019,8 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 					stored_rc = CIFSSMBLock(xid, tcon,
 							netfid, netpid,
 							li->length, li->offset,
-							1, 0, li->type, false);
+							1, 0, li->type, false,
+							0);
 					if (stored_rc)
 						rc = stored_rc;
 					else {

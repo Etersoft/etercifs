@@ -1242,9 +1242,11 @@ static int cifs_oplock_thread(void *dummyarg)
 				already released by the server in that case */
 			if (!pTcon->need_reconnect) {
 				rc = CIFSSMBLock(0, pTcon, netfid, netpid,
-						0 /* len */ , 0 /* offset */, 0,
-						0, LOCKING_ANDX_OPLOCK_RELEASE,
-						false /* wait flag */);
+					0 /* len */ , 0 /* offset */, 0,
+					0, LOCKING_ANDX_OPLOCK_RELEASE,
+					false /* wait flag */,
+					CIFS_I(inode)->clientCanCacheRead ? 1 :
+					0);
 				cFYI(1, ("Oplock release rc = %d", rc));
 			}
 			set_current_state(TASK_INTERRUPTIBLE);
