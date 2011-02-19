@@ -961,9 +961,10 @@ static int cifs_oplock_thread(void *dummyarg)
 				    rc = CIFSSMBLock(0, pTcon, netfid, netpid,
 					    0 /* len */ , 0 /* offset */, 0,
 					    0, LOCKING_ANDX_OPLOCK_RELEASE,
-					    0 /* wait flag */);
-					cFYI(1, 
-					      ("Oplock release rc = %d ", rc));
+					    0 /* wait flag */,
+					    CIFS_I(inode)->clientCanCacheRead ?
+					    1 : 0);
+					cFYI(1, ("Oplock release rc = %d", rc));
 				}
 			} else
 				spin_unlock(&GlobalMid_Lock);
