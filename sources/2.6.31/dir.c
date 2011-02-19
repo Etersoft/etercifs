@@ -212,8 +212,6 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
 		posix_flags |= SMB_O_EXCL;
 	if (oflags & O_TRUNC)
 		posix_flags |= SMB_O_TRUNC;
-	if (oflags & O_APPEND)
-		posix_flags |= SMB_O_APPEND;
 	if (oflags & O_SYNC)
 		posix_flags |= SMB_O_SYNC;
 	if (oflags & O_DIRECTORY)
@@ -650,7 +648,7 @@ cifs_lookup(struct inode *parent_dir_inode, struct dentry *direntry,
 	 * O_EXCL: optimize away the lookup, but don't hash the dentry. Let
 	 * the VFS handle the create.
 	 */
-	if (nd->flags & LOOKUP_EXCL) {
+	if (nd && (nd->flags & LOOKUP_EXCL)) {
 		d_instantiate(direntry, NULL);
 		return 0;
 	}
