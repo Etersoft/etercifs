@@ -29,7 +29,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.6.1
+Version: 4.6.2
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -240,6 +240,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.37-%src_2_6_37_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sat Feb 19 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.2-alt1
+- Fix oplock handling problem for other kernels
+- Update from stable/longterm trees
+
 * Wed Feb 09 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.1-alt1
 - Fix oplock handling problem for 2.6.37
 
