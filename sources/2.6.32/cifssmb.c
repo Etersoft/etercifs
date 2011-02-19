@@ -1440,6 +1440,8 @@ CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
 	__u32 bytes_sent;
 	__u16 byte_count;
 
+	*nbytes = 0;
+
 	/* cFYI(1, ("write at %lld %d bytes", offset, count));*/
 	if (tcon->ses == NULL)
 		return -ECONNABORTED;
@@ -1526,11 +1528,18 @@ CIFSSMBWrite(const int xid, struct cifsTconInfo *tcon,
 	cifs_stats_inc(&tcon->num_writes);
 	if (rc) {
 		cFYI(1, ("Send error in write = %d", rc));
-		*nbytes = 0;
 	} else {
 		*nbytes = le16_to_cpu(pSMBr->CountHigh);
 		*nbytes = (*nbytes) << 16;
 		*nbytes += le16_to_cpu(pSMBr->Count);
+
+		/*
+		 * Mask off high 16 bits when bytes written as returned by the
+		 * server is greater than bytes requested by the client. Some
+		 * OS/2 servers are known to set incorrect CountHigh values.
+		 */
+		if (*nbytes > count)
+			*nbytes &= 0xFFFF;
 	}
 
 	cifs_buf_release(pSMB);
@@ -1623,6 +1632,14 @@ CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
 		*nbytes = le16_to_cpu(pSMBr->CountHigh);
 		*nbytes = (*nbytes) << 16;
 		*nbytes += le16_to_cpu(pSMBr->Count);
+
+		/*
+		 * Mask off high 16 bits when bytes written as returned by the
+		 * server is greater than bytes requested by the client. OS/2
+		 * servers are known to set incorrect CountHigh values.
+		 */
+		if (*nbytes > count)
+			*nbytes &= 0xFFFF;
 	}
 
 /*	cifs_small_buf_release(pSMB); */ /* Freed earlier now in SendReceive2 */
@@ -1640,9 +1657,10 @@ CIFSSMBWrite2(const int xid, struct cifsTconInfo *tcon,
 
 int
 CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
-	    const __u16 smb_file_id, const __u32 net_pid, const __u64 len,
+	    const __u16 smb_file_id, const __u64 len,
 	    const __u64 offset, const __u32 numUnlock,
-	    const __u32 numLock, const __u8 lockType, const bool waitFlag)
+	    const __u32 numLock, const __u8 lockType,
+	    const bool waitFlag, const __u8 oplock_level)
 {
 	int rc = 0;
 	LOCK_REQ *pSMB = NULL;
@@ -1670,11 +1688,12 @@ CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
 	pSMB->NumberOfLocks = cpu_to_le16(numLock);
 	pSMB->NumberOfUnlocks = cpu_to_le16(numUnlock);
 	pSMB->LockType = lockType;
+	pSMB->OplockLevel = oplock_level;
 	pSMB->AndXCommand = 0xFF;	/* none */
 	pSMB->Fid = smb_file_id; /* netfid stays le */
 
 	if ((numLock != 0) || (numUnlock != 0)) {
-		pSMB->Locks[0].Pid = cpu_to_le16(net_pid);
+		pSMB->Locks[0].Pid = cpu_to_le16(current->tgid);
 		/* BB where to store pid high? */
 		pSMB->Locks[0].LengthLow = cpu_to_le32((u32)len);
 		pSMB->Locks[0].LengthHigh = cpu_to_le32((u32)(len>>32));
@@ -1708,7 +1727,7 @@ CIFSSMBLock(const int xid, struct cifsTconInfo *tcon,
 
 int
 CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
-		const __u16 smb_file_id, const __u32 net_pid, const int get_flag, const __u64 len,
+		const __u16 smb_file_id, const int get_flag, const __u64 len,
 		struct file_lock *pLockData, const __u16 lock_type,
 		const bool waitFlag)
 {
@@ -1768,7 +1787,7 @@ CIFSSMBPosixLock(const int xid, struct cifsTconInfo *tcon,
 	} else
 		pSMB->Timeout = 0;
 
-	parm_data->pid = cpu_to_le32(net_pid);
+	parm_data->pid = cpu_to_le32(current->tgid);
 	parm_data->start = cpu_to_le64(pLockData->fl_start);
 	parm_data->length = cpu_to_le64(len);  /* normalize negative numbers */
 

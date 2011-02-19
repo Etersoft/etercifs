@@ -302,10 +302,12 @@ int cifs_open(struct inode *inode, struct file *file)
 	    (CIFS_UNIX_POSIX_PATH_OPS_CAP &
 			le64_to_cpu(tcon->fsUnixInfo.Capability))) {
 		int oflags = (int) cifs_posix_convert_flags(file->f_flags);
+		oflags |= SMB_O_CREAT;
 		/* can not refresh inode info since size could be stale */
 		rc = cifs_posix_open(full_path, &inode, file->f_path.mnt,
-				     cifs_sb->mnt_file_mode /* ignored */,
-				     oflags, &oplock, &netfid, xid);
+				inode->i_sb,
+				cifs_sb->mnt_file_mode /* ignored */,
+				oflags, &oplock, &netfid, xid);
 		if (rc == 0) {
 			cFYI(1, ("posix open succeeded"));
 			/* no need for special case handling of setting mode
@@ -521,8 +523,9 @@ reopen_error_exit:
 		int oflags = (int) cifs_posix_convert_flags(file->f_flags);
 		/* can not refresh inode info since size could be stale */
 		rc = cifs_posix_open(full_path, NULL, file->f_path.mnt,
-				     cifs_sb->mnt_file_mode /* ignored */,
-				     oflags, &oplock, &netfid, xid);
+				inode->i_sb,
+				cifs_sb->mnt_file_mode /* ignored */,
+				oflags, &oplock, &netfid, xid);
 		if (rc == 0) {
 			cFYI(1, ("posix reopen succeeded"));
 			goto reopen_success;
@@ -748,7 +751,6 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 	bool wait_flag = false;
 	struct cifs_sb_info *cifs_sb;
 	struct cifsTconInfo *tcon;
-	__u32 netpid;
 	__u16 netfid;
 	__u8 lockType = LOCKING_ANDX_LARGE_FILES;
 	bool posix_locking = 0;
@@ -811,14 +813,6 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 	}
 	netfid = ((struct cifsFileInfo *)file->private_data)->netfid;
 
-	if ((cmd & CIFS_NOPOSIXBRL_READ) &&
-		(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_WINE_MODE))
-		netpid = ((struct cifsFileInfo *)file->private_data)->pid;
-	else
-		netpid = current->tgid;
-
-	cmd &= ~CIFS_NOPOSIXBRL_READ;
-
 	if ((tcon->ses->capabilities & CAP_UNIX) &&
 	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
 	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0))
@@ -833,7 +827,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 				posix_lock_type = CIFS_RDLCK;
 			else
 				posix_lock_type = CIFS_WRLCK;
-			rc = CIFSSMBPosixLock(xid, tcon, netfid, netpid, 1 /* get */,
+			rc = CIFSSMBPosixLock(xid, tcon, netfid, 1 /* get */,
 					length,	pfLock,
 					posix_lock_type, wait_flag);
 			FreeXid(xid);
@@ -841,13 +835,13 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 		}
 
 		/* BB we could chain these into one lock request BB */
-		rc = CIFSSMBLock(xid, tcon, netfid, netpid, length, pfLock->fl_start,
-				 0, 1, lockType, 0 /* wait flag */ );
+		rc = CIFSSMBLock(xid, tcon, netfid, length, pfLock->fl_start,
+				 0, 1, lockType, 0 /* wait flag */, 0);
 		if (rc == 0) {
-			rc = CIFSSMBLock(xid, tcon, netfid, netpid, length,
+			rc = CIFSSMBLock(xid, tcon, netfid, length,
 					 pfLock->fl_start, 1 /* numUnlock */ ,
 					 0 /* numLock */ , lockType,
-					 0 /* wait flag */ );
+					 0 /* wait flag */, 0);
 			pfLock->fl_type = F_UNLCK;
 			if (rc != 0)
 				cERROR(1, ("Error unlocking previously locked "
@@ -861,17 +855,16 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 			if (lockType & LOCKING_ANDX_SHARED_LOCK) {
 				pfLock->fl_type = F_WRLCK;
 			} else {
-				rc = CIFSSMBLock(xid, tcon, netfid, netpid,
+				rc = CIFSSMBLock(xid, tcon, netfid,
 					length, pfLock->fl_start, 0, 1,
 					lockType | LOCKING_ANDX_SHARED_LOCK,
-					0 /* wait flag */ );
+					0 /* wait flag */, 0);
 				if (rc == 0) {
 					rc = CIFSSMBLock(xid, tcon, netfid,
-						netpid, length,
-						pfLock->fl_start, 1, 0,
+						length, pfLock->fl_start, 1, 0,
 						lockType |
 						LOCKING_ANDX_SHARED_LOCK,
-						0 /* wait flag */ );
+						0 /* wait flag */, 0);
 					pfLock->fl_type = F_RDLCK;
 					if (rc != 0)
 						cERROR(1, ("Error unlocking "
@@ -906,7 +899,7 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 		if (numUnlock == 1)
 			posix_lock_type = CIFS_UNLCK;
 
-		rc = CIFSSMBPosixLock(xid, tcon, netfid, netpid, 0 /* set */,
+		rc = CIFSSMBPosixLock(xid, tcon, netfid, 0 /* set */,
 				      length, pfLock,
 				      posix_lock_type, wait_flag);
 	} else {
@@ -914,9 +907,9 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 			(struct cifsFileInfo *)file->private_data;
 
 		if (numLock) {
-			rc = CIFSSMBLock(xid, tcon, netfid, netpid, length,
-					pfLock->fl_start,
-					0, numLock, lockType, wait_flag);
+			rc = CIFSSMBLock(xid, tcon, netfid, length,
+					 pfLock->fl_start, 0, numLock, lockType,
+					 wait_flag, 0);
 
 			if (rc == 0) {
 				/* For Windows locks we must store them. */
@@ -936,9 +929,9 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *pfLock)
 						(pfLock->fl_start + length) >=
 						(li->offset + li->length)) {
 					stored_rc = CIFSSMBLock(xid, tcon,
-							netfid, netpid,
-							li->length, li->offset,
-							1, 0, li->type, false);
+							netfid, li->length,
+							li->offset, 1, 0,
+							li->type, false, 0);
 					if (stored_rc)
 						rc = stored_rc;
 					else {
@@ -2392,9 +2385,9 @@ cifs_oplock_break(struct slow_work *work)
 	 * disconnected since oplock already released by the server
 	 */
 	if (!cfile->closePend && !cfile->oplock_break_cancelled) {
-		rc = CIFSSMBLock(0, cifs_sb->tcon, cfile->netfid, cfile->pid,
-				 0, 0, 0, 0, LOCKING_ANDX_OPLOCK_RELEASE,
-				 false);
+		rc = CIFSSMBLock(0, cifs_sb->tcon, cfile->netfid, 0, 0, 0, 0,
+				 LOCKING_ANDX_OPLOCK_RELEASE, false,
+				 cinode->clientCanCacheRead ? 1 : 0);
 		cFYI(1, ("Oplock release rc = %d", rc));
 	}
 }
