@@ -1786,7 +1786,7 @@ ipv6_connect(struct sockaddr_in6 *psin_server, struct socket **csocket,
 		if (rc >= 0)
 			connected = 1;
 		else
-			orig_port_error = 1
+			orig_port_error = 1;
 	}
 
 	if (!orig_port_error && !connected) {
