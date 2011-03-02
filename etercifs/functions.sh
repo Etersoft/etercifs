@@ -48,13 +48,12 @@ split_kernel_version()
 check_for_centos()
 {
     SPECIFIC_CENTOS=
-    if [ -r "/etc/redhat-release" ] ; then
-        grep 'CentOS' /etc/redhat-release >/dev/null && SPECIFIC_CENTOS=1
-        grep 'Red Hat' /etc/redhat-release >/dev/null && SPECIFIC_CENTOS=1
+    if which lsb_release > /dev/null; then
+        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard' && SPECIFIC_CENTOS=1
     fi
     if [ -n "$SPECIFIC_CENTOS" ] ; then
         echo
-        echo "Found CentOS or RHEL."
+        echo "Found RHEL-like distribution."
 
         kernel_release4
         N1=`echo $KERNEL4 | cut -d"." -f 1`
