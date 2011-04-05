@@ -70,6 +70,8 @@ extern struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *);
 #ifdef CONFIG_CIFS_EXPERIMENTAL
 extern struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *);
 #endif
+extern void cifs_update_eof(struct cifsInodeInfo *cifsi, loff_t offset,
+			    unsigned int bytes_written);
 extern unsigned int smbCalcSize(struct smb_hdr *ptr);
 extern unsigned int smbCalcSize_LE(struct smb_hdr *ptr);
 extern int decode_negTokenInit(unsigned char *security_blob, int length,
@@ -90,10 +92,12 @@ extern struct timespec cifs_NTtimeToUnix(__le64 utc_nanoseconds_since_1601);
 extern u64 cifs_UnixTimeToNT(struct timespec);
 extern struct timespec cnvrtDosUnixTm(__le16 le_date, __le16 le_time,
 				      int offset);
+extern void cifs_set_oplock_level(struct cifsInodeInfo *cinode, __u32 oplock);
 
 extern struct cifsFileInfo *cifs_new_fileinfo(struct inode *newinode,
 				__u16 fileHandle, struct file *file,
-				struct vfsmount *mnt, unsigned int oflags);
+				struct vfsmount *mnt, unsigned int oflags,
+				__u32 oplock);
 extern int cifs_posix_open(char *full_path, struct inode **pinode,
 				struct vfsmount *mnt,
 				struct super_block *sb,

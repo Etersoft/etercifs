@@ -132,9 +132,9 @@ cifs_bp_rename_retry:
 
 struct cifsFileInfo *
 cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
-		  struct file *file, struct vfsmount *mnt, unsigned int oflags)
+		  struct file *file, struct vfsmount *mnt, unsigned int oflags,
+		  __u32 oplock)
 {
-	int oplock = 0;
 	struct cifsFileInfo *pCifsFile;
 	struct cifsInodeInfo *pCifsInode;
 	struct cifs_sb_info *cifs_sb = CIFS_SB(mnt->mnt_sb);
@@ -142,9 +142,6 @@ cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
 	pCifsFile = kzalloc(sizeof(struct cifsFileInfo), GFP_KERNEL);
 	if (pCifsFile == NULL)
 		return pCifsFile;
-
-	if (oplockEnabled)
-		oplock = REQ_OPLOCK;
 
 	pCifsFile->netfid = fileHandle;
 	pCifsFile->pid = current->tgid;
@@ -159,9 +156,12 @@ cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
 	atomic_set(&pCifsFile->count, 1);
 	slow_work_init(&pCifsFile->oplock_break, &cifs_oplock_break_ops);
 
+	pCifsInode = CIFS_I(newinode);
+	if (pCifsInode)
+		cifs_set_oplock_level(pCifsInode, oplock);
 	write_lock(&GlobalSMBSeslock);
 	list_add(&pCifsFile->tlist, &cifs_sb->tcon->openFileList);
-	pCifsInode = CIFS_I(newinode);
+
 	if (pCifsInode) {
 		/* if readable file instance put first in list*/
 		if (oflags & FMODE_READ)
@@ -169,13 +169,6 @@ cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
 		else
 			list_add_tail(&pCifsFile->flist,
 				      &pCifsInode->openFileList);
-
-		if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
-			pCifsInode->clientCanCacheAll = true;
-			pCifsInode->clientCanCacheRead = true;
-			cFYI(1, ("Exclusive Oplock inode %p", newinode));
-		} else if ((oplock & 0xF) == OPLOCK_READ)
-				pCifsInode->clientCanCacheRead = true;
 	}
 	write_unlock(&GlobalSMBSeslock);
 
@@ -252,7 +245,8 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
 	}
 
 	if (mnt)
-		cifs_new_fileinfo(*pinode, *pnetfid, NULL, mnt, oflags);
+		cifs_new_fileinfo(*pinode, *pnetfid, NULL, mnt, oflags,
+				  *poplock);
 
 posix_open_ret:
 	kfree(presp_data);
@@ -468,7 +462,7 @@ cifs_create_set_dentry:
 		CIFSSMBClose(xid, tcon, fileHandle);
 	} else if (!(posix_create) && (newinode)) {
 			cifs_new_fileinfo(newinode, fileHandle, NULL,
-						nd->path.mnt, oflags);
+					  nd->path.mnt, oflags, oplock);
 	}
 cifs_create_out:
 	kfree(buf);
