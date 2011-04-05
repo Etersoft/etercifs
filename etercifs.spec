@@ -24,13 +24,14 @@
 %define src_2_6_35_version 1.64
 %define src_2_6_36_version 1.65
 %define src_2_6_37_version 1.68
+%define src_2_6_38_version 1.71
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.6.2
-Release: alt2
+Version: 4.8.0
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -64,6 +65,7 @@ Source34: %src_package_name-2.6.34-%src_2_6_34_version.tar.bz2
 Source35: %src_package_name-2.6.35-%src_2_6_35_version.tar.bz2
 Source36: %src_package_name-2.6.36-%src_2_6_36_version.tar.bz2
 Source37: %src_package_name-2.6.37-%src_2_6_37_version.tar.bz2
+Source38: %src_package_name-2.6.38-%src_2_6_38_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -81,6 +83,7 @@ Provides: %src_package_name-2.6.34 = %version-%release
 Provides: %src_package_name-2.6.35 = %version-%release
 Provides: %src_package_name-2.6.36 = %version-%release
 Provides: %src_package_name-2.6.37 = %version-%release
+Provides: %src_package_name-2.6.38 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -190,6 +193,7 @@ cp %SOURCE34 %buildroot/%etercifs_src/
 cp %SOURCE35 %buildroot/%etercifs_src/
 cp %SOURCE36 %buildroot/%etercifs_src/
 cp %SOURCE37 %buildroot/%etercifs_src/
+cp %SOURCE38 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -223,6 +227,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.36-%src_2_6_36_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.36-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.37-%src_2_6_37_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.37-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-2.6.38-%src_2_6_38_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.38-%version.tar.bz2
 
 %post
 %post_service %name
@@ -240,6 +246,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.37-%src_2_6_37_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Tue Apr 05 2011 Pavel Shilovsky <piastry@altlinux.org> 4.8.0-alt1
+- Add strict cache mode for 2.6.32, 2.6.35 and 2.6.37
+- Add sources for 2.6.38 with strict cache mode
+
 * Wed Mar 02 2011 Pavel Shilovsky <piastry@altlinux.org> 4.6.2-alt2
 - Fix build on RHEL-like distros
 
