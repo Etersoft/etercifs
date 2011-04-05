@@ -8,7 +8,7 @@ etercifs-y := cifsfs.o cifssmb.o cifs_debug.o connect.o dir.o file.o inode.o \
 	  md4.o md5.o cifs_unicode.o nterr.o xattr.o cifsencrypt.o \
 	  readdir.o ioctl.o sess.o export.o
 
-cifs-$(CONFIG_CIFS_ACL) += cifsacl.o
+etercifs-$(CONFIG_CIFS_ACL) += cifsacl.o
 
 etercifs-$(CONFIG_CIFS_UPCALL) += cifs_spnego.o
 

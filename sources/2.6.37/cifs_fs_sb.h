@@ -40,7 +40,8 @@
 #define CIFS_MOUNT_FSCACHE	0x8000 /* local caching enabled */
 #define CIFS_MOUNT_MF_SYMLINKS	0x10000 /* Minshall+French Symlinks enabled */
 #define CIFS_MOUNT_MULTIUSER	0x20000 /* multiuser mount */
-#define CIFS_MOUNT_WINE_MODE    0x40000 /* use pid forwarding for wine apps    */
+#define CIFS_MOUNT_STRICT_IO	0x40000 /* strict cache mode */
+#define CIFS_MOUNT_WINE_MODE    0x80000 /* use pid forwarding for wine apps   */
 
 struct cifs_sb_info {
 	struct rb_root tlink_tree;
