@@ -568,6 +568,10 @@ is_valid_oplock_break(struct smb_hdr *buf, struct TCP_Server_Info *srv)
 				if (pSMB->Fid != netfile->netfid)
 					continue;
 
+				cFYI(1, "file id match, oplock break");
+				pCifsInode = CIFS_I(netfile->pInode);
+				cifs_set_oplock_level(pCifsInode,
+					pSMB->OplockLevel ? OPLOCK_READ : 0);
 				/*
 				 * don't do anything if file is about to be
 				 * closed anyway.
@@ -578,11 +582,6 @@ is_valid_oplock_break(struct smb_hdr *buf, struct TCP_Server_Info *srv)
 					return true;
 				}
 
-				cFYI(1, "file id match, oplock break");
-				pCifsInode = CIFS_I(netfile->pInode);
-				pCifsInode->clientCanCacheAll = false;
-				if (pSMB->OplockLevel == 0)
-					pCifsInode->clientCanCacheRead = false;
 				rc = slow_work_enqueue(&netfile->oplock_break);
 				if (rc) {
 					cERROR(1, "failed to enqueue oplock "
@@ -726,5 +725,25 @@ cifs_autodisable_serverino(struct cifs_sb_info *cifs_sb)
 			   "mount. Consider mounting with the \"noserverino\" "
 			   "option to silence this message.",
 			   cifs_sb->tcon->treeName);
+	}
+}
+
+void cifs_set_oplock_level(struct cifsInodeInfo *cinode, __u32 oplock)
+{
+	oplock &= 0xF;
+
+	if (oplock == OPLOCK_EXCLUSIVE) {
+		cinode->clientCanCacheAll = true;
+		cinode->clientCanCacheRead = true;
+		cFYI(1, "Exclusive Oplock granted on inode %p",
+		     &cinode->vfs_inode);
+	} else if (oplock == OPLOCK_READ) {
+		cinode->clientCanCacheAll = false;
+		cinode->clientCanCacheRead = true;
+		cFYI(1, "Level II Oplock granted on inode %p",
+		    &cinode->vfs_inode);
+	} else {
+		cinode->clientCanCacheAll = false;
+		cinode->clientCanCacheRead = false;
 	}
 }

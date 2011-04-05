@@ -43,12 +43,16 @@ static void cifs_set_ops(struct inode *inode, const bool is_dfs_referral)
 				inode->i_fop = &cifs_file_direct_nobrl_ops;
 			else
 				inode->i_fop = &cifs_file_direct_ops;
+		} else if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_STRICT_IO) {
+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_BRL)
+				inode->i_fop = &cifs_file_strict_nobrl_ops;
+			else
+				inode->i_fop = &cifs_file_strict_ops;
 		} else if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_BRL)
 			inode->i_fop = &cifs_file_nobrl_ops;
 		else { /* not direct, send byte range locks */
 			inode->i_fop = &cifs_file_ops;
 		}
-
 
 		/* check if server can support readpages */
 		if (cifs_sb->tcon->ses->server->maxBuf <
@@ -1552,8 +1556,10 @@ cifs_inode_needs_reval(struct inode *inode)
 	return false;
 }
 
-/* check invalid_mapping flag and zap the cache if it's set */
-static void
+/*
+ * Zap the cache. Called when invalid_mapping flag is set.
+ */
+void
 cifs_invalidate_mapping(struct inode *inode)
 {
 	int rc;
@@ -1566,8 +1572,13 @@ cifs_invalidate_mapping(struct inode *inode)
 		rc = filemap_write_and_wait(inode->i_mapping);
 		if (rc)
 			cifs_i->write_behind_rc = rc;
+		rc = invalidate_inode_pages2(inode->i_mapping);
+		if (rc) {
+			cERROR(1, "%s: could not invalidate inode %p", __func__,
+			       inode);
+			cifs_i->invalid_mapping = true;
+		}
 	}
-	invalidate_remote_inode(inode);
 }
 
 int cifs_revalidate_file(struct file *filp)

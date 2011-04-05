@@ -36,6 +36,7 @@
 #define CIFS_MOUNT_NOPOSIXBRL   0x2000 /* mandatory not posix byte range lock */
 #define CIFS_MOUNT_NOSSYNC      0x4000 /* don't do slow SMBflush on every sync*/
 #define CIFS_MOUNT_WINE_MODE    0x8000 /* use pid forwarding for wine apps    */
+#define CIFS_MOUNT_STRICT_IO	0x10000 /* strict cache mode */
 
 struct cifs_sb_info {
 	struct cifsTconInfo *tcon;	/* primary mount */

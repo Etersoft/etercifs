@@ -162,9 +162,11 @@ cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
 	atomic_set(&pCifsFile->count, 1);
 	slow_work_init(&pCifsFile->oplock_break, &cifs_oplock_break_ops);
 
+	pCifsInode = CIFS_I(newinode);
+	if (pCifsInode)
+		cifs_set_oplock_level(pCifsInode, oplock);
 	write_lock(&GlobalSMBSeslock);
 	list_add(&pCifsFile->tlist, &cifs_sb->tcon->openFileList);
-	pCifsInode = CIFS_I(newinode);
 	if (pCifsInode) {
 		/* if readable file instance put first in list*/
 		if (oflags & FMODE_READ)
@@ -172,13 +174,6 @@ cifs_new_fileinfo(struct inode *newinode, __u16 fileHandle,
 		else
 			list_add_tail(&pCifsFile->flist,
 				      &pCifsInode->openFileList);
-
-		if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
-			pCifsInode->clientCanCacheAll = true;
-			pCifsInode->clientCanCacheRead = true;
-			cFYI(1, "Exclusive Oplock inode %p", newinode);
-		} else if ((oplock & 0xF) == OPLOCK_READ)
-				pCifsInode->clientCanCacheRead = true;
 	}
 	write_unlock(&GlobalSMBSeslock);
 
