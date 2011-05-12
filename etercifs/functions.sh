@@ -64,17 +64,23 @@ check_for_centos()
         CENTOS=0
         if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
             if [ "$N3" -eq 18 ] ; then
-                if [ "$N4" -eq 194 ] ; then
+                if [ "$N4" -eq 238 ] ; then
+                    echo "Your kernel is 2.6.18-238.x"
+                    CENTOS=56
+                elif [ "$N4" -gt 238 ] ; then
+                    echo "Warning! Your kernel is newer than 2.6.18-238.x"
+                    CENTOS=56
+                elif [ "$N4" -eq 194 ] ; then
                     echo "Your kernel is 2.6.18-194.x"
                     CENTOS=55
                 elif [ "$N4" -gt 194 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-194.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-194.x and older than 2.6.18.238.x"
                     CENTOS=55
                 elif [ "$N4" -eq 164 ] ; then
                     echo "Your kernel is 2.6.18-164.x"
                     CENTOS=54
                 elif [ "$N4" -gt 164 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-164.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-164.x and older than 2.6.18.194.x"
                     CENTOS=54
                 elif [ "$N4" -eq 128 ] ; then
                     echo "Your kernel is 2.6.18-128.x"
@@ -113,7 +119,10 @@ detect_etercifs_sources()
     # CentOS-RHEL specific part
     check_for_centos
     if [ -n "$SPECIFIC_CENTOS" ] ; then
-        if [ "$CENTOS" -eq 55 ] ; then
+        if [ "$CENTOS" -eq 56 ] ; then
+            echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos56' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 55 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-194.x from CentOS 5.5."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos55' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 54 ] ; then
