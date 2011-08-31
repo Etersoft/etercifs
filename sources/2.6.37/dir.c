@@ -255,7 +255,7 @@ cifs_create(struct inode *inode, struct dentry *direntry, int mode,
 
 	if (tcon->ses->capabilities & CAP_NT_SMBS)
 		rc = CIFSSMBOpen(xid, tcon, full_path, disposition,
-			 desiredAccess, ((~(oflags>>21))&7), create_options,
+			 desiredAccess, ((~(oflags>>28))&7), create_options,
 			 &fileHandle, &oplock, buf, cifs_sb->local_nls,
 			 cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
 	else
