@@ -106,7 +106,7 @@ static inline int cifs_get_disposition(unsigned int flags)
 
 static inline int cifs_get_share_flags(unsigned int flags)
 {
-	return ((~(flags>>21))&7);
+	return ((~(flags>>28))&7);
 }
 
 int cifs_posix_open(char *full_path, struct inode **pinode,
