@@ -98,7 +98,7 @@ static inline int cifs_get_disposition(unsigned int flags)
 
 static inline int cifs_get_share_flags(unsigned int flags)
 {
-	return ((~(flags>>21))&7);
+	return ((~(flags>>28))&7);
 }
 
 /* all arguments to this function must be checked for validity in caller */
