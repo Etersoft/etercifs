@@ -281,7 +281,7 @@ client_can_cache:
 
 static inline int cifs_get_share_flags(unsigned int flags)
 {
-	return ((~(flags>>21))&7);
+	return ((~(flags>>28))&7);
 }
 
 int cifs_open(struct inode *inode, struct file *file)
