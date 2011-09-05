@@ -27,12 +27,13 @@
 %define src_2_6_37_version 1.68
 %define src_2_6_38_version 1.71
 %define src_2_6_39_version 1.71
+%define src_3_0_version 1.74
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 4.8.2
+Version: 5.0.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -70,6 +71,7 @@ Source36: %src_package_name-2.6.36-%src_2_6_36_version.tar.bz2
 Source37: %src_package_name-2.6.37-%src_2_6_37_version.tar.bz2
 Source38: %src_package_name-2.6.38-%src_2_6_38_version.tar.bz2
 Source39: %src_package_name-2.6.39-%src_2_6_39_version.tar.bz2
+Source40: %src_package_name-3.0-%src_3_0_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -89,6 +91,7 @@ Provides: %src_package_name-2.6.36 = %version-%release
 Provides: %src_package_name-2.6.37 = %version-%release
 Provides: %src_package_name-2.6.38 = %version-%release
 Provides: %src_package_name-2.6.39 = %version-%release
+Provides: %src_package_name-3.0 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -201,6 +204,7 @@ cp %SOURCE36 %buildroot/%etercifs_src/
 cp %SOURCE37 %buildroot/%etercifs_src/
 cp %SOURCE38 %buildroot/%etercifs_src/
 cp %SOURCE39 %buildroot/%etercifs_src/
+cp %SOURCE40 %buildroot/%etercifs_src/
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -238,6 +242,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.38-%src_2_6_38_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.38-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-2.6.39-%src_2_6_39_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.39-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.0-%version.tar.bz2
 
 %post
 %post_service %name
@@ -255,6 +261,11 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.39-%src_2_6_39_version.tar
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Sep 05 2011 Pavel Shilovsky <piastry@altlinux.org> 5.0.0-alt1
+- Change share flags shift to 28
+- Add sources for 3.0
+- Update from stable/longterm trees
+
 * Tue May 31 2011 Pavel Shilovsky <piastry@altlinux.org> 4.8.2-alt1
 - Add sources for 2.6.39
 - Update from stable/longterm trees
