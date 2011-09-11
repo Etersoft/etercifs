@@ -166,6 +166,13 @@ PACKAGEVEREL=%version-%release
 CHECK_VERSION=1
 EOF
 
+mkdir -p %buildroot%_sysconfdir/modprobe.d
+cat <<EOF >%buildroot%_sysconfdir/modprobe.d/etersoft.conf
+# wine@etersoft
+install cifs /sbin/modprobe etercifs
+blacklist cifs
+EOF
+
 mkdir -p %buildroot%_initdir/
 install -m755 %name %buildroot%_initdir/
 install -m755 %name.outformat %buildroot%_initdir/
@@ -260,6 +267,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
 %files
 %doc README.ETER AUTHORS CHANGES README TODO
 %config %_sysconfigdir/%name.conf
+%config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
 %_initdir/%name
 %_initdir/%name.outformat
