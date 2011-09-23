@@ -142,13 +142,19 @@ detect_etercifs_sources()
     # end of CentOS-RHEL specific part
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
-        ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
+        kernel_release2
+        FIRSTNUM=`echo $KERNEL2 | cut -d"." -f 1`
+        if [ "$FIRSTNUM" -eq 3 ] ; then
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL2 | sort -r | head -n 1`
+        fi
+    fi
+
+    if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
+        ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
         KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r | head -n 1`
-        OLD_IFS=$IFS
-        IFS="-"
-        set -- $KERNEL_SOURCE_ETERCIFS_LINK
-        echo "Warning: using the lates supported sources ($4) that is not for current kernel version!"
-        IFS=$OLD_IFS
+        LATEST_SOURCES=`echo $KERNEL_SOURCE_ETERCIFS_LINK | cut -d"-" -f 4`
+        echo "Warning! Couldn't find module sources for the current kernel $KERNEL2 ($LATEST_SOURCES sources are selected)!"
+        echo "Using the lates supported sources - from v$LATEST_SOURCES kernel!"
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
     fi
 
@@ -168,6 +174,12 @@ create_builddir()
     trap exit_handler HUP PIPE INT QUIT TERM EXIT
     FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
     BUILDDIR=$tmpdir/${FILENAME%.tar.bz2}
+}
+
+kernel_release2()
+{
+    # 3.0
+    KERNEL2=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
 }
 
 kernel_release()
