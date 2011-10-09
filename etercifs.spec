@@ -33,7 +33,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.0.0
+Version: 5.0.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -275,6 +275,13 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Sun Oct 09 2011 Pavel Shilovsky <piastry@altlinux.org> 5.0.1-alt1
+- Add Fedora 15 2.6.40 kernel support
+- Add modprobe.d/etersoft.conf
+- Fix module sources selecting
+- Update 3.0 sources from stable (v3.0.6)
+- Fix incorrect max RFC1002 write size value for 2.6.39 and 3.0
+
 * Mon Sep 05 2011 Pavel Shilovsky <piastry@altlinux.org> 5.0.0-alt1
 - Change share flags shift to 28
 - Add sources for 3.0
