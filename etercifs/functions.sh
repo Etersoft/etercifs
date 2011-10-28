@@ -55,6 +55,8 @@ check_for_centos()
         echo
         echo "Found RHEL-like distribution."
 
+        OVZ_KERNEL=`echo $KERNELVERSION | grep 'stab'`
+
         kernel_release4
         N1=`echo $KERNEL4 | cut -d"." -f 1`
         N2=`echo $KERNEL4 | cut -d"." -f 2`
@@ -64,7 +66,13 @@ check_for_centos()
         CENTOS=0
         if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
             if [ "$N3" -eq 18 ] ; then
-                if [ "$N4" -eq 238 ] ; then
+                if [ "$N4" -eq 274 ] ; then
+                    echo "Your kernel is 2.6.18-274.x"
+                    CENTOS=57
+                elif [ "$N4" -gt 274 ] ; then
+                    echo "Warning! Your kernel is newer than 2.6.18-274.x"
+                    CENTOS=56
+                elif [ "$N4" -eq 238 ] ; then
                     echo "Your kernel is 2.6.18-238.x"
                     CENTOS=56
                 elif [ "$N4" -gt 238 ] ; then
@@ -119,7 +127,14 @@ detect_etercifs_sources()
     # CentOS-RHEL specific part
     check_for_centos
     if [ -n "$SPECIFIC_CENTOS" ] ; then
-        if [ "$CENTOS" -eq 56 ] ; then
+        if [ -n "$OVZ_KERNEL" ] ; then
+            echo "Building from legacy sources with patch for OpenVZ kernels 2.6.18-274.x from CentOS 5.7."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos-ovz' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 57 ] ; then
+            # The same as CentOS 5.6
+            echo "Building from legacy sources with patch for kernels 2.6.18-274.x from CentOS 5.7."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos56' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 56 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos56' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 55 ] ; then
