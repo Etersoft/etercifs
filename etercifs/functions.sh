@@ -109,6 +109,9 @@ check_for_centos()
             elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
                 echo "Warning! Your kernel is newer than 2.6.18 and older than 2.6.23"
                 CENTOS=53
+            elif [ "$N3" -eq 32 ] ; then
+                echo "Your kernel is 2.6.32-x.y"
+                CENTOS=60
             else
                 echo "Warning! Your kernel is older than 2.6.18 or newer than 2.6.23"
             fi
@@ -130,6 +133,9 @@ detect_etercifs_sources()
         if [ -n "$OVZ_KERNEL" ] ; then
             echo "Building from legacy sources with patch for OpenVZ kernels 2.6.18-274.x from CentOS 5.7."
             KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos-ovz' | sort -r | head -n 1`
+        elif [ "$CENTOS" -eq 60 ] ; then
+            echo "Building from legacy sources with patch for kernels 2.6.32-x.y from CentOS 6.0."
+            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos60' | sort -r | head -n 1`
         elif [ "$CENTOS" -eq 57 ] ; then
             # The same as CentOS 5.6
             echo "Building from legacy sources with patch for kernels 2.6.18-274.x from CentOS 5.7."
