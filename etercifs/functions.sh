@@ -123,9 +123,19 @@ check_for_centos()
 
 detect_etercifs_sources()
 {
-    [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
+    FIRSTNUM=`echo $KERNEL | cut -d"." -f 1`
+    if [ "$FIRSTNUM" -eq 2 ] ; then
+        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
+        KERNEL_STRING=$KERNEL
+    elif [ "$FIRSTNUM" -eq 3 ] ; then
+        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-3*
+        kernel_release2
+        KERNEL_STRING=$KERNEL2
+    fi
+
     [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
-    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL | sort -r | head -n 1`
+
+    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL_STRING | sort -r | head -n 1`
 
     # CentOS-RHEL specific part
     check_for_centos
@@ -161,14 +171,6 @@ detect_etercifs_sources()
         fi
     fi
     # end of CentOS-RHEL specific part
-
-    if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
-        kernel_release2
-        FIRSTNUM=`echo $KERNEL2 | cut -d"." -f 1`
-        if [ "$FIRSTNUM" -eq 3 ] ; then
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL2 | sort -r | head -n 1`
-        fi
-    fi
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
