@@ -30,12 +30,13 @@
 %define src_2_6_38_version 1.71
 %define src_2_6_39_version 1.71
 %define src_3_0_version 1.74
+%define src_3_1_version 1.75
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.0.2
+Version: 5.2.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -75,6 +76,7 @@ Source37: %src_package_name-2.6.37-%src_2_6_37_version.tar.bz2
 Source38: %src_package_name-2.6.38-%src_2_6_38_version.tar.bz2
 Source39: %src_package_name-2.6.39-%src_2_6_39_version.tar.bz2
 Source40: %src_package_name-3.0-%src_3_0_version.tar.bz2
+Source41: %src_package_name-3.1-%src_3_1_version.tar.bz2
 Source60: %src_package_name-centos60-%src_centos60_version.tar.bz2
 
 Conflicts: linux-cifs
@@ -96,6 +98,7 @@ Provides: %src_package_name-2.6.37 = %version-%release
 Provides: %src_package_name-2.6.38 = %version-%release
 Provides: %src_package_name-2.6.39 = %version-%release
 Provides: %src_package_name-3.0 = %version-%release
+Provides: %src_package_name-3.1 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -217,6 +220,7 @@ cp %SOURCE37 %buildroot/%etercifs_src/
 cp %SOURCE38 %buildroot/%etercifs_src/
 cp %SOURCE39 %buildroot/%etercifs_src/
 cp %SOURCE40 %buildroot/%etercifs_src/
+cp %SOURCE41 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -265,6 +269,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
 # Special case for Fedora 15 v2.6.40.* kernels
 ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.40-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.1-%version.tar.bz2
 
 %post
 %post_service %name
@@ -283,6 +289,13 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Mon Nov 21 2011 Pavel Shilovsky <piastry@altlinux.org> 5.2.0-alt1
+- Fix LinuxWizard detection
+- Update from stable trees (v2.6.32.48, v2.6.33.20, v3.0.9)
+- Implement byte range lock cache for 3.0
+- Add sources for 3.1 (v3.1.1)
+- Fix module source selecting
+
 * Tue Nov 01 2011 Pavel Shilovsky <piastry@altlinux.org> 5.0.2-alt1
 - Update 3.0 sources from stable (v3.0.8)
 - Fix DFS handling in cifs_get_file_info (v2.6.34..v3.0)
