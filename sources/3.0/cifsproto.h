@@ -359,14 +359,17 @@ extern int CIFSGetSrvInodeNumber(const int xid, struct cifs_tcon *tcon,
 			const struct nls_table *nls_codepage,
 			int remap_special_chars);
 
+extern int cifs_lockv(const int xid, struct cifs_tcon *tcon, const __u16 netfid,
+		      const __u8 lock_type, const __u32 num_unlock,
+		      const __u32 num_lock, LOCKING_ANDX_RANGE *buf);
 extern int CIFSSMBLock(const int xid, struct cifs_tcon *tcon,
-			const __u16 netfid, const __u64 len,
+			const __u16 netfid, const __u32 netpid, const __u64 len,
 			const __u64 offset, const __u32 numUnlock,
 			const __u32 numLock, const __u8 lockType,
 			const bool waitFlag, const __u8 oplock_level);
 extern int CIFSSMBPosixLock(const int xid, struct cifs_tcon *tcon,
-			const __u16 smb_file_id, const int get_flag,
-			const __u64 len, struct file_lock *,
+			const __u16 smb_file_id, const __u32 netpid,
+			const int get_flag, const __u64 len, struct file_lock *,
 			const __u16 lock_type, const bool waitFlag);
 extern int CIFSSMBTDis(const int xid, struct cifs_tcon *tcon);
 extern int CIFSSMBEcho(struct TCP_Server_Info *server);
