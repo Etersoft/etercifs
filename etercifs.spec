@@ -1,4 +1,4 @@
-# Etersoft (c) 2007, 2008, 2009, 2010
+# Etersoft (c) 2007, 2008, 2009, 2010, 2011
 # Multiplatform spec for Korinf autobuild system (ALT Linux package spec policy)
 
 %define src_package_name kernel-source-etercifs
@@ -36,7 +36,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.2.0
+Version: 5.3.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -289,6 +289,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Dec 01 2011 Pavel Shilovsky <piastry@altlinux.org> 5.3.0-alt1
+- Remove rwpidforward from wine mount option for 3.0 and 3.1
+
 * Mon Nov 21 2011 Pavel Shilovsky <piastry@altlinux.org> 5.2.0-alt1
 - Fix LinuxWizard detection
 - Update from stable trees (v2.6.32.48, v2.6.33.20, v3.0.9)
