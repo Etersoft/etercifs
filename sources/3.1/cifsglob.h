@@ -201,7 +201,7 @@ struct smb_vol {
 	bool mfsymlinks:1; /* use Minshall+French Symlinks */
 	bool multiuser:1;
 	bool rwpidforward:1; /* pid forward for read/write operations */
-	bool wine:1; /* switch on pidforwardio+strictcache+forcemand */
+	bool wine:1; /* switch on strictcache+forcemand */
 	unsigned int rsize;
 	unsigned int wsize;
 	bool sockopt_tcp_nodelay:1;
