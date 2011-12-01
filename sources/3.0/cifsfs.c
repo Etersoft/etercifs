@@ -452,8 +452,7 @@ cifs_show_options(struct seq_file *s, struct vfsmount *m)
 		seq_printf(s, ",mfsymlinks");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_FSCACHE)
 		seq_printf(s, ",fsc");
-	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RWPIDFORWARD) &&
-	    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_STRICT_IO) &&
+	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_STRICT_IO) &&
 	    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL))
 		seq_printf(s, ",wine");
 

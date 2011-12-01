@@ -1367,7 +1367,6 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			vol->wine = 1;
 			vol->strict_io = 1;
 			vol->mand_lock = 1;
-			vol->rwpidforward = 1;
 		} else if (strnicmp(data, "cifsacl", 7) == 0) {
 			vol->cifs_acl = 1;
 		} else if (strnicmp(data, "nocifsacl", 9) == 0) {
