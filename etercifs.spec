@@ -1,4 +1,4 @@
-# Etersoft (c) 2007, 2008, 2009, 2010, 2011
+# Etersoft (c) 2007, 2008, 2009, 2010, 2011, 2012
 # Multiplatform spec for Korinf autobuild system (ALT Linux package spec policy)
 
 %define src_package_name kernel-source-etercifs
@@ -31,12 +31,13 @@
 %define src_2_6_39_version 1.71
 %define src_3_0_version 1.74
 %define src_3_1_version 1.75
+%define src_3_2_version 1.76
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.3.0
+Version: 5.4.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -77,6 +78,7 @@ Source38: %src_package_name-2.6.38-%src_2_6_38_version.tar.bz2
 Source39: %src_package_name-2.6.39-%src_2_6_39_version.tar.bz2
 Source40: %src_package_name-3.0-%src_3_0_version.tar.bz2
 Source41: %src_package_name-3.1-%src_3_1_version.tar.bz2
+Source42: %src_package_name-3.2-%src_3_2_version.tar.bz2
 Source60: %src_package_name-centos60-%src_centos60_version.tar.bz2
 
 Conflicts: linux-cifs
@@ -99,6 +101,7 @@ Provides: %src_package_name-2.6.38 = %version-%release
 Provides: %src_package_name-2.6.39 = %version-%release
 Provides: %src_package_name-3.0 = %version-%release
 Provides: %src_package_name-3.1 = %version-%release
+Provides: %src_package_name-3.2 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -221,6 +224,7 @@ cp %SOURCE38 %buildroot/%etercifs_src/
 cp %SOURCE39 %buildroot/%etercifs_src/
 cp %SOURCE40 %buildroot/%etercifs_src/
 cp %SOURCE41 %buildroot/%etercifs_src/
+cp %SOURCE42 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -271,6 +275,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.40-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.1-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.2-%version.tar.bz2
 
 %post
 %post_service %name
@@ -289,6 +295,11 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Fri Jan 20 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.0-alt1
+- Fix build on CentOS
+- Update from stable trees (v2.6.32.48, v2.6.33.20, v3.0.9)
+- Add sources for 3.2 (v3.2.1)
+
 * Thu Dec 01 2011 Pavel Shilovsky <piastry@altlinux.org> 5.3.0-alt1
 - Remove rwpidforward from wine mount option for 3.0 and 3.1
 
