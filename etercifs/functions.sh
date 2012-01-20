@@ -123,54 +123,53 @@ check_for_centos()
 
 detect_etercifs_sources()
 {
-    FIRSTNUM=`echo $KERNEL | cut -d"." -f 1`
-    if [ "$FIRSTNUM" -eq 2 ] ; then
-        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
-        KERNEL_STRING=$KERNEL
-    elif [ "$FIRSTNUM" -eq 3 ] ; then
-        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-3*
-        kernel_release2
-        KERNEL_STRING=$KERNEL2
-    fi
-
-    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
-
-    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL_STRING | sort -r | head -n 1`
-
     # CentOS-RHEL specific part
     check_for_centos
     if [ -n "$SPECIFIC_CENTOS" ] ; then
+        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-*
         if [ -n "$OVZ_KERNEL" ] ; then
             echo "Building from legacy sources with patch for OpenVZ kernels 2.6.18-274.x from CentOS 5.7."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos-ovz' | sort -r | head -n 1`
+            KERNEL_STRING='centos-ovz'
         elif [ "$CENTOS" -eq 60 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.32-x.y from CentOS 6.0."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos60' | sort -r | head -n 1`
+            KERNEL_STRING='centos60'
         elif [ "$CENTOS" -eq 57 ] ; then
             # The same as CentOS 5.6
             echo "Building from legacy sources with patch for kernels 2.6.18-274.x from CentOS 5.7."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos56' | sort -r | head -n 1`
+            KERNEL_STRING='centos56'
         elif [ "$CENTOS" -eq 56 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos56' | sort -r | head -n 1`
+            KERNEL_STRING='centos56'
         elif [ "$CENTOS" -eq 55 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-194.x from CentOS 5.5."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos55' | sort -r | head -n 1`
+            KERNEL_STRING='centos55'
         elif [ "$CENTOS" -eq 54 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos54' | sort -r | head -n 1`
+            KERNEL_STRING='centos54'
         elif [ "$CENTOS" -eq 53 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-128.x from CentOS 5.3."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos53' | sort -r | head -n 1`
+            KERNEL_STRING='centos53'
         elif [ "$CENTOS" -eq 52 ] ; then
             echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'centos52' | sort -r | head -n 1`
+            KERNEL_STRING='centos52'
         else
             echo "Building from legacy sources."
-            KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep 'legacy' | sort -r | head -n 1`
+            KERNEL_STRING='legacy'
+        fi # end of CentOS-RHEL specific part
+    else
+        FIRSTNUM=`echo $KERNEL | cut -d"." -f 1`
+        if [ "$FIRSTNUM" -eq 2 ] ; then
+            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
+            KERNEL_STRING=$KERNEL
+        elif [ "$FIRSTNUM" -eq 3 ] ; then
+            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-3*
+            kernel_release2
+            KERNEL_STRING=$KERNEL2
         fi
     fi
-    # end of CentOS-RHEL specific part
+
+    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
+    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL_STRING | sort -r | head -n 1`
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
