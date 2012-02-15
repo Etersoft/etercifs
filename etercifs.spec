@@ -37,7 +37,7 @@
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.4.0
+Version: 5.4.1
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -295,6 +295,12 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Wed Feb 15 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.1-alt1
+- Fix build on CentOS 6.0
+- Update from stable trees (v2.6.27.61, v3.0.21, v3.2.6)
+- Lower default wsize when posix extension are not used for 3.0 and 3.1
+- Fix oops in session setup code for null user mounts for 3.1
+
 * Fri Jan 20 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.0-alt1
 - Fix build on CentOS
 - Update from stable trees (v2.6.32.48, v2.6.33.20, v3.0.9)
