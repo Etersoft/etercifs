@@ -687,7 +687,9 @@ const struct file_operations cifs_file_strict_ops = {
 #ifdef CONFIG_CIFS_POSIX
 	.unlocked_ioctl	= cifs_ioctl,
 #endif /* CONFIG_CIFS_POSIX */
+#ifdef CONFIG_CIFS_EXPERIMENTAL
 	.setlease = cifs_setlease,
+#endif /* CONFIG_CIFS_EXPERIMENTAL */
 };
 
 const struct file_operations cifs_file_direct_ops = {
@@ -747,7 +749,9 @@ const struct file_operations cifs_file_strict_nobrl_ops = {
 #ifdef CONFIG_CIFS_POSIX
 	.unlocked_ioctl	= cifs_ioctl,
 #endif /* CONFIG_CIFS_POSIX */
+#ifdef CONFIG_CIFS_EXPERIMENTAL
 	.setlease = cifs_setlease,
+#endif /* CONFIG_CIFS_EXPERIMENTAL */
 };
 
 const struct file_operations cifs_file_direct_nobrl_ops = {
