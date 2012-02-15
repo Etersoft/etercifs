@@ -2783,13 +2783,32 @@ void cifs_setup_cifs_sb(struct smb_vol *pvolume_info,
  */
 #define CIFS_DEFAULT_WSIZE (1024 * 1024)
 
+/*
+ * Windows only supports a max of 65535 byte writes. Default to this value when
+ * posix extensions aren't in force. In actuality here, we use 65536 to allow
+ * for a write that is a multiple of 4k. Most servers seem to be ok with the
+ * extra byte even though Windows doesn't send writes that are that large.
+ *
+ * Citation:
+ *
+ * http://blogs.msdn.com/b/openspecification/archive/2009/04/10/smb-maximum-transmit-buffer-size-and-performance-tuning.aspx
+ */
+#define CIFS_DEFAULT_NON_POSIX_WSIZE (65536)
+
 static unsigned int
 cifs_negotiate_wsize(struct cifs_tcon *tcon, struct smb_vol *pvolume_info)
 {
 	__u64 unix_cap = le64_to_cpu(tcon->fsUnixInfo.Capability);
 	struct TCP_Server_Info *server = tcon->ses->server;
-	unsigned int wsize = pvolume_info->wsize ? pvolume_info->wsize :
-				CIFS_DEFAULT_WSIZE;
+	unsigned int wsize;
+
+	/* start with specified wsize, or default */
+	if (pvolume_info->wsize)
+		wsize = pvolume_info->wsize;
+	else if (tcon->unix_ext && (unix_cap & CIFS_UNIX_LARGE_WRITE_CAP))
+		wsize = CIFS_DEFAULT_WSIZE;
+	else
+		wsize = CIFS_DEFAULT_NON_POSIX_WSIZE;
 
 	/* can server support 24-bit write sizes? (via UNIX extensions) */
 	if (!tcon->unix_ext || !(unix_cap & CIFS_UNIX_LARGE_WRITE_CAP))
