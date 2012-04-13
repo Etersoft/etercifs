@@ -229,8 +229,10 @@ cp %SOURCE42 %buildroot/%etercifs_src/
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
 
-# Special case for Fedora 15 v2.6.40.* kernels
+# Special case for Fedora 15 v2.6.4x.* kernels
 ln -s %src_package_name-3.0-%src_3_0_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.40-%src_3_0_version.tar.bz2
+ln -s %src_package_name-3.1-%src_3_1_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.41-%src_3_1_version.tar.bz2
+ln -s %src_package_name-3.2-%src_3_2_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.42-%src_3_2_version.tar.bz2
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -270,13 +272,18 @@ ln -s ../../../../%etercifs_src/%src_package_name-2.6.39-%src_2_6_39_version.tar
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.39-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.0-%version.tar.bz2
-# Special case for Fedora 15 v2.6.40.* kernels
-ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
-    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.40-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.1-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.2-%version.tar.bz2
+
+# Special case for Fedora 15 v2.6.4x.* kernels
+ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.40-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.41-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.42-%version.tar.bz2
 
 %post
 %post_service %name
