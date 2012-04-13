@@ -49,7 +49,7 @@ check_for_centos()
 {
     SPECIFIC_CENTOS=
     if which lsb_release > /dev/null; then
-        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server' && SPECIFIC_CENTOS=1
+        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix' && SPECIFIC_CENTOS=1
     fi
     if [ -n "$SPECIFIC_CENTOS" ] ; then
         echo
