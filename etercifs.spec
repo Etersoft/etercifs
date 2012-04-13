@@ -32,12 +32,13 @@
 %define src_3_0_version 1.74
 %define src_3_1_version 1.75
 %define src_3_2_version 1.76
+%define src_3_3_version 1.76
 
 # TODO: move to rpm-build-altlinux-compat
 %define _sysconfigdir %_sysconfdir/sysconfig
 
 Name: etercifs
-Version: 5.4.1
+Version: 5.4.2
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -79,6 +80,7 @@ Source39: %src_package_name-2.6.39-%src_2_6_39_version.tar.bz2
 Source40: %src_package_name-3.0-%src_3_0_version.tar.bz2
 Source41: %src_package_name-3.1-%src_3_1_version.tar.bz2
 Source42: %src_package_name-3.2-%src_3_2_version.tar.bz2
+Source43: %src_package_name-3.3-%src_3_3_version.tar.bz2
 Source60: %src_package_name-centos60-%src_centos60_version.tar.bz2
 
 Conflicts: linux-cifs
@@ -102,6 +104,7 @@ Provides: %src_package_name-2.6.39 = %version-%release
 Provides: %src_package_name-3.0 = %version-%release
 Provides: %src_package_name-3.1 = %version-%release
 Provides: %src_package_name-3.2 = %version-%release
+Provides: %src_package_name-3.3 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -225,6 +228,7 @@ cp %SOURCE39 %buildroot/%etercifs_src/
 cp %SOURCE40 %buildroot/%etercifs_src/
 cp %SOURCE41 %buildroot/%etercifs_src/
 cp %SOURCE42 %buildroot/%etercifs_src/
+cp %SOURCE43 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -233,6 +237,7 @@ cp %SOURCE60 %buildroot/%etercifs_src/
 ln -s %src_package_name-3.0-%src_3_0_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.40-%src_3_0_version.tar.bz2
 ln -s %src_package_name-3.1-%src_3_1_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.41-%src_3_1_version.tar.bz2
 ln -s %src_package_name-3.2-%src_3_2_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.42-%src_3_2_version.tar.bz2
+ln -s %src_package_name-3.3-%src_3_3_version.tar.bz2 %buildroot/%etercifs_src/%src_package_name-2.6.43-%src_3_3_version.tar.bz2
 
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
@@ -276,6 +281,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.1-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.2-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.3-%version.tar.bz2
 
 # Special case for Fedora 15 v2.6.4x.* kernels
 ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
@@ -284,6 +291,8 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.1-%src_3_1_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.41-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.42-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-2.6.43-%version.tar.bz2
 
 %post
 %post_service %name
@@ -302,6 +311,16 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.2-%src_3_2_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Fri Apr 13 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.2-alt1
+- Add Fedora 15 2.6.{41,42} kernels support
+- Update .gear/rules
+- Add sources for 3.3 (v3.3.1)
+- Add RERemix to RHEL-like distros
+- Update 3.2 sources from stable (v3.2.14)
+- Update 3.0 sources from stable (v3.0.27)
+- Update 2.6.34 sources from stable (v2.6.34.11)
+- Update 2.6.32 sources from stable (v2.6.32.59)
+
 * Wed Feb 15 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.1-alt1
 - Fix build on CentOS 6.0
 - Update from stable trees (v2.6.27.61, v3.0.21, v3.2.6)
