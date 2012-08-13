@@ -28,4 +28,6 @@ tar.bz2: sources/3.0 name=kernel-source-etercifs-3.0-1.74
 tar.bz2: sources/3.1 name=kernel-source-etercifs-3.1-1.75
 tar.bz2: sources/3.2 name=kernel-source-etercifs-3.2-1.76
 tar.bz2: sources/3.3 name=kernel-source-etercifs-3.3-1.76
+tar.bz2: sources/3.4 name=kernel-source-etercifs-3.4-1.78
+tar.bz2: sources/3.5 name=kernel-source-etercifs-3.5-1.78
 tar.bz2: etercifs
