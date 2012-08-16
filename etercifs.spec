@@ -36,16 +36,13 @@
 %define src_3_4_version 1.78
 %define src_3_5_version 1.78
 
-# TODO: move to rpm-build-altlinux-compat
-%define _sysconfigdir %_sysconfdir/sysconfig
-
 Name: etercifs
 Version: 5.4.3
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
-Packager: Evgeny Sinelnikov <sin@altlinux.ru>
+Packager: Pavel Shilovsky <piastry@altlinux.org>
 
 License: GPLv2
 Group: System/Kernel and hardware
@@ -119,10 +116,12 @@ Obsoletes: %src_package_name-2.6.27
 Obsoletes: %src_package_name-2.6.28
 Obsoletes: %src_package_name-2.6.29
 
+BuildRequires: rpm-build-intro
+
 Requires: gcc make
 
 # We definitely needs mount.cifs command
-Requires: samba-client
+Requires: cifs-utils
 
 %description
 This package contains Etersoft modified CIFS kernel module,
@@ -152,7 +151,7 @@ though.
 %setup
 
 %install
-mkdir -p %buildroot%_sysconfigdir
+mkdir -p %buildroot%_sysconfigdir/
 cat <<EOF >%buildroot%_sysconfigdir/%name.conf
 # etercifs configuration file
 
@@ -314,15 +313,18 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 
 %files
 %doc README.ETER AUTHORS CHANGES README TODO
+%_bindir/etermount
+%_initrddir/%name
+%_initrddir/%name.outformat
 %config %_sysconfigdir/%name.conf
 %config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
-%_initdir/%name
-%_initdir/%name.outformat
-%_bindir/etermount
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Aug 16 2012 Vitaly Lipatov <lav@altlinux.ru> 5.4.3-alt2
+- cleanup spec, fix requires to /sbin/mount.cifs
+
 * Mon Aug 13 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.3-alt1
 - Add sources for 3.5 (v3.5.1)
 - Add sources for 3.4 (v3.4.8)
