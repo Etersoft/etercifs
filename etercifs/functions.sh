@@ -252,7 +252,7 @@ detect_host_kernel()
 
 check_headers()
 {
-    if [ ! -f $KERNSRC/include/linux/version.h ]; then
+    if [ ! -f $KERNSRC/include/linux/version.h ] && [ ! -f $KERNSRC/include/generated/uapi/linux/version.h ] ; then
 # TODO: use distr_vendor
         cat >&2 <<EOF
 Error: no kernel headers found at $KERNSRC
