@@ -169,7 +169,7 @@ detect_etercifs_sources()
     fi
 
     [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
-    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep $KERNEL_STRING | sort -r | head -n 1`
+    KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep -F $KERNEL_STRING | sort -r | head -n 1`
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
