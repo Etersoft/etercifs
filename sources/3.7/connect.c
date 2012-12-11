@@ -1307,7 +1307,6 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			vol->rwpidforward = 1;
 			break;
 		case Opt_wine:
-			vol->wine = 1;
 			vol->strict_io = 1;
 			vol->mand_lock = 1;
 			break;
