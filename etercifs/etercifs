@@ -48,7 +48,7 @@ ORIGMODULENAME=cifs
 
 # FIXME: %_initdir
 OUTFORMAT=/etc/init.d/outformat
-[ -x $OUTFORMAT ] || OUTFORMAT=/etc/init.d/etercifs.outformat
+[ -x $OUTFORMAT ] || OUTFORMAT=@DATADIR@/etercifs.outformat
 
 if which tput >/dev/null && test -x $OUTFORMAT ; then
         . $OUTFORMAT
