@@ -39,7 +39,7 @@
 %define src_3_7_version 2.0
 
 Name: etercifs
-Version: 5.4.4
+Version: 5.4.5
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -332,6 +332,13 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Wed Dec 12 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.5-alt1
+- Update 3.7 sources from stable (v3.7)
+- Update 3.6 sources from stable (v3.6.10)
+- Update 3.4 sources from stable (v3.4.23)
+- Update 3.2 sources from stable (v3.2.35)
+- Fix build on Open SUSE 12.1
+
 * Wed Oct 31 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.4-alt1
 - Add sources for 3.7 (v3.7-rc2)
 - Add sources for 3.6 (v3.6.4)
