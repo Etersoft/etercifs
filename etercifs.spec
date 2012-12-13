@@ -40,7 +40,7 @@
 
 Name: etercifs
 Version: 5.4.5
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -332,6 +332,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
 
 %changelog
+* Thu Dec 13 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.5-alt2
+- Add condstop support to etercifs init script
+
 * Wed Dec 12 2012 Pavel Shilovsky <piastry@altlinux.org> 5.4.5-alt1
 - Update 3.7 sources from stable (v3.7)
 - Update 3.6 sources from stable (v3.6.10)
