@@ -309,7 +309,12 @@ case "$1" in
     start)
         start
         ;;
-    condstop|stop)
+    condstop)
+        if is_moduled ; then
+            stop
+        fi
+        ;;
+    stop)
         stop
         ;;
     restart)
