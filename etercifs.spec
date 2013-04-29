@@ -178,12 +178,12 @@ DEFAULT_MOUNTPOINT=/net/sharebase
 # CHECK_VERSION=0
 EOF
 
-%__subst "s|@DATADIR@|%_datadir/%name|g" functions.sh etercifs etermount
+%__subst "s|@DATADIR@|%_datadir/%name|g" functions.sh etercifs etermount etercifs-build
 %__subst "s|@SYSCONFIGDIR@|%_sysconfigdir|g" functions.sh etercifs etermount
 
-mkdir -p %buildroot%_datadir/%name/
-install -m644 buildmodule.sh %buildroot%_datadir/%name/
-install -m644 functions.sh %buildroot%_datadir/%name/
+install -D -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
+install -D -m644 functions.sh %buildroot%_datadir/%name/functions.sh
+install -D -m755 %name-build %buildroot%_sbindir/%name-build
 
 cat <<EOF >%buildroot%_datadir/%name/package.conf
 DATADIR=%_datadir/%name
@@ -202,10 +202,9 @@ install cifs /sbin/modprobe etercifs
 blacklist cifs
 EOF
 
-mkdir -p %buildroot%_initdir/
-install -m755 %name %buildroot%_initdir/
+install -D -m755 %name %buildroot%_initdir/%name
 install -D -m644 %name.service %buildroot%_unitdir/%name.service
-install -m755 %name.outformat %buildroot%_datadir/%name
+install -D -m755 %name.outformat %buildroot%_datadir/%name
 
 %define etercifs_src %_datadir/%name/sources
 
@@ -340,6 +339,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
+%_sbindir/%name-build
 
 %changelog
 * Fri Mar 01 2013 Pavel Shilovsky <piastry@altlinux.org> 5.4.6-alt1

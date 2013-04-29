@@ -206,7 +206,7 @@ load_module()
     if [ "$MODULEVERSION" != "$MODVER" ] && [ "$CHECK_VERSION" -eq 1 ] ; then
             failure
             show_module_version
-            echo "    Please, run 'service etercifs build' to build the etercifs module (recommended)"
+            echo "    Please, run 'etercifs-build' to build the etercifs module (recommended)"
             #echo "    or run 'CHECK_VERSION=0 service etercifs restart' to disable check."
             return
     fi

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Authors: Vitaly Lipatov <lav@etersoft.ru>
+#          Konstantin Baev <kipruss@altlinux.org>
+#          Pavel Shilovsky <piastry@etersoft.ru>
+# 2006, 2007, 2008, 2009, 2010, 2013 Public domain
+
+PACKAGEINFO=@DATADIR@/package.conf
+
+if [ -f "$PACKAGEINFO" ] ; then
+   . $PACKAGEINFO
+else
+   "Not found package information file $PACKAGEINFO"
+fi
+
+if [ -r $SRC_DIR/dkms.conf ] && [ `which dkms 2>/dev/null` ]; then
+    cd $DATADIR
+    DKMSBUILD=1 sh buildmodule.sh
+else
+    cd $DATADIR
+    sh buildmodule.sh
+fi
