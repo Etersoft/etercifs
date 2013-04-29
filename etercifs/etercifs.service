@@ -1,0 +1,12 @@
+[Unit]
+Description=etercifs CIFS support for Linux kernel
+After=syslog.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/rc.d/init.d/etercifs start
+ExecStop=/etc/rc.d/init.d/etercifs stop
+
+[Install]
+WantedBy=multi-user.target

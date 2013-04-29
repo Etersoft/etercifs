@@ -204,6 +204,7 @@ EOF
 
 mkdir -p %buildroot%_initdir/
 install -m755 %name %buildroot%_initdir/
+install -D -m644 %name.service %buildroot%_unitdir/%name.service
 install -m755 %name.outformat %buildroot%_datadir/%name
 
 %define etercifs_src %_datadir/%name/sources
@@ -334,6 +335,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %doc README.ETER AUTHORS CHANGES README TODO
 %_bindir/etermount
 %_initrddir/%name
+%_unitdir/%name.service
 %config %_sysconfigdir/%name.conf
 %config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
