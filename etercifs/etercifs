@@ -241,7 +241,7 @@ stop()
     fi
     echo -n "Unloading kernel module $MODULENAME... "
     is_moduled || { passed ; return ; }
-    $RMMOD $MODULENAME --wait
+    $RMMOD $MODULENAME
     success
 }
 
