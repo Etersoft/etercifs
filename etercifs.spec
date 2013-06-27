@@ -38,9 +38,11 @@
 %define src_3_6_version 1.78
 %define src_3_7_version 2.0
 %define src_3_8_version 2.0
+%define src_3_9_version 2.0
+%define src_3_10_version 2.0
 
 Name: etercifs
-Version: 5.4.6
+Version: 5.4.7
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -88,6 +90,8 @@ Source45: %src_package_name-3.5-%src_3_5_version.tar.bz2
 Source46: %src_package_name-3.6-%src_3_6_version.tar.bz2
 Source47: %src_package_name-3.7-%src_3_7_version.tar.bz2
 Source48: %src_package_name-3.8-%src_3_8_version.tar.bz2
+Source49: %src_package_name-3.9-%src_3_9_version.tar.bz2
+Source50: %src_package_name-3.10-%src_3_10_version.tar.bz2
 Source60: %src_package_name-centos60-%src_centos60_version.tar.bz2
 
 Conflicts: linux-cifs
@@ -117,6 +121,8 @@ Provides: %src_package_name-3.5 = %version-%release
 Provides: %src_package_name-3.6 = %version-%release
 Provides: %src_package_name-3.7 = %version-%release
 Provides: %src_package_name-3.8 = %version-%release
+Provides: %src_package_name-3.9 = %version-%release
+Provides: %src_package_name-3.10 = %version-%release
 
 Obsoletes: %src_package_name-2.6.24
 Obsoletes: %src_package_name-2.6.25
@@ -249,6 +255,8 @@ cp %SOURCE45 %buildroot/%etercifs_src/
 cp %SOURCE46 %buildroot/%etercifs_src/
 cp %SOURCE47 %buildroot/%etercifs_src/
 cp %SOURCE48 %buildroot/%etercifs_src/
+cp %SOURCE49 %buildroot/%etercifs_src/
+cp %SOURCE50 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -313,6 +321,10 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.7-%src_3_7_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.7-%version.tar.bz2
 ln -s ../../../../%etercifs_src/%src_package_name-3.8-%src_3_8_version.tar.bz2 \
     %buildroot%_usrsrc/kernel/sources/%src_package_name-3.8-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.9-%src_3_9_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.9-%version.tar.bz2
+ln -s ../../../../%etercifs_src/%src_package_name-3.10-%src_3_10_version.tar.bz2 \
+    %buildroot%_usrsrc/kernel/sources/%src_package_name-3.10-%version.tar.bz2
 
 # Special case for Fedora 15 v2.6.4x.* kernels
 ln -s ../../../../%etercifs_src/%src_package_name-3.0-%src_3_0_version.tar.bz2 \
@@ -342,6 +354,18 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_sbindir/%name-build
 
 %changelog
+* Thu Jun 27 2013 Pavel Shilovsky <piastry@altlinux.org> 5.4.7-alt1
+- Add sources for 3.10 (v3.10-rc5)
+- Add sources for 3.9 (v3.9.7)
+- Update 3.8 sources from stable (v3.8.10)
+- Update 3.4 sources from stable (v3.4.50)
+- Update 3.2 sources from stable (v3.2.47)
+- Update 3.0 sources from stable (v3.0.83)
+- Update 2.6.32 sources from stable (v2.6.32.61)
+- Do not use --wait for rmmod
+- Add etercifs-build script
+- Add systemd support
+
 * Fri Mar 01 2013 Pavel Shilovsky <piastry@altlinux.org> 5.4.6-alt1
 - Add sources for 3.8 (v3.8.1)
 - Update 3.7 sources from stable (v3.7.10)
