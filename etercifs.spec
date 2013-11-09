@@ -168,8 +168,8 @@ URL specification though.
 %setup
 
 %install
-mkdir -p %buildroot%_sysconfigdir/
-cat <<EOF >%buildroot%_sysconfigdir/%name.conf
+mkdir -p %buildroot%_sysconfdir/sysconfig/
+cat <<EOF >%buildroot%_sysconfdir/sysconfig/%name.conf
 # etercifs configuration file
 
 # this options useful only for wine share using and security=share setting in smb.conf
@@ -185,7 +185,7 @@ DEFAULT_MOUNTPOINT=/net/sharebase
 EOF
 
 %__subst "s|@DATADIR@|%_datadir/%name|g" functions.sh etercifs etermount etercifs-build
-%__subst "s|@SYSCONFIGDIR@|%_sysconfigdir|g" functions.sh etercifs etermount
+%__subst "s|@SYSCONFIGDIR@|%_sysconfdir/sysconfig|g" functions.sh etercifs etermount
 
 install -D -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
 install -D -m644 functions.sh %buildroot%_datadir/%name/functions.sh
@@ -347,7 +347,7 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_bindir/etermount
 %_initrddir/%name
 %_unitdir/%name.service
-%config %_sysconfigdir/%name.conf
+%config %_sysconfdir/sysconfig/%name.conf
 %config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
 %_usrsrc/kernel/sources/%src_package_name-*-%version.tar.bz2
