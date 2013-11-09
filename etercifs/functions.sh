@@ -173,7 +173,7 @@ detect_etercifs_sources()
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
-        KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r | head -n 1`
+        KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r -V | head -n 1`
         LATEST_SOURCES=`echo $KERNEL_SOURCE_ETERCIFS_LINK | cut -d"-" -f 4`
         echo "Warning! Couldn't find module sources for the current kernel $KERNEL2 ($LATEST_SOURCES sources are selected)!"
         echo "Using the lates supported sources - from v$LATEST_SOURCES kernel!"
