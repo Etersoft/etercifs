@@ -1052,7 +1052,7 @@ cifs_rename_pending_delete(const char *full_path, struct dentry *dentry,
 				   cifs_sb->mnt_cifs_flags &
 					    CIFS_MOUNT_MAP_SPECIAL_CHR);
 	if (rc != 0) {
-		rc = -EBUSY;
+		rc = -ETXTBSY;
 		goto undo_setattr;
 	}
 
@@ -1071,7 +1071,7 @@ cifs_rename_pending_delete(const char *full_path, struct dentry *dentry,
 		if (rc == -ENOENT)
 			rc = 0;
 		else if (rc != 0) {
-			rc = -EBUSY;
+			rc = -ETXTBSY;
 			goto undo_rename;
 		}
 		cifsInode->delete_pending = true;
@@ -1178,13 +1178,15 @@ psx_del_no_retry:
 			cifs_drop_nlink(inode);
 	} else if (rc == -ENOENT) {
 		d_drop(dentry);
-	} else if (rc == -EBUSY) {
+	} else if (rc == -ETXTBSY) {
 		if (server->ops->rename_pending_delete) {
 			rc = server->ops->rename_pending_delete(full_path,
 								dentry, xid);
 			if (rc == 0)
 				cifs_drop_nlink(inode);
 		}
+		if (rc == -ETXTBSY)
+			rc = -EBUSY;
 	} else if ((rc == -EACCES) && (dosattr == 0) && inode) {
 		attrs = kzalloc(sizeof(*attrs), GFP_KERNEL);
 		if (attrs == NULL) {
@@ -1527,7 +1529,7 @@ cifs_do_rename(const unsigned int xid, struct dentry *from_dentry,
 	 * source. Note that cross directory moves do not work with
 	 * rename by filehandle to various Windows servers.
 	 */
-	if (rc == 0 || rc != -EBUSY)
+	if (rc == 0 || rc != -ETXTBSY)
 		goto do_rename_exit;
 
 	/* open-file renames don't work across directories */
