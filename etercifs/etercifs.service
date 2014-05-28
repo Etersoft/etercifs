@@ -5,8 +5,8 @@ After=syslog.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/etc/rc.d/init.d/etercifs start
-ExecStop=/etc/rc.d/init.d/etercifs stop
+ExecStart=@INITDIR@/etercifs start
+ExecStop=@INITDIR@/etercifs stop
 
 [Install]
 WantedBy=multi-user.target

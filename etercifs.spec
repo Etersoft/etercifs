@@ -192,6 +192,7 @@ EOF
 
 %__subst "s|@DATADIR@|%_datadir/%name|g" functions.sh etercifs etermount etercifs-build
 %__subst "s|@SYSCONFIGDIR@|%_sysconfdir/sysconfig|g" functions.sh etercifs etermount
+%__subst "s|@INITDIR@|%_initdir|g" etercifs.service
 
 install -D -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
 install -D -m644 functions.sh %buildroot%_datadir/%name/functions.sh
