@@ -258,7 +258,7 @@ check_headers()
 Error: no kernel headers found at $KERNSRC
 Please install package
     kernel-headers-modules-XXXX for ALT Linux
-    kernel-XXXX-devel for Fedora / ASP Linux
+    kernel-devel for Fedora / ASP Linux
     dkms-etercifs for Mandriva 2009 and newer
     linux-headers-XXXX for Debian / Ubuntu
     kernel-source-XXXX for SUSE
