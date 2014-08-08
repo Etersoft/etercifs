@@ -240,6 +240,7 @@ smb3_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -274,6 +275,7 @@ smb2_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
