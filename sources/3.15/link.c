@@ -376,7 +376,7 @@ cifs_create_mf_symlink(unsigned int xid, struct cifs_tcon *tcon,
 	oparms.desired_access = GENERIC_WRITE;
 	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = create_options;
-	oparms.disposition = FILE_OPEN;
+	oparms.disposition = FILE_CREATE;
 	oparms.path = path;
 	oparms.fid = &fid;
 	oparms.reconnect = false;
