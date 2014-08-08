@@ -1,3 +1,6 @@
 etercifs/test.sh
 etercifs/Makefile
-
+*.ko
+*.o
+*.mod.c
+*.order
