@@ -770,7 +770,7 @@ int cifs_closedir(struct inode *inode, struct file *file)
 
 	cifs_dbg(FYI, "Freeing private data in close dir\n");
 	spin_lock(&cifs_file_list_lock);
-	if (!cfile->srch_inf.endOfSearch && !cfile->invalidHandle) {
+	if (server->ops->dir_needs_close(cfile)) {
 		cfile->invalidHandle = true;
 		spin_unlock(&cifs_file_list_lock);
 		if (server->ops->close_dir)
@@ -2598,8 +2598,8 @@ cifs_writev(struct kiocb *iocb, const struct iovec *iov,
 	if (rc > 0) {
 		ssize_t err;
 
-		err = generic_write_sync(file, pos, rc);
-		if (err < 0 && rc > 0)
+		err = generic_write_sync(file, iocb->ki_pos - rc, rc);
+		if (err < 0)
 			rc = err;
 	}
 
@@ -2855,7 +2855,7 @@ cifs_uncached_read_into_pages(struct TCP_Server_Info *server,
 		total_read += result;
 	}
 
-	return total_read > 0 ? total_read : result;
+	return total_read > 0 && result != -EAGAIN ? total_read : result;
 }
 
 static ssize_t
@@ -3278,7 +3278,7 @@ cifs_readpages_read_into_pages(struct TCP_Server_Info *server,
 		total_read += result;
 	}
 
-	return total_read > 0 ? total_read : result;
+	return total_read > 0 && result != -EAGAIN ? total_read : result;
 }
 
 static int cifs_readpages(struct file *file, struct address_space *mapping,
