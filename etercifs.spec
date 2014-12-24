@@ -195,7 +195,7 @@ cat <<EOF >%buildroot%_sysconfdir/sysconfig/%name.conf
 # this options useful only for wine share using and security=share setting in smb.conf
 #MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct,nounix
 # wine options since etercifs 4.4.5 enable full wine support
-MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,wine
+MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,wine,sec=ntlmv2
 
 # default path for share mounting
 DEFAULT_MOUNTPOINT=/net/sharebase
