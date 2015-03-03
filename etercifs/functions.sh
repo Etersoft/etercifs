@@ -167,8 +167,8 @@ detect_etercifs_sources()
         if [ "$FIRSTNUM" -eq 2 ] ; then
             [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
             KERNEL_STRING=$KERNEL
-        elif [ "$FIRSTNUM" -eq 3 ] ; then
-            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-3*
+        elif [ "$FIRSTNUM" -eq 3 ] || [ "$FIRSTNUM" -eq 4 ]; then
+            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-$FIRSTNUM*
             kernel_release2
             KERNEL_STRING=$KERNEL2
         fi
