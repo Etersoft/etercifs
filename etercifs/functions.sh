@@ -174,7 +174,7 @@ detect_etercifs_sources()
         fi
     fi
 
-    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed!"
+    [ -n "`ls $ETERCIFS_SOURCES_LIST`" ] || fatal "Etercifs kernel module sources does not installed (it is possible, etercifs package is obsoleted)!"
     KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | grep -F $KERNEL_STRING | sort -r | head -n 1`
 
     if [ -z "$KERNEL_SOURCE_ETERCIFS_LINK" ] ; then
@@ -253,6 +253,11 @@ detect_host_kernel()
 
     if [ -z "$KERNSRC" ]; then
         KERNSRC=/lib/modules/$KERNELVERSION/build
+        # workaround for missed link on deb-based systems
+        if [ ! -d "$KERNSRC" ] ; then
+            local KN=/usr/src/linux-headers-$KERNELVERSION
+            [ -d "$KN" ] && KERNSRC="$KN"
+        fi
     fi
 }
 
@@ -264,14 +269,14 @@ check_headers()
 Error: no kernel headers found at $KERNSRC
 Please install package
     kernel-headers-modules-XXXX for ALT Linux
-    kernel-devel for Fedora / ASP Linux
-    dkms-etercifs for Mandriva 2009 and newer
+    kernel-devel for CentOS / Fedora
     linux-headers-XXXX for Debian / Ubuntu
-    kernel-source-XXXX for SUSE
-    kernel-source-XXXX for Slackware / MOPSLinux
+    kernel-source-XXXX for SUSE Linux
+    kernel-source-XXXX for Slackware
+    dkms-etercifs for Mandriva
 where XXXX is your current version from uname -r: $(uname -r)
 or use KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
-(use KERNSRC variable to set correct kernel headers location)
+or use KERNSRC variable to set correct kernel headers location
 Exiting...
 EOF
 # FIXME: check detect
