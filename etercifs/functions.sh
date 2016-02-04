@@ -45,17 +45,26 @@ split_kernel_version()
     N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
 }
 
+check_for_openvz()
+{
+    if echo "$KERNELVERSION" | egrep -q "2\.6\.18.*(stab|ovz-el|ovz-rhel)" ; then
+        OVZ_KERNEL="centos-ovz"
+    elif echo "$KERNELVERSION" | egrep -q "2\.6\.32.*(stab|ovz-el|ovz-smp|ovz-rhel|openvz)" ; then
+        OVZ_KERNEL="centos60"
+    else
+        return 1
+    fi
+    return 0
+}
+
 check_for_centos()
 {
-    SPECIFIC_CENTOS=
     if which lsb_release > /dev/null; then
-        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix|ROSA' && SPECIFIC_CENTOS=1
+        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix|ROSA' || return
     fi
-    if [ -n "$SPECIFIC_CENTOS" ] ; then
+
         echo
         echo "Found RHEL-like distribution."
-
-        OVZ_KERNEL=`echo $KERNELVERSION | grep 'stab'`
 
         kernel_release4
         N1=`echo $KERNEL4 | cut -d"." -f 1`
@@ -121,19 +130,21 @@ check_for_centos()
         else
             echo "Warning! Your kernel in not 2.6.x"
         fi
-    fi
+    return 0
 }
 
 detect_etercifs_sources()
 {
     # CentOS-RHEL specific part
-    check_for_centos
-    if [ -n "$SPECIFIC_CENTOS" ] ; then
+    if check_for_openvz ; then
         [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-*
-        if [ -n "$OVZ_KERNEL" ] ; then
-            echo "Building from legacy sources with patch for OpenVZ kernels 2.6.18-274.x from CentOS 5.7."
-            KERNEL_STRING='centos-ovz'
-        elif [ "$CENTOS" -eq 70 ] ; then
+        if [ "$OVZ_KERNEL" ] ; then
+            echo "Building from legacy sources with patch for OpenVZ kernels $OVZ_KERNEL"
+            KERNEL_STRING="$OVZ_KERNEL"
+        fi
+    elif check_for_centos ; then
+        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-*
+        if [ "$CENTOS" -eq 70 ] ; then
             echo "Building from legacy sources with patch for kernels 3.10.x from CentOS 7.0."
             KERNEL_STRING='centos70'
         elif [ "$CENTOS" -eq 60 ] ; then
@@ -167,10 +178,12 @@ detect_etercifs_sources()
         if [ "$FIRSTNUM" -eq 2 ] ; then
             [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
             KERNEL_STRING=$KERNEL
+            echo "Building for $KERNEL_STRING"
         elif [ "$FIRSTNUM" -eq 3 ] || [ "$FIRSTNUM" -eq 4 ]; then
             [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-$FIRSTNUM*
             kernel_release2
             KERNEL_STRING=$KERNEL2
+            echo "Building for $KERNEL_STRING"
         fi
     fi
 
@@ -182,7 +195,7 @@ detect_etercifs_sources()
         KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r -V | head -n 1`
         LATEST_SOURCES=`echo $KERNEL_SOURCE_ETERCIFS_LINK | cut -d"-" -f 4`
         echo "Warning! Couldn't find module sources for the current kernel $KERNEL2 ($LATEST_SOURCES sources are selected)!"
-        echo "Using the lates supported sources - from v$LATEST_SOURCES kernel!"
+        echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
     fi
 
