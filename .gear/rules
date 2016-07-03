@@ -50,4 +50,6 @@ tar.bz2: sources/4.1 name=kernel-source-etercifs-4.1-2.06
 tar.bz2: sources/4.2 name=kernel-source-etercifs-4.2-2.06
 tar.bz2: sources/4.3 name=kernel-source-etercifs-4.3-2.08
 tar.bz2: sources/4.4 name=kernel-source-etercifs-4.4-2.08
+tar.bz2: sources/4.5 name=kernel-source-etercifs-4.5-2.08
+tar.bz2: sources/4.6 name=kernel-source-etercifs-4.6-2.08
 tar.bz2: etercifs
