@@ -60,7 +60,7 @@ check_for_openvz()
 check_for_centos()
 {
     if which lsb_release > /dev/null; then
-        lsb_release -d | egrep -q 'GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix|ROSA' || return
+        lsb_release -d | egrep -q 'GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix' || return
     fi
 
         echo

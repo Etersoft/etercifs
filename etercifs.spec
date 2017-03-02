@@ -61,7 +61,7 @@
 
 Name: etercifs
 Version: 5.4.16
-Release: alt1
+Release: alt2
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -464,6 +464,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_sbindir/%name-build
 
 %changelog
+* Wed Sep 14 2016 Konstantin Artyushkin <akv@altlinux.org> 5.4.16-alt2
+- add ROSA/2014 support
+
 * Fri Aug 19 2016 Konstantin Artyushkin <akv@altlinux.org> 5.4.16-alt1
 - Added GosLinux 6.4 support 
 
