@@ -7,6 +7,7 @@ tar.bz2: sources/centos56 name=kernel-source-etercifs-centos56-1.60
 tar.bz2: sources/centos-ovz name=kernel-source-etercifs-centos-ovz-1.60
 tar.bz2: sources/centos60 name=kernel-source-etercifs-centos60-1.63
 tar.bz2: sources/centos70 name=kernel-source-etercifs-centos70-2.01
+tar.bz2: sources/goslinux64 name=kernel-source-etercifs-goslinux64-2.0
 tar.bz2: sources/2.6.16 name=kernel-source-etercifs-2.6.16-1.50
 tar.bz2: sources/2.6.23 name=kernel-source-etercifs-2.6.23-1.50
 tar.bz2: sources/2.6.24 name=kernel-source-etercifs-2.6.24-1.52

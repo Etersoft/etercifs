@@ -60,7 +60,7 @@ check_for_openvz()
 check_for_centos()
 {
     if which lsb_release > /dev/null; then
-        lsb_release -d | egrep -q 'CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix|ROSA' || return
+        lsb_release -d | egrep -q 'GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix|ROSA' || return
     fi
 
         echo
@@ -125,8 +125,13 @@ check_for_centos()
                 echo "Warning! Your kernel is older than 2.6.18 or newer than 2.6.23"
             fi
         elif [ "$N1" -eq 3 ] && [ "$N2" -eq 10 ] ; then
+            if [ "$N3" -eq 0 ] && [ "$N4" -eq 1 ] ; then
+                echo "Your kernel is 3.10.0-1.x"
+                CENTOS="GosLinux64"
+            else
             echo "Your kernel is 3.10.x"
             CENTOS=70
+            fi
         else
             echo "Warning! Your kernel in not 2.6.x"
         fi

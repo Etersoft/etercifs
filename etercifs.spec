@@ -12,6 +12,7 @@
 %define src_centos_ovz_version 1.60
 %define src_centos60_version 1.63
 %define src_centos70_version 2.01
+%define src_goslinux64_version 2.0
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
@@ -59,7 +60,7 @@
 %define src_4_6_version 2.08
 
 Name: etercifs
-Version: 5.4.15
+Version: 5.4.16
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -127,6 +128,7 @@ Source143: %src_package_name-4.3-%src_4_3_version.tar.bz2
 Source144: %src_package_name-4.4-%src_4_4_version.tar.bz2
 Source145: %src_package_name-4.5-%src_4_5_version.tar.bz2
 Source146: %src_package_name-4.6-%src_4_6_version.tar.bz2
+Source147: %src_package_name-goslinux64-%src_goslinux64_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -329,6 +331,7 @@ cp %SOURCE143 %buildroot/%etercifs_src/
 cp %SOURCE144 %buildroot/%etercifs_src/
 cp %SOURCE145 %buildroot/%etercifs_src/
 cp %SOURCE146 %buildroot/%etercifs_src/
+cp %SOURCE147 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -461,6 +464,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_sbindir/%name-build
 
 %changelog
+* Fri Aug 19 2016 Konstantin Artyushkin <akv@altlinux.org> 5.4.16-alt1
+- Added GosLinux 6.4 support 
+
 * Sun Jul 03 2016 Pavel Shilovsky <piastry@altlinux.org> 5.4.15-alt1
 - Add sources for 4.6 (v4.6.3)
 - Add sources for 4.5 (v4.5.7)
