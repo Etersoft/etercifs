@@ -13,6 +13,7 @@
 %define src_centos60_version 1.63
 %define src_centos70_version 2.01
 %define src_goslinux64_version 2.0
+%define src_suse13_2_version 2.03
 %define src_2_6_16_version 1.50
 %define src_2_6_23_version 1.50
 %define src_2_6_24_version 1.52
@@ -60,8 +61,8 @@
 %define src_4_6_version 2.08
 
 Name: etercifs
-Version: 5.4.16
-Release: alt2
+Version: 5.4.17
+Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -129,6 +130,7 @@ Source144: %src_package_name-4.4-%src_4_4_version.tar.bz2
 Source145: %src_package_name-4.5-%src_4_5_version.tar.bz2
 Source146: %src_package_name-4.6-%src_4_6_version.tar.bz2
 Source147: %src_package_name-goslinux64-%src_goslinux64_version.tar.bz2
+Source148: %src_package_name-suse13_2-%src_suse13_2_version.tar.bz2
 
 Conflicts: linux-cifs
 
@@ -332,6 +334,7 @@ cp %SOURCE144 %buildroot/%etercifs_src/
 cp %SOURCE145 %buildroot/%etercifs_src/
 cp %SOURCE146 %buildroot/%etercifs_src/
 cp %SOURCE147 %buildroot/%etercifs_src/
+cp %SOURCE148 %buildroot/%etercifs_src/
 
 # CentOS 6.x
 cp %SOURCE60 %buildroot/%etercifs_src/
@@ -464,6 +467,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_sbindir/%name-build
 
 %changelog
+* Thu Jan 26 2017 Konstantin Artyushkin <akv@altlinux.org> 5.4.17-alt1
+- Added SUSE 13.2 specific kernel 3.16.7.* support
+
 * Wed Sep 14 2016 Konstantin Artyushkin <akv@altlinux.org> 5.4.16-alt2
 - add ROSA/2014 support
 

@@ -138,6 +138,30 @@ check_for_centos()
     return 0
 }
 
+check_for_suse()
+{
+   if which lsb_release > /dev/null; then
+       lsb_release -d | egrep -q 'openSUSE' || return
+   fi
+
+       echo
+       echo "Found openSUSE distribution."
+
+       kernel_release4
+       N1=`echo $KERNEL4 | cut -d"." -f 1`
+       N2=`echo $KERNEL4 | cut -d"." -f 2`
+       N3=`echo $KERNEL4 | cut -d"." -f 3 | cut -d"-" -f 1`
+       N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
+
+       SUSE=0
+       if [ "$N1" -eq 3 ] && [ "$N2" -eq 16 ] ; then
+           if [ "$N3" -eq 7 ] ; then
+              SUSE="13_2"
+          fi
+       fi
+   return 0
+}
+
 detect_etercifs_sources()
 {
     # CentOS-RHEL specific part
@@ -178,6 +202,13 @@ detect_etercifs_sources()
             echo "Building from legacy sources."
             KERNEL_STRING='legacy'
         fi # end of CentOS-RHEL specific part
+    # start opensuse specific part
+    elif check_for_suse(); then
+        [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-*
+        if [ "$SUSE" = "13_2" ] ; then
+           echo "Building from legacy sources with patch for kernels 3.16.7-21.x from SUSE 13.2"
+           KERNEL_STRING='suse13_2'
+        fi # end suse specific part
     else
         FIRSTNUM=`echo $KERNEL | cut -d"." -f 1`
         if [ "$FIRSTNUM" -eq 2 ] ; then
