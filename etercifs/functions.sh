@@ -203,7 +203,7 @@ detect_etercifs_sources()
             KERNEL_STRING='legacy'
         fi # end of CentOS-RHEL specific part
     # start opensuse specific part
-    elif check_for_suse(); then
+    elif check_for_suse; then
         [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-*
         if [ "$SUSE" = "13_2" ] ; then
            echo "Building from legacy sources with patch for kernels 3.16.7-21.x from SUSE 13.2"
