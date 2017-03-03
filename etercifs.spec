@@ -61,7 +61,7 @@
 %define src_4_6_version 2.08
 
 Name: etercifs
-Version: 5.4.17
+Version: 5.4.18
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -467,6 +467,9 @@ ln -s ../../../../%etercifs_src/%src_package_name-3.3-%src_3_3_version.tar.bz2 \
 %_sbindir/%name-build
 
 %changelog
+* Fri Mar 03 2017 Konstantin Artyushkin <akv@altlinux.org> 5.4.18-alt1
+- fix build for CentOS 7 with 3.10.0-514.* kernel
+
 * Thu Jan 26 2017 Konstantin Artyushkin <akv@altlinux.org> 5.4.17-alt1
 - Added SUSE 13.2 specific kernel 3.16.7.* support
 
