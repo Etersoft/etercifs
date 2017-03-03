@@ -18,6 +18,7 @@
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#include <generated/uapi/linux/version.h>
 #include <linux/fs.h>
 #include <linux/net.h>
 #include <linux/string.h>
@@ -3939,12 +3940,14 @@ cifs_sb_master_tcon(struct cifs_sb_info *cifs_sb)
 	return tlink_tcon(cifs_sb_master_tlink(cifs_sb));
 }
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) < 1795)
 static int
 cifs_sb_tcon_pending_wait(void *unused)
 {
 	schedule();
 	return signal_pending(current) ? -ERESTARTSYS : 0;
 }
+#endif
 
 /* find and return a tlink with given uid */
 static struct tcon_link *
@@ -4043,9 +4046,13 @@ cifs_sb_tlink(struct cifs_sb_info *cifs_sb)
 		spin_unlock(&cifs_sb->tlink_tree_lock);
 	} else {
 wait_for_construction:
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) >= 1795)
+      ret = wait_on_bit(&tlink->tl_flags, TCON_LINK_PENDING, TASK_INTERRUPTIBLE);
+#else
 		ret = wait_on_bit(&tlink->tl_flags, TCON_LINK_PENDING,
 				  cifs_sb_tcon_pending_wait,
 				  TASK_INTERRUPTIBLE);
+#endif
 		if (ret) {
 			cifs_put_tlink(tlink);
 			return ERR_PTR(ret);

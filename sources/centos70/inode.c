@@ -18,6 +18,7 @@
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#include <generated/uapi/linux/version.h>
 #include <linux/fs.h>
 #include <linux/stat.h>
 #include <linux/slab.h>
@@ -1791,6 +1792,7 @@ cifs_invalidate_mapping(struct inode *inode)
 	return rc;
 }
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) < 1795)
 /**
  * cifs_wait_bit_killable - helper for functions that are sleeping on bit locks
  * @word: long word containing the bit lock
@@ -1803,6 +1805,7 @@ cifs_wait_bit_killable(void *word)
 	freezable_schedule_unsafe();
 	return 0;
 }
+#endif
 
 int
 cifs_revalidate_mapping(struct inode *inode)
@@ -1810,8 +1813,12 @@ cifs_revalidate_mapping(struct inode *inode)
 	int rc;
 	unsigned long *flags = &CIFS_I(inode)->flags;
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) >= 1795)
+	rc = wait_on_bit_lock(flags, CIFS_INO_LOCK, TASK_KILLABLE);
+#else
 	rc = wait_on_bit_lock(flags, CIFS_INO_LOCK, cifs_wait_bit_killable,
-				TASK_KILLABLE);
+                TASK_KILLABLE);
+#endif
 	if (rc)
 		return rc;
 

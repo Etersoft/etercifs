@@ -21,6 +21,7 @@
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#include <generated/uapi/linux/version.h>
 #include <linux/fs.h>
 #include <linux/backing-dev.h>
 #include <linux/stat.h>
@@ -3679,12 +3680,14 @@ static int cifs_launder_page(struct page *page)
 	return rc;
 }
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) < 1795)
 static int
 cifs_pending_writers_wait(void *unused)
 {
 	schedule();
 	return 0;
 }
+#endif
 
 void cifs_oplock_break(struct work_struct *work)
 {
@@ -3696,9 +3699,12 @@ void cifs_oplock_break(struct work_struct *work)
 	struct TCP_Server_Info *server = tcon->ses->server;
 	int rc = 0;
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) >= 1795)
+	wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_WRITERS, TASK_UNINTERRUPTIBLE);
+#else
 	wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_WRITERS,
 			cifs_pending_writers_wait, TASK_UNINTERRUPTIBLE);
-
+#endif
 	server->ops->downgrade_oplock(server, cinode,
 		test_bit(CIFS_INODE_DOWNGRADE_OPLOCK_TO_L2, &cinode->flags));
 

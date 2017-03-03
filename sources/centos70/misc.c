@@ -19,6 +19,7 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <generated/uapi/linux/version.h>
 #include <linux/slab.h>
 #include <linux/ctype.h>
 #include <linux/mempool.h>
@@ -565,12 +566,14 @@ void cifs_set_oplock_level(struct cifsInodeInfo *cinode, __u32 oplock)
 		cinode->oplock = 0;
 }
 
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) < 1795)
 static int
 cifs_oplock_break_wait(void *unused)
 {
 	schedule();
 	return signal_pending(current) ? -ERESTARTSYS : 0;
 }
+#endif
 
 /*
  * We wait for oplock breaks to be processed before we attempt to perform
@@ -581,8 +584,12 @@ int cifs_get_writer(struct cifsInodeInfo *cinode)
 	int rc;
 
 start:
+#if (RHEL_RELEASE_VERSION(RHEL_MAJOR,RHEL_MINOR) >= 1795)
+	rc = wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_OPLOCK_BREAK, TASK_KILLABLE);
+#else
 	rc = wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_OPLOCK_BREAK,
 				   cifs_oplock_break_wait, TASK_KILLABLE);
+#endif
 	if (rc)
 		return rc;
 
