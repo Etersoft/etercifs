@@ -28,27 +28,27 @@ ETERCIFS_SOURCES_TARBALL=$DATADIR/etercifs-sources-$MODULEVERSION.tar.xz
 kernel_release2()
 {
     # 3.0
-    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
+    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
 }
 
 kernel_release3()
 {
     # 2.6.27
-    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
+    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
 }
 
 kernel_release4()
 {
     # 2.6.18-128 or 2.6.29.1
-    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
+    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
 }
 
 split_kernel_version()
 {
-    N1=`echo $KERNEL | cut -d"." -f 1`
-    N2=`echo $KERNEL | cut -d"." -f 2`
-    N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
-    N4=`echo $KERNEL | cut -d"-" -f 2 | cut -d"." -f 1`
+    N1=$(echo "$KERNEL" | cut -d"." -f 1)
+    N2=$(echo "$KERNEL" | cut -d"." -f 2)
+    N3=$(echo "$KERNEL" | cut -d"." -f 3 | cut -d"-" -f 1)
+    N4=$(echo "$KERNEL" | cut -d"-" -f 2 | cut -d"." -f 1)
 }
 
 list_source_versions()
@@ -200,12 +200,12 @@ detect_etercifs_sources()
         if [ "$N1" -eq 2 ] ; then
             # 2.x.x regular kernel
             KERNEL_STRING=$KERNEL
-            echo "Building for $KERNEL_STRING"
+            echo "Building for $KERNEL_STRING kernel version"
         else
             # some normal and modern kernel
             kernel_release2
             KERNEL_STRING=$KERNEL
-            echo "Building for $KERNEL_STRING"
+            echo "Building for $KERNEL_STRING kernel version"
         fi
     fi
 
@@ -300,7 +300,8 @@ detect_host_kernel()
             [ -d "$KN" ] && KERNSRC="$KN"
         fi
     else
-        [ -n "$KV" ] || fatal "Set both KERNSRC and KERNVERSION"
+        # [ -n "$KV" ] || fatal "Set both KERNSRC and KERNVERSION"
+        KERNELVERSION=$(basename $(dirname "$KERNSRC"))
     fi
 }
 
@@ -310,7 +311,7 @@ check_headers()
 # TODO: use distr_vendor
 # TODO: use eepm, try install
         cat >&2 <<EOF
-Error: no kernel headers found at $KERNSRC, there are follow:
+Error: no kernel headers found at $KERNSRC, there are follows only:
 $(list_kernel_headers)
 
 Please install follow package for the current kernel:
@@ -320,9 +321,9 @@ Please install follow package for the current kernel:
     kernel-source-XXXX for SUSE Linux
     kernel-source-XXXX for Slackware
     dkms-etercifs for ROSA / Mandriva
-where XXXX is your current version from \$ uname -r: $(uname -r)
-or use KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
-or set KERNSRC and KERNELVERSION variables to set correct kernel headers location
+where XXXX is your current kernel version from \$ uname -r ( $(uname -r) )
+or set KERNSRC to set correct kernel headers location (/lib/modules/KERNELVERSION/build)
+or set KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
 Exiting...
 EOF
 # FIXME: check detect
@@ -389,7 +390,7 @@ compile_module()
     [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
 
     echo "Checking the kernel configuration..."
-    if [ -r "$KERNSRC" ]; then
+    if [ -r "$KERNSRC/.config" ]; then
         CONF_STRING=`cat $KERNSRC/.config | grep CONFIG_CIFS=`
         CONF_LETTER=`echo $CONF_STRING | cut -b 13-13`
         case "$CONF_LETTER" in
