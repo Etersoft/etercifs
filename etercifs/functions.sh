@@ -15,7 +15,7 @@ fatal()
     exit 1
 }
 
-PACKAGEINFO=@DATADIR@/package.conf
+[ -s "$PACKAGEINFO" ] || PACKAGEINFO=@DATADIR@/package.conf
 if [ -f "$PACKAGEINFO" ] ; then
   . $PACKAGEINFO
 else
@@ -215,12 +215,15 @@ detect_etercifs_sources()
     # try get like version
     if [ -z "$KERNEL_SOURCE_ETERCIFS" ] ; then
         KERNEL_SOURCE_ETERCIFS=$(list_source_versions | sort -r -V | head -n 1)
-        LATEST_SOURCES=$(echo $KERNEL_SOURCE_ETERCIFS | cut -d"-" -f 4)
-        echo "Warning! Couldn't find module sources for the current kernel $KERNEL!"
-        echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
+        if [ -n "$KERNEL_SOURCE_ETERCIFS" ] ; then
+            LATEST_SOURCES=$(echo $KERNEL_SOURCE_ETERCIFS | cut -d"-" -f 4)
+            echo "Warning! Couldn't find module sources for the kernel $KERNEL!"
+            echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
+        else
+            echo "Can't locate any appropiate kernel sources for the kernel $KERNEL"
+        fi
     fi
 
-    [ -n "$KERNEL_SOURCE_ETERCIFS" ] || fatal "Can't locate etercifs kernel module sources for current kernel!"
 }
 
 exit_handler()
@@ -352,7 +355,7 @@ dkms_build_module()
     STATUS=`dkms status -m $MODULENAME -v $MODULEVERSION`
     [ "$STATUS" ] || a= dkms add -m $MODULENAME -v $MODULEVERSION
     BUILDDIR=$SRC_DIR
-    create_builddir
+    create_builddir || fatal
     change_cifsversion
     a= dkms uninstall -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
     a= dkms build -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
@@ -377,8 +380,8 @@ change_cifsversion()
 compile_module()
 {
     detect_etercifs_sources
-    create_builddir
-    check_headers
+    check_headers || return
+    create_builddir || return
     set_gcc
 
     # SMP build

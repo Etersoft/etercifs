@@ -5,4 +5,4 @@
 # 2006, 2007, 2008, 2009, 2010, 2013 Public domain
 
 cd @DATADIR@
-sh buildmodule.sh
+. ./buildmodule.sh

@@ -21,7 +21,6 @@
                 compile_module
                 check_build_module
             fi
-        fi
     done
     echo "====================================================================="
     echo "CIFS Linux kernel module $MODULENAME $MODULEVERSION built for follow kernels (marked as ---DONE or ---FAILURE):"
