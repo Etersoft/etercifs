@@ -4,12 +4,12 @@
 %define modname etercifs
 
 Name: etercifs
-Version: 5.4.18
+Version: 5.5.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
-Packager: Pavel Shilovsky <piastry@altlinux.org>
+Packager: Vitaly Lipatov <lav@altlinux.org>
 
 License: GPLv2
 Group: System/Kernel and hardware
@@ -29,9 +29,13 @@ Requires: gcc make
 # We definitely needs mount.cifs command
 Requires: cifs-utils
 
+# TODO
+# We definitely have to use distr_vendor
+#Requires: eepm
+
 %description
-This package contains Etersoft modified CIFS kernel module,
-supports WINE@Etersoft sharing access support.
+This package contains Etersoft modified CIFS kernel module
+with WINE@Etersoft sharing access support.
 
 The CIFS VFS is a virtual file system for Linux to allow access to
 servers and storage appliances compliant with the SNIA CIFS
@@ -179,6 +183,9 @@ fi
 %endif
 
 %changelog
+* Sat Mar 04 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.0-alt1
+- aggregate all sources tarball to one tarball
+- major rewrite all scripts
 
 * Fri Mar 03 2017 Konstantin Artyushkin <akv@altlinux.org> 5.4.18-alt1
 - fix build for CentOS 7 with 3.10.0-514.* kernel
