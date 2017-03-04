@@ -17,7 +17,7 @@
         dkms_build_module
     else
         echo
-        echo "Building $MODULENAME $MODULEVERSION for $KERNELVERSION Linux kernel (headers in $KERNSRC)"
+        echo "Building $MODULENAME $MODULEVERSION for $KERNELVERSION Linux kernel (use headers in $KERNSRC)"
         compile_module
         install_module
     fi
