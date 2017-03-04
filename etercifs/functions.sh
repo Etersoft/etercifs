@@ -36,11 +36,32 @@ exit_handler()
     exit $rc
 }
 
+
+kernel_release2()
+{
+    # 3.0
+    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
+}
+
+kernel_release3()
+{
+    # 2.6.27
+    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
+}
+
+kernel_release4()
+{
+    # 2.6.18-128 or 2.6.29.1
+    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
+}
+
 split_kernel_version()
 {
     N1=`echo $KERNEL | cut -d"." -f 1`
     N2=`echo $KERNEL | cut -d"." -f 2`
     N3=`echo $KERNEL | cut -d"." -f 3 | cut -d"-" -f 1`
+    N4=`echo $KERNEL | cut -d"-" -f 2 | cut -d"." -f 1`
+}
 }
 
 check_for_openvz()
@@ -65,10 +86,7 @@ check_for_centos()
         echo "Found RHEL-like distribution."
 
         kernel_release4
-        N1=`echo $KERNEL4 | cut -d"." -f 1`
-        N2=`echo $KERNEL4 | cut -d"." -f 2`
-        N3=`echo $KERNEL4 | cut -d"." -f 3 | cut -d"-" -f 1`
-        N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
+        split_kernel_version
 
         CENTOS=0
         if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
@@ -146,10 +164,7 @@ check_for_suse()
        echo "Found openSUSE distribution."
 
        kernel_release4
-       N1=`echo $KERNEL4 | cut -d"." -f 1`
-       N2=`echo $KERNEL4 | cut -d"." -f 2`
-       N3=`echo $KERNEL4 | cut -d"." -f 3 | cut -d"-" -f 1`
-       N4=`echo $KERNEL4 | cut -d"-" -f 2 | cut -d"." -f 1`
+       split_kernel_version
 
        SUSE=0
        if [ "$N1" -eq 3 ] && [ "$N2" -eq 16 ] ; then
@@ -208,15 +223,17 @@ detect_etercifs_sources()
            KERNEL_STRING='suse13_2'
         fi # end suse specific part
     else
-        FIRSTNUM=`echo $KERNEL | cut -d"." -f 1`
-        if [ "$FIRSTNUM" -eq 2 ] ; then
+        kernel_release3
+        split_kernel_version
+        if [ "$N1" -eq 2 ] ; then
             [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-2*
             KERNEL_STRING=$KERNEL
             echo "Building for $KERNEL_STRING"
-        elif [ "$FIRSTNUM" -eq 3 ] || [ "$FIRSTNUM" -eq 4 ]; then
-            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-$FIRSTNUM*
+        else
+            # some normal and modern kernel
+            [ -n "$ETERCIFS_SOURCES_LIST" ] || ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-$N1*
             kernel_release2
-            KERNEL_STRING=$KERNEL2
+            KERNEL_STRING=$KERNEL
             echo "Building for $KERNEL_STRING"
         fi
     fi
@@ -228,7 +245,7 @@ detect_etercifs_sources()
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs-[0-9]*
         KERNEL_SOURCE_ETERCIFS_LINK=`ls -1 $ETERCIFS_SOURCES_LIST | sort -r -V | head -n 1`
         LATEST_SOURCES=`echo $KERNEL_SOURCE_ETERCIFS_LINK | cut -d"-" -f 4`
-        echo "Warning! Couldn't find module sources for the current kernel $KERNEL2 ($LATEST_SOURCES sources are selected)!"
+        echo "Warning! Couldn't find module sources for the current kernel $KERNEL ($LATEST_SOURCES sources are selected)!"
         echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
         ETERCIFS_SOURCES_LIST=$DATADIR/sources/kernel-source-etercifs*
     fi
@@ -249,24 +266,6 @@ create_builddir()
     trap exit_handler HUP PIPE INT QUIT TERM EXIT
     FILENAME=`basename $KERNEL_SOURCE_ETERCIFS`
     BUILDDIR=$tmpdir/${FILENAME%.tar.bz2}
-}
-
-kernel_release2()
-{
-    # 3.0
-    KERNEL2=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
-}
-
-kernel_release()
-{
-    # 2.6.27
-    KERNEL=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
-}
-
-kernel_release4()
-{
-    # 2.6.18-128 or 2.6.29.1
-    KERNEL4=`echo $KERNELVERSION | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
 }
 
 # Heuristic
@@ -290,13 +289,14 @@ detect_kernel()
             [ -n "$KERNELVERSION" ] && KERNELVERSION=$KERNELVERSION-`basename $KERNSRC`
         fi
     fi
-    kernel_release
+    kernel_release3
 }
 
 detect_host_kernel()
 {
+    local KV="$KERNELVERSION"
     [ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
-    kernel_release
+    kernel_release3
 
     if [ -z "$KERNSRC" ]; then
         KERNSRC=/lib/modules/$KERNELVERSION/build
@@ -305,6 +305,8 @@ detect_host_kernel()
             local KN=/usr/src/linux-headers-$KERNELVERSION
             [ -d "$KN" ] && KERNSRC="$KN"
         fi
+    else
+        [ -n "$KV" ] || fatal "Set both KERNSRC and KERNVERSION"
     fi
 }
 
