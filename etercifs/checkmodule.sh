@@ -10,11 +10,7 @@
     echo "====================================================================="
     echo "Check build etercifs module for all found kernels"
     BUILTLIST=
-    for LM in `ls /lib/modules` ; do
-        KERNSRC=`readlink /lib/modules/$LM/build`
-        if [ $KERNSRC ] ; then
-            [ -L $KERNSRC ] && continue
-            [ -f $KERNSRC/.config ] || continue
+    for KERNSRC in $(list_kernel_headers) ; do
             echo "---------------------------------------------------------------------"
             detect_kernel
             if [ -z "$KERNELVERSION" ] ; then

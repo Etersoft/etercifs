@@ -248,6 +248,17 @@ create_builddir()
     extract_source $KERNEL_SOURCE_ETERCIFS $BUILDDIR
 }
 
+list_kernel_headers()
+{
+    local LM
+    for LM in `ls -d /lib/modules/*/build` ; do
+        [ -r "$LM" ] || continue
+        [ -L $(readlink $LM) ] && continue
+        [ -f $LM/.config ] || continue
+        echo "$LM"
+    done
+}
+
 # Heuristic
 detect_kernel()
 {
@@ -296,14 +307,16 @@ check_headers()
 # TODO: use distr_vendor
 # TODO: use eepm, try install
         cat >&2 <<EOF
-Error: no kernel headers found at $KERNSRC
-Please install package
+Error: no kernel headers found at $KERNSRC, there are follow:
+$(list_kernel_headers)
+
+Please install follow package for the current kernel:
     kernel-headers-modules-XXXX for ALT Linux
     kernel-devel for RHEL / CentOS / Fedora
     linux-headers-XXXX for Debian / Ubuntu
     kernel-source-XXXX for SUSE Linux
     kernel-source-XXXX for Slackware
-    dkms-etercifs for Mandriva
+    dkms-etercifs for ROSA / Mandriva
 where XXXX is your current version from \$ uname -r: $(uname -r)
 or use KERNELVERSION variable to set correct version (for /lib/modules/KERNELVERSION/build)
 or set KERNSRC and KERNELVERSION variables to set correct kernel headers location
