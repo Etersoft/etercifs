@@ -1,6 +1,8 @@
 # Etersoft (c) 2007-2017
 # Multiplatform spec for Korinf autobuild system (ALT Linux package spec policy)
 
+%define modname etercifs
+
 Name: etercifs
 Version: 5.4.18
 Release: alt1
@@ -50,6 +52,26 @@ and/or a mount helper file are not required in order to enable the CIFS
 VFS). With the addition of upcoming improvements to the mount helper
 (mount.cifs) the CIFS VFS will be able to take advantage of the new CIFS
 URL specification though.
+
+%if %_vendor != "alt"
+%package -n dkms-etercifs
+Summary: DKMS-ready CIFS Linux kernel module with Etersoft extensions
+Group: System/Kernel and hardware
+Requires(preun): dkms
+Requires(post): dkms
+
+Requires: etercifs = %version-%release
+
+Buildarch: noarch
+
+%description -n dkms-etercifs
+The CIFS VFS is a virtual file system for Linux to allow access to
+servers and storage appliances compliant with the SNIA CIFS
+Specification version 1.0 or later.
+
+This package contains DKMS-ready CIFS Linux kernel module with Etersoft
+extensions.
+%endif
 
 %prep
 %setup
@@ -106,6 +128,35 @@ cp %SOURCE1 %buildroot%_datadir/%name/
 mkdir -p %buildroot%_bindir
 install -m755 etermount %buildroot%_bindir/
 
+%if %_vendor != "alt"
+# dkms part
+mkdir -p %buildroot%_usrsrc/%modname-%version/
+cat > %buildroot%_usrsrc/%modname-%version/dkms.conf <<EOF
+# DKMS file for Linux CIFS with Etersoft's extensions
+
+PACKAGE_NAME="%modname"
+PACKAGE_VERSION="%version"
+
+BUILT_MODULE_NAME[0]="etercifs"
+DEST_MODULE_LOCATION[0]="/kernel/fs/cifs/"
+REMAKE_INITRD="no"
+AUTOINSTALL="YES"
+EOF
+
+%post -n dkms-etercifs
+if [ "$1" == 1 ]
+then
+  dkms add -m %modname -v %version --rpm_safe_upgrade
+fi
+%_initdir/%modname build
+
+%preun -n dkms-etercifs
+if [ "$1" == 0 ]
+then
+  dkms remove -m %modname -v %version --rpm_safe_upgrade --all
+fi
+%endif
+
 %post
 %post_service %name
 
@@ -121,6 +172,11 @@ install -m755 etermount %buildroot%_bindir/
 %config %_sysconfdir/sysconfig/%name.conf
 %config %_sysconfdir/modprobe.d/etersoft.conf
 %_datadir/%name/
+
+%if %_vendor != "alt"
+%files -n dkms-etercifs
+%_usrsrc/%modname-%version/dkms.conf
+%endif
 
 %changelog
 
