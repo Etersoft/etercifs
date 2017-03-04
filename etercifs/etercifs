@@ -41,8 +41,7 @@ else
     fatal "Not found configuration file $CONFIGFILE"
 fi
 
-[ -n "$BUILT" ] || BUILT=0
-[ -n "$DKMS" ] || DKMS=1
+BUILT=0
 
 ORIGMODULENAME=cifs
 
@@ -216,7 +215,6 @@ load_module()
     echo -n "trying to compile it..."
     if [ $BUILT -ne 1 ] ; then
         build_module
-        BUILT=1
         start
     fi
 }
@@ -290,19 +288,15 @@ status()
 
 build_module()
 {
-    if [ -r $SRC_DIR/dkms.conf ] && [ `which dkms 2>/dev/null` ] && [ $DKMS -eq 1 ] ; then
-        cd $DATADIR
-        DKMSBUILD=1 sh buildmodule.sh
-    else
-        cd $DATADIR
-        sh buildmodule.sh
-    fi
+    cd @DATADIR@
+    sh buildmodule.sh || return
+    BUILT=1
 }
 
 test_build_module()
 {
-    cd $DATADIR
-    TESTBUILD=1 sh buildmodule.sh
+    cd @DATADIR@
+    sh checkmodule.sh
 }
 
 case "$1" in
@@ -324,7 +318,8 @@ case "$1" in
     build)
         build_module
         ;;
-    testbuild)
+    testbuild|checkbuild)
+        # See https://bugs.etersoft.ru/show_bug.cgi?id=2782
         test_build_module
         ;;
     status)

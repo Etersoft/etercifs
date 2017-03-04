@@ -21,8 +21,6 @@ else
   fatal "Not found configuration file $CONFIGFILE"
 fi
 
-[ -n "$TESTBUILD" ] || TESTBUILD=0
-[ -n "$DKMSBUILD" ] || DKMSBUILD=0
 
 fatal()
 {
@@ -337,9 +335,7 @@ set_gcc()
 {
     if [ -f $KERNSRC/gcc_version.inc ] ; then
         . $KERNSRC/gcc_version.inc
-        if [ $TESTBUILD -ne 1 ] ; then
-            echo "Use GCC $GCC_VERSION"
-        fi
+        echo "Use GCC $GCC_VERSION"
         export GCCNAME=gcc-$GCC_VERSION
         export USEGCC="CC=$GCCNAME"
     else
