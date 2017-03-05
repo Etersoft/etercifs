@@ -137,22 +137,6 @@ is_origmoduled()
     lsmod | grep "^$ORIGMODULENAME" > /dev/null
 }
 
-check_for_old_kernel()
-{
-    detect_host_kernel
-    split_kernel_version
-    if [ "$N1" -eq 2 ] && [ "$N2" -eq 6 ] ; then
-        if [ "$N3" -ge 29 ] ; then
-            return 0
-        fi
-    fi
-    check_for_centos > /dev/null
-    if [ -n "$SPECIFIC_CENTOS" ] && [ "$CENTOS" -ge 54 ] ; then
-        return 0
-    fi
-    return 1
-}
-
 umount_cifs()
 {
     WASCIFS=
@@ -189,10 +173,10 @@ load_module()
         if [ "$?" -eq 1 ] ; then
             return
         fi
-        check_for_old_kernel
-        if [ "$?" -eq 1 ]; then
-            sleep 2s
-        fi
+        #check_for_old_kernel
+        #if [ "$?" -eq 1 ]; then
+        sleep 2s
+        #fi
         echo -n "Removing vanilla kernel module $ORIGMODULENAME... "
         $RMMOD $ORIGMODULENAME --wait
         success
@@ -233,10 +217,10 @@ stop()
     if [ "$?" -eq 1 ] ; then
         return
     fi
-    check_for_old_kernel
-    if [ "$?" -eq 1 ]; then
-        sleep 2s
-    fi
+    #check_for_old_kernel
+    #if [ "$?" -eq 1 ]; then
+    sleep 2s
+    #fi
     echo -n "Unloading kernel module $MODULENAME... "
     is_moduled || { passed ; return ; }
     $RMMOD $MODULENAME

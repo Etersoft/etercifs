@@ -71,6 +71,7 @@ detect_etercifs_sources()
     if [ -z "$KERNEL_STRING" ] || [ "$KERNEL_STRING" = "fixme" ] ; then
         # build fake source table from source list
         KERNEL_STRING=$(echo -e "[Generic]\n$(list_source_versions | grep '^[0-9]' | sort_dn)" | ./source.sh "Generic" "$KERNELVERSION")
+        # hack for mc colorifer: "
     fi
 
     if [ -n "$KERNEL_STRING" ] ; then
@@ -125,47 +126,6 @@ list_kernel_headers()
     done
 }
 
-# Heuristic
-detect_kernel()
-{
-    # Detect kernel version
-    if [ -f $KERNSRC/.kernelrelease ] ; then
-        KERNELVERSION=`head -n 1 $KERNSRC/.kernelrelease`
-    elif [ -f $KERNSRC/include/config/kernel.release ] ; then
-        KERNELVERSION=`head -n 1 $KERNSRC/include/config/kernel.release`
-    elif [ -f $KERNSRC/include/linux/version.h ] ; then
-        KERNELVERSION=`head -n 1 $KERNSRC/include/linux/version.h | grep UTS_RELEASE | cut -d" " -f 3 | sed -e 's|"||g'`
-    fi
-    if [ -z "$KERNELVERSION" ] ; then
-        head -n 5 $KERNSRC/Makefile | sed -e "s| ||g" >get_version
-        . ./get_version
-        KERNELVERSION=$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION
-        # Hack for strange SUSE 10.2
-        if [ -z "$EXTRAVERSION" ] ; then
-            KERNELVERSION=`grep KERNELSRC $KERNSRC/Makefile | head -n 1 | sed -e "s|.*linux-||g"`
-            [ -n "$KERNELVERSION" ] && KERNELVERSION=$KERNELVERSION-`basename $KERNSRC`
-        fi
-    fi
-}
-
-detect_host_kernel()
-{
-    KERNELMANUAL="$KERNSRC$KERNELVERSION"
-    [ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
-
-    if [ -z "$KERNSRC" ]; then
-        KERNSRC=/lib/modules/$KERNELVERSION/build
-        # workaround for missed link on deb-based systems
-        if [ ! -d "$KERNSRC" ] ; then
-            local KN=/usr/src/linux-headers-$KERNELVERSION
-            [ -d "$KN" ] && KERNSRC="$KN"
-        fi
-    else
-        # [ -n "$KV" ] || fatal "Set both KERNSRC and KERNVERSION"
-        KERNELVERSION=$(basename $(dirname "$KERNSRC"))
-    fi
-}
-
 check_headers()
 {
     if [ ! -f $KERNSRC/include/linux/version.h ] && [ ! -f $KERNSRC/include/generated/uapi/linux/version.h ] ; then
@@ -188,7 +148,7 @@ or set KERNELVERSION variable to set correct version (for /lib/modules/KERNELVER
 Exiting...
 EOF
 # FIXME: check detect
-        exit 1
+        return 1
     fi
 }
 
@@ -241,17 +201,8 @@ change_cifsversion()
     fi
 }
 
-compile_module()
+check_kernel_conf()
 {
-    detect_etercifs_sources
-    check_headers || return
-    create_builddir || return
-    set_gcc
-
-    # SMP build
-    [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
-    [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
-
     echo "Checking the kernel configuration..."
     if [ -r "$KERNSRC/.config" ]; then
         CONF_STRING=`cat $KERNSRC/.config | grep CONFIG_CIFS=`
@@ -269,6 +220,21 @@ compile_module()
     else
         echo "WARNING: the .config file in kernel source directory does not exist!"
     fi
+    return 0
+}
+
+compile_module()
+{
+    detect_etercifs_sources
+    check_headers || return
+    create_builddir || return
+    set_gcc
+
+    # SMP build
+    [ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
+    [ "$RPM_BUILD_NCPUS" -gt 1 ] && MAKESMP="-j$RPM_BUILD_NCPUS" || MAKESMP=""
+
+    check_kernel_conf || return
 
     change_cifsversion
     make $USEGCC -C $KERNSRC here=$BUILDDIR SUBDIRS=$BUILDDIR clean
@@ -289,18 +255,6 @@ install_module()
     install -m 644 -o root -g root $BUILDDIR/$MODULEFILENAME $INSTALL_MOD_PATH/ || exit 1
 
     echo "Do depmod -Ae for $KERNELVERSION kernel"
-    depmod -Ae $KERNELVERSION || exit 1
-}
-
-check_build_module()
-{
-    if [ -r "$BUILDDIR/$MODULEFILENAME" ] ; then
-        echo "$KERNELVERSION - OK"
-        BUILTLIST="$BUILTLIST---DONE"
-    else
-        echo "can't locate built module $MODULEFILENAME"
-        echo "$KERNELVERSION - FAIL"
-        BUILTLIST="$BUILTLIST---FAILURE"
-    fi
+    depmod -Ae $KERNELVERSION
 }
 
