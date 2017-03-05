@@ -17,7 +17,8 @@
 CIFS" - http://www.etersoft.ru/content/view/56/156/#cifs
 
 Исходные тексты можно получить через систему контроля версий git -
-http://git.etersoft.ru/projects/etercifs.git/
+https://gitlab.eterfund.ru/etersoft/etercifs
+https://github.com/Etersoft/etercifs
 
 Скачать пакеты для различных дистрибутивов -
 ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
@@ -25,3 +26,5 @@ ftp://updates.etersoft.ru/pub/Etersoft/CIFS@Etersoft/
 Файлы AUTHORS, CHANGES, README, TODO взяты из исходников модуля
 для ядра 2.6.32. Для остальных ядер подобные файлы нужно искать
 в соответствующих архивах в папке /usr/share/etercifs/sources.
+
+Соответствие исходников и ядра устанавливается в файле source.table
