@@ -6,6 +6,7 @@
 
 . ./functions.sh
 
+# FIXME: why we still need detect KERNELVERSION from source???
 # Heuristic
 detect_kernel()
 {
@@ -33,11 +34,11 @@ check_build_module()
 {
     if [ -r "$BUILDDIR/$MODULEFILENAME" ] ; then
         echo "$KERNELVERSION - OK"
-        BUILTLIST="$BUILTLIST---DONE"
+        BUILTLIST="$BUILTLIST $KERNELVERSION---DONE"
     else
         echo "can't locate built module $MODULEFILENAME"
         echo "$KERNELVERSION - FAIL"
-        BUILTLIST="$BUILTLIST---FAILURE"
+        BUILTLIST="$BUILTLIST $KERNELVERSION---FAILURE"
     fi
 }
 
@@ -55,7 +56,6 @@ check_build_module()
                 echo "Can't detect kernel version in $KERNSRC"
             else
                 echo "Build for $KERNSRC (detected as $KERNELVERSION)"
-                BUILTLIST="$BUILTLIST $KERNELVERSION"
                 compile_module
                 check_build_module
             fi

@@ -1,3 +1,4 @@
+# demo data
 DATADIR=./
 SRC_DIR=/usr/src/etercifs-5.5.0
 MODULENAME=etercifs
