@@ -53,8 +53,14 @@ fake_source_versions()
 detect_etercifs_sources()
 {
     KERNEL_SOURCE_ETERCIFS=
-    # TODO epm
-    DISTRO=$(lsb_release -d 2>/dev/null)
+    # TODO epm (we need fix distro names according to epm names)
+    if false && which distr_info 2>/dev/null >/dev/null ; then
+        DISTRO=$(a= distr_info)
+        echo "Detected $DISTRO via EEPM"
+    else
+        DISTRO=$(a= lsb_release -d 2>/dev/null)
+        echo "Detected $DISTRO with lsb_release"
+    fi
 
     KERNEL_SOURCE_ETERCIFS=$(./source.sh "$DISTRO" "$KERNELVERSION" < source.table)
 
