@@ -52,33 +52,24 @@ fake_source_versions()
 
 detect_etercifs_sources()
 {
-    KERNEL_STRING=
-    if which lsb_release > /dev/null; then
-        # TODO epm
-        DISTRO=$(lsb_release -d)
-        KERNEL_STRING=$(./source.sh "$DISTRO" "$KERNELVERSION" < source.table)
-    fi
+    KERNEL_SOURCE_ETERCIFS=
+    # TODO epm
+    DISTRO=$(lsb_release -d 2>/dev/null)
+
+    KERNEL_SOURCE_ETERCIFS=$(./source.sh "$DISTRO" "$KERNELVERSION" < source.table)
 
     # generic kernels
-    if [ -z "$KERNEL_STRING" ] || [ "$KERNEL_STRING" = "fixme" ] ; then
-        KERNEL_STRING=$(fake_source_versions | ./source.sh "Generic" "$KERNELVERSION")
+    if [ -z "$KERNEL_SOURCE_ETERCIFS" ] || [ "$KERNEL_SOURCE_ETERCIFS" = "fixme" ] ; then
+        KERNEL_SOURCE_ETERCIFS=$(fake_source_versions | ./source.sh "Generic" "$KERNELVERSION")
     fi
 
-    if [ -n "$KERNEL_STRING" ] ; then
-        echo "Building for $KERNEL_STRING kernel version"
+    if [ -n "$KERNEL_SOURCE_ETERCIFS" ] ; then
+        echo "Building for $KERNEL_SOURCE_ETERCIFS kernel version"
     else
         echo "Can't locate any appropiate kernel sources for the kernel $KERNELVERSION"
         check_headers
         exit
     fi
-
-    KERNEL_SOURCE_ETERCIFS="$KERNEL_STRING"
-
-    # TODO: print info about strict version
-    #LATEST_SOURCES=$(echo $KERNEL_SOURCE_ETERCIFS | cut -d"-" -f 4)
-    #echo "Warning! Couldn't find module sources for the kernel $KERNEL!"
-    #echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
-
 }
 
 exit_handler()
