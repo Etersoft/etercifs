@@ -94,13 +94,14 @@ check_for_centos()
                     echo "Building from legacy sources with patch for kernels 2.6.18-274.x from CentOS 5.7."
                     KERNEL_STRING='centos56'
                 elif [ "$N4" -gt 274 ] ; then
+                    echo "Warning! Your kernel is newer than 2.6.18-274.x"
                     echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
                     KERNEL_STRING='centos56'
                 elif [ "$N4" -eq 238 ] ; then
-                    echo "Your kernel is 2.6.18-238.x"
+                    echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
                     KERNEL_STRING='centos56'
                 elif [ "$N4" -gt 238 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-238.x"
+                    echo "Warning! Your kernel is newer than 2.6.18-238.x and older than 2.6.18.274.x"
                     KERNEL_STRING='centos56'
                 elif [ "$N4" -eq 194 ] ; then
                     echo "Your kernel is 2.6.18-194.x"
@@ -149,8 +150,7 @@ check_for_centos()
             fi
         elif [ "$N1.$N2" = "3.10" ] ; then
             if [ "$N3-$N4" = "0-1" ] ; then
-                # FIXME
-                CENTOS="GosLinux64"
+                KERNEL_STRING='goslinux64'
             else
                 echo "Building from legacy sources with patch for kernels 3.10.x from CentOS 7.0."
                 KERNEL_STRING='centos70'
@@ -172,7 +172,7 @@ check_for_suse()
        echo
        echo "Found openSUSE distribution."
 
-       kernel_release4
+       kernel_release3
        split_kernel_version
 
        if [ "$N1.$N2.$N3" = "3.16.7" ] ; then
