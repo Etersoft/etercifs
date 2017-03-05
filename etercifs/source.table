@@ -8,11 +8,12 @@
 2\.6\.18.*(stab|ovz-el|ovz-rhel)                centos-ovz
 2\.6\.32.*(stab|ovz-el|ovz-smp|ovz-rhel|openvz) centos60
 
-[GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix]
+[GosLinux]
+3.10       goslinux64
+
+[CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix]
 # >=       source_version
 3.10       centos7     # RHEL 7.x
-3.10.0-9   fixme
-3.10.0-1   goslinux64
 2.6.33     fixme
 2.6.32     centos60 # RHEL 6.x
 2.6.23     legacy
@@ -24,7 +25,6 @@
 2.6.18.128 centos53 # RHEL 5.3
 2.6.18.92  centos52 # RHEL 5.2
 2.6.18.1   legacy   # RHEL
-2.6.0.1    test
 2.6.0      legacy
 
 [openSUSE]
