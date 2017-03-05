@@ -36,19 +36,6 @@ extract_source()
     tar -xJf $ETERCIFS_SOURCES_TARBALL -C "$2" --strip 1 "$1"
 }
 
-# TODO: drop it too
-check_for_openvz()
-{
-    if echo "$KERNELVERSION" | egrep -q "2\.6\.18.*(stab|ovz-el|ovz-rhel)" ; then
-        KERNEL_STRING="centos-ovz"
-    elif echo "$KERNELVERSION" | egrep -q "2\.6\.32.*(stab|ovz-el|ovz-smp|ovz-rhel|openvz)" ; then
-        KERNEL_STRING="centos60"
-    else
-        return 1
-    fi
-    return 0
-}
-
 # kernel version sorting
 sort_dn()
 {
@@ -66,9 +53,7 @@ fake_source_versions()
 detect_etercifs_sources()
 {
     KERNEL_STRING=
-    if check_for_openvz ; then
-        echo "Building from legacy sources for OpenVZ kernel $KERNEL_STRING"
-    elif which lsb_release > /dev/null; then
+    if which lsb_release > /dev/null; then
         # TODO epm
         DISTRO=$(lsb_release -d)
         KERNEL_STRING=$(./source.sh "$DISTRO" "$KERNELVERSION" < source.table)

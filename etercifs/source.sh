@@ -39,8 +39,18 @@ while read vers source other; do
     fi
     [ -n "$VERBOSE" ] && echo "$vers - $prevvers: $source"
 
-    # FIXME: comparing for kernel version
-    # >=
+    # vers is regular expression
+    if echo "$vers" | grep -q "\*" ; then
+        if echo "$KERNELVERSION" | egrep -q "$vers" ; then
+            echo "$source"
+            exit
+        fi
+        # do not count regexps
+        # prevvers="$vers"
+        continue
+    fi
+
+    # vers is a kernel version
     if [ -z "$skip" ] && ! verlt "$KERNELVERSION" "$vers" ; then
         if [ -z "$prevvers" ] || verlt "$KERNELVERSION" "$prevvers" ; then
             [ -n "$source" ] && echo "$source" || echo "$vers"

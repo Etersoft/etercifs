@@ -1,5 +1,12 @@
-# TODO: parse with script?
-# using version between current and prev
+# Using:
+# [Distro name]
+# real_version  source_version
+# 1. using version between current and prev
+# 2. using first regexp
+
+[.*]
+2\.6\.18.*(stab|ovz-el|ovz-rhel)                centos-ovz
+2\.6\.32.*(stab|ovz-el|ovz-smp|ovz-rhel|openvz) centos60
 
 [GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix]
 # >=       source_version
