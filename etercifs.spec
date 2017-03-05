@@ -103,6 +103,8 @@ EOF
 
 install -D -m644 buildmodule.sh %buildroot%_datadir/%name/buildmodule.sh
 install -D -m644 checkmodule.sh %buildroot%_datadir/%name/checkmodule.sh
+install -D -m644 checkmodule.sh %buildroot%_datadir/%name/source.sh
+install -D -m644 checkmodule.sh %buildroot%_datadir/%name/source.table
 install -D -m644 functions.sh %buildroot%_datadir/%name/functions.sh
 install -D -m755 %name-build %buildroot%_sbindir/%name-build
 

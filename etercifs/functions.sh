@@ -24,33 +24,6 @@ fi
 
 ETERCIFS_SOURCES_TARBALL=$DATADIR/etercifs-sources-$MODULEVERSION.tar.xz
 
-
-kernel_release2()
-{
-    # 3.0
-    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\).*/\1/'`
-}
-
-kernel_release3()
-{
-    # 2.6.27
-    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/'`
-}
-
-kernel_release4()
-{
-    # 2.6.18-128 or 2.6.29.1
-    KERNEL=`echo "$KERNELVERSION" | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+[\.-][0-9]\+\).*/\1/'`
-}
-
-split_kernel_version()
-{
-    N1=$(echo "$KERNEL" | cut -d"." -f 1)
-    N2=$(echo "$KERNEL" | cut -d"." -f 2)
-    N3=$(echo "$KERNEL" | cut -d"." -f 3 | cut -d"-" -f 1)
-    N4=$(echo "$KERNEL" | cut -d"-" -f 2 | cut -d"." -f 1)
-}
-
 list_source_versions()
 {
     tar --list --no-recursion -f $ETERCIFS_SOURCES_TARBALL --exclude '*/*' | sed -e "s|/||g"
@@ -63,6 +36,7 @@ extract_source()
     tar -xJf $ETERCIFS_SOURCES_TARBALL -C "$2" --strip 1 "$1"
 }
 
+# TODO: drop it too
 check_for_openvz()
 {
     if echo "$KERNELVERSION" | egrep -q "2\.6\.18.*(stab|ovz-el|ovz-rhel)" ; then
@@ -75,154 +49,43 @@ check_for_openvz()
     return 0
 }
 
-check_for_centos()
+# kernel version sorting
+sort_dn()
 {
-    # TODO: epm
-    if which lsb_release > /dev/null; then
-        lsb_release -d | egrep -q 'GosLinux|CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix' || return
-    fi
-
-        echo
-        echo "Found RHEL-like distribution."
-
-        kernel_release4
-        split_kernel_version
-
-        if [ "$N1.$N2" = "2.6" ] ; then
-            if [ "$N3" = "18" ] ; then
-                if [ "$N4" = "274" ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-274.x from CentOS 5.7."
-                    KERNEL_STRING='centos56'
-                elif [ "$N4" -gt 274 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-274.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
-                    KERNEL_STRING='centos56'
-                elif [ "$N4" -eq 238 ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-238.x from CentOS 5.6."
-                    KERNEL_STRING='centos56'
-                elif [ "$N4" -gt 238 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-238.x and older than 2.6.18.274.x"
-                    KERNEL_STRING='centos56'
-                elif [ "$N4" -eq 194 ] ; then
-                    echo "Your kernel is 2.6.18-194.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-194.x from CentOS 5.5."
-                    KERNEL_STRING='centos55'
-                elif [ "$N4" -gt 194 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-194.x and older than 2.6.18.238.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-194.x from CentOS 5.5."
-                    KERNEL_STRING='centos55'
-                elif [ "$N4" -eq 164 ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
-                    KERNEL_STRING='centos54'
-                elif [ "$N4" -gt 164 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-164.x and older than 2.6.18.194.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-164.x from CentOS 5.4."
-                    KERNEL_STRING='centos54'
-                elif [ "$N4" -eq 128 ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-128.x from CentOS 5.3."
-                    KERNEL_STRING='centos53'
-                elif [ "$N4" -gt 128 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-128.x and older than 2.6.18-164.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-128.x from CentOS 5.3."
-                    KERNEL_STRING='centos53'
-                elif [ "$N4" -eq 92 ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
-                    KERNEL_STRING='centos52'
-                elif [ "$N4" -gt 92 ] ; then
-                    echo "Warning! Your kernel is newer than 2.6.18-92.x and older than 2.6.18-128.x"
-                    echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
-                    KERNEL_STRING='centos52'
-                else
-                    echo "Warning! Your kernel is older than 2.6.18-92.x"
-                    echo "Building from legacy sources."
-                    KERNEL_STRING='legacy'
-                fi
-            elif [ "$N3" -gt 18 ] && [ "$N3" -lt 23 ] ; then
-                    echo "Building from legacy sources with patch for kernels 2.6.18-92.x from CentOS 5.2."
-                    KERNEL_STRING='centos52'
-            elif [ "$N3" = "32" ] ; then
-                echo "Building from legacy sources with patch for kernels 2.6.32-x.y from CentOS 6.0."
-                KERNEL_STRING='centos60'
-            else
-                echo "Warning! Your RHEL kernel is older than 2.6.18 or newer than 2.6.23"
-                echo "Building from legacy sources."
-                KERNEL_STRING='legacy'
-            fi
-        elif [ "$N1.$N2" = "3.10" ] ; then
-            if [ "$N3-$N4" = "0-1" ] ; then
-                KERNEL_STRING='goslinux64'
-            else
-                echo "Building from legacy sources with patch for kernels 3.10.x from CentOS 7.0."
-                KERNEL_STRING='centos70'
-            fi
-        else
-            echo "Skipping RHEL specific kernel $KERNEL"
-            return 1
-        fi
-    return 0
-}
-
-check_for_suse()
-{
-   # TODO epm
-   if which lsb_release > /dev/null; then
-       lsb_release -d | egrep -q 'openSUSE' || return
-   fi
-
-       echo
-       echo "Found openSUSE distribution."
-
-       kernel_release3
-       split_kernel_version
-
-       if [ "$N1.$N2.$N3" = "3.16.7" ] ; then
-           echo "Building from legacy sources with patch for kernels 3.16.7-21.x from SUSE 13.2"
-           KERNEL_STRING='suse13_2'
-       else
-           return 1
-       fi
-   return 0
+    # sort -V
+    sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g
 }
 
 detect_etercifs_sources()
 {
     KERNEL_STRING=
-
     if check_for_openvz ; then
-        echo "Building from legacy sources with patch for OpenVZ kernel $KERNEL_STRING"
-    elif check_for_centos ; then
-        true
-    elif check_for_suse; then
-        true
+        echo "Building from legacy sources for OpenVZ kernel $KERNEL_STRING"
+    elif which lsb_release > /dev/null; then
+        # TODO epm
+        DISTRO=$(lsb_release -d)
+        KERNEL_STRING=$(./source.sh "$DISTRO" "$KERNELVERSION" < source.table)
+    fi
+
+    # generic kernels
+    if [ -z "$KERNEL_STRING" ] || [ "$KERNEL_STRING" = "fixme" ] ; then
+        # build fake source table from source list
+        KERNEL_STRING=$(echo -e "[Generic]\n$(list_source_versions | grep '^[0-9]' | sort_dn)" | ./source.sh "Generic" "$KERNELVERSION")
+    fi
+
+    if [ -n "$KERNEL_STRING" ] ; then
+        echo "Building for $KERNEL_STRING kernel version"
     else
-        kernel_release3
-        split_kernel_version
-        if [ "$N1" -eq 2 ] ; then
-            # 2.x.x regular kernel
-            KERNEL_STRING=$KERNEL
-            echo "Building for $KERNEL_STRING kernel version"
-        else
-            # some normal and modern kernel
-            kernel_release2
-            KERNEL_STRING=$KERNEL
-            echo "Building for $KERNEL_STRING kernel version"
-        fi
+        echo "Can't locate any appropiate kernel sources for the kernel $KERNELVERSION"
+        check_headers
     fi
 
-    # try get concrete version
-    KERNEL_SOURCE_ETERCIFS=$(list_source_versions | grep -F "$KERNEL_STRING" | sort -r | head -n 1)
+    KERNEL_SOURCE_ETERCIFS="$KERNEL_STRING"
 
-    # try get like version
-    if [ -z "$KERNEL_SOURCE_ETERCIFS" ] ; then
-        KERNEL_SOURCE_ETERCIFS=$(list_source_versions | sort -r -V | head -n 1)
-        if [ -n "$KERNEL_SOURCE_ETERCIFS" ] ; then
-            LATEST_SOURCES=$(echo $KERNEL_SOURCE_ETERCIFS | cut -d"-" -f 4)
-            echo "Warning! Couldn't find module sources for the kernel $KERNEL!"
-            echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
-        else
-            echo "Can't locate any appropiate kernel sources for the kernel $KERNEL"
-        fi
-    fi
+    # TODO: print info about strict version
+    #LATEST_SOURCES=$(echo $KERNEL_SOURCE_ETERCIFS | cut -d"-" -f 4)
+    #echo "Warning! Couldn't find module sources for the kernel $KERNEL!"
+    #echo "Using the latest supported sources - from v$LATEST_SOURCES kernel!"
 
 }
 
@@ -283,14 +146,12 @@ detect_kernel()
             [ -n "$KERNELVERSION" ] && KERNELVERSION=$KERNELVERSION-`basename $KERNSRC`
         fi
     fi
-    kernel_release3
 }
 
 detect_host_kernel()
 {
     KERNELMANUAL="$KERNSRC$KERNELVERSION"
     [ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
-    kernel_release3
 
     if [ -z "$KERNSRC" ]; then
         KERNSRC=/lib/modules/$KERNELVERSION/build
