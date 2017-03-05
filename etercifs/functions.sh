@@ -32,7 +32,7 @@ list_source_versions()
 # arg: version target
 extract_source()
 {
-    mkdir -p "$2" || return
+    mkdir -p "$2" || fatal
     tar -xJf $ETERCIFS_SOURCES_TARBALL -C "$2" --strip 1 "$1"
 }
 
@@ -84,6 +84,7 @@ detect_etercifs_sources()
     else
         echo "Can't locate any appropiate kernel sources for the kernel $KERNELVERSION"
         check_headers
+        exit
     fi
 
     KERNEL_SOURCE_ETERCIFS="$KERNEL_STRING"
@@ -115,9 +116,9 @@ create_builddir()
         tmpdir=
         tmpdir="$(mktemp -dt "Etercifs.XXXXXXXX")"
         trap exit_handler HUP PIPE INT QUIT TERM EXIT
-        BUILDDIR=$tmpdir/$KERNEL_SOURCE_ETERCIFS
+        BUILDDIR="$tmpdir/$KERNEL_SOURCE_ETERCIFS"
     fi
-    extract_source $KERNEL_SOURCE_ETERCIFS $BUILDDIR
+    extract_source "$KERNEL_SOURCE_ETERCIFS" "$BUILDDIR"
 }
 
 list_kernel_headers()
