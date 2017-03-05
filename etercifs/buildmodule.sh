@@ -11,7 +11,7 @@
 . ./functions.sh
 
     detect_host_kernel
-    if [ -r $SRC_DIR/dkms.conf ] && [ `which dkms 2>/dev/null` ] ; then
+    if [ -r $SRC_DIR/dkms.conf ] && which dkms 2>/dev/null >/dev/null ] ; then
         echo
         echo "Building $MODULENAME $MODULEVERSION for $KERNELVERSION Linux kernel with dkms"
         dkms_build_module

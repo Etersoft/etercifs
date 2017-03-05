@@ -288,7 +288,7 @@ detect_kernel()
 
 detect_host_kernel()
 {
-    local KV="$KERNELVERSION"
+    KERNELMANUAL="$KERNSRC$KERNELVERSION"
     [ -n "$KERNELVERSION" ] || KERNELVERSION=`uname -r`
     kernel_release3
 
@@ -352,15 +352,17 @@ set_gcc()
 
 dkms_build_module()
 {
+    local DKMSOPTS=
     detect_etercifs_sources
     STATUS=`dkms status -m $MODULENAME -v $MODULEVERSION`
     [ "$STATUS" ] || a= dkms add -m $MODULENAME -v $MODULEVERSION
     BUILDDIR=$SRC_DIR
     create_builddir || fatal
     change_cifsversion
-    a= dkms uninstall -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
-    a= dkms build -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
-    a= dkms install -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
+    [ -n "$KERNELMANUAL" ] && DKMSOPTS="-k $KERNELVERSION --kernelsourcedir=$KERNSRC"
+    a= dkms uninstall $DKMSOPTS -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
+    a= dkms build $DKMSOPTS -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
+    a= dkms install $DKMSOPTS -m $MODULENAME -v $MODULEVERSION --rpm_safe_upgrade
 }
 
 # TODO: change it in the repo!
