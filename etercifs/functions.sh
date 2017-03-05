@@ -218,13 +218,16 @@ check_kernel_conf()
                 echo "OK"
                 ;;
             "y")
-                fatal "ERROR: the kernel is configured with CIFS support, but not as a module!"
+                echo "ERROR: the kernel is configured with CIFS support, but not as a module!"
+                return 1
                 ;;
             *)
-                fatal "ERROR: the kernel is configured without CIFS support!"
+                echo "ERROR: the kernel is configured without CIFS support!"
+                return 1
         esac
     else
-        echo "WARNING: the .config file in kernel source directory does not exist!"
+        echo "ERROR: the .config file in kernel source directory does not exist!"
+        return 1
     fi
     return 0
 }
