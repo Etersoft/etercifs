@@ -5,7 +5,7 @@
 
 Name: etercifs
 Version: 5.5.0
-Release: alt2
+Release: alt3
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
 
@@ -185,6 +185,10 @@ fi
 %endif
 
 %changelog
+* Sun Mar 05 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.0-alt3
+- implement regexp support in source.table and use it
+- some fixes, prepare to epm using
+
 * Sun Mar 05 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.0-alt2
 - switch kernel detection on data driven code with source.table
 
