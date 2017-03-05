@@ -53,7 +53,14 @@ check_for_openvz()
 sort_dn()
 {
     # sort -V
-    sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g
+    sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g "$@"
+}
+
+# build fake source table from source list
+fake_source_versions()
+{
+    echo "[Generic]"
+    list_source_versions | grep '^[0-9]' | sort_dn -r
 }
 
 detect_etercifs_sources()
@@ -69,9 +76,7 @@ detect_etercifs_sources()
 
     # generic kernels
     if [ -z "$KERNEL_STRING" ] || [ "$KERNEL_STRING" = "fixme" ] ; then
-        # build fake source table from source list
-        KERNEL_STRING=$(echo -e "[Generic]\n$(list_source_versions | grep '^[0-9]' | sort_dn)" | ./source.sh "Generic" "$KERNELVERSION")
-        # hack for mc colorifer: "
+        KERNEL_STRING=$(fake_source_versions | ./source.sh "Generic" "$KERNELVERSION")
     fi
 
     if [ -n "$KERNEL_STRING" ] ; then

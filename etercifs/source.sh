@@ -13,12 +13,12 @@ KERNELVERSION="$2"
 sort_dn()
 {
     # sort -V
-    sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g
+    sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g "$@"
 }
 
 # <=
 verlte() {
-    [  "$1" = "`echo -e "$1\n$2" | sort_dn | head -n1`" ]
+    [  "$1" = "`( echo "$1" ; echo "$2" ; ) | sort_dn | head -n1`" ]
 }
 
 # <
