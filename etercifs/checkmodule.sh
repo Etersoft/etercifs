@@ -47,7 +47,8 @@ check_build_module()
     echo "====================================================================="
     echo "Check build etercifs module for all found kernels"
     BUILTLIST=
-    for KERNSRC in $(list_kernel_headers) ; do
+    # Note: we can skip any duplicates here
+    for KERNSRC in $(list_kernel_headers | xargs -n1 realpath | sort -u) ; do
             echo "---------------------------------------------------------------------"
             detect_kernel
             if [ -z "$KERNELVERSION" ] ; then

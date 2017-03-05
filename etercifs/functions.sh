@@ -100,7 +100,10 @@ create_builddir()
 list_kernel_headers()
 {
     local LM
-    for LM in `ls -d /lib/modules/*/build` ; do
+    local LMP="/lib/modules/*/build"
+    # forbidden on ALT
+    test -x /lib/modules || LMP="/usr/src/linux-*"
+    for LM in `ls -d $LMP` ; do
         [ -r "$LM" ] || continue
         [ -L $(readlink $LM) ] && continue
         [ -f $LM/.config ] || continue
