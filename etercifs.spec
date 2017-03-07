@@ -150,14 +150,14 @@ AUTOINSTALL="YES"
 EOF
 
 %post -n dkms-etercifs
-if [ "$1" == 1 ]
+if [ "$1" = 1 ]
 then
   dkms add -m %modname -v %version --rpm_safe_upgrade
 fi
 %_initdir/%modname build
 
 %preun -n dkms-etercifs
-if [ "$1" == 0 ]
+if [ "$1" = 0 ]
 then
   dkms remove -m %modname -v %version --rpm_safe_upgrade --all
 fi
