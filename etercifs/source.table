@@ -11,7 +11,7 @@
 [GosLinux]
 3.10       goslinux64
 
-[CentOS|Red Hat|Scientific Linux|NauLinux|LinuxWizard Server|RERemix]
+[CentOS|RHEL|Scientific|NauLinux|RERemix]
 # >=       source_version
 3.10       centos7     # RHEL 7.x
 2.6.33     fixme
@@ -27,6 +27,6 @@
 2.6.18.1   legacy   # RHEL
 2.6.0      legacy
 
-[openSUSE]
+[SUSE|SLED|SLES]
 3.16.99    fixme
 3.16.7     suse13_2 # SUSE 13.2

@@ -29,9 +29,8 @@ Requires: gcc make
 # We definitely needs mount.cifs command
 Requires: cifs-utils
 
-# TODO
 # We definitely have to use distr_vendor
-#Requires: eepm
+Requires: eepm
 
 %description
 This package contains Etersoft modified CIFS kernel module
