@@ -17,14 +17,23 @@ detect_kernel_source()
 
     if [ -z "$KERNSRC" ]; then
         KERNSRC=/lib/modules/$KERNELVERSION/build
-        # workaround for missed link on deb-based systems
         if [ ! -d "$KERNSRC" ] ; then
+            # workaround for missed link on deb-based systems
             local KN=/usr/src/linux-headers-$KERNELVERSION
+            [ -d "$KN" ] && KERNSRC="$KN"
+            # workaround for Fedora 25 and later
+            KN=/usr/src/kernels/$KERNELVERSION
             [ -d "$KN" ] && KERNSRC="$KN"
         fi
     else
         # [ -n "$KV" ] || fatal "Set both KERNSRC and KERNVERSION"
-        KERNELVERSION=$(basename $(dirname "$KERNSRC"))
+        # override KERNELVERSION if have KERNSRC
+        local BD=$(dirname "$KERNSRC")
+        if [ "$BD" = "build" ] ; then
+            KERNELVERSION=$(basename $(dirname "$KERNSRC"))
+        else
+            KERNELVERSION=$(basename "$KERNSRC")
+        fi
     fi
 }
 
