@@ -246,7 +246,7 @@ int get_symlink_reparse_path(char *full_path, struct cifs_sb_info *cifs_sb,
 	char *tmpbuffer;
 
 	rc = CIFSSMBOpen(xid, ptcon, full_path, FILE_OPEN, GENERIC_READ,
-			OPEN_REPARSE_POINT, &fid, &oplock, NULL,
+			FILE_SHARE_ALL, OPEN_REPARSE_POINT, &fid, &oplock, NULL,
 			cifs_sb->local_nls,
 			cifs_remap(cifs_sb);
 	if (!rc) {

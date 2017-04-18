@@ -461,6 +461,7 @@ cifs_sfu_type(struct cifs_fattr *fattr, const char *path,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = GENERIC_READ;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = CREATE_NOT_DIR;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = path;
@@ -1154,6 +1155,7 @@ cifs_rename_pending_delete(const char *full_path, struct dentry *dentry,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = DELETE | FILE_WRITE_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = CREATE_NOT_DIR;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = full_path;
@@ -1196,7 +1198,7 @@ cifs_rename_pending_delete(const char *full_path, struct dentry *dentry,
 				   cifs_sb->local_nls,
 				   cifs_remap(cifs_sb));
 	if (rc != 0) {
-		rc = -EBUSY;
+		rc = -ETXTBSY;
 		goto undo_setattr;
 	}
 
@@ -1215,7 +1217,7 @@ cifs_rename_pending_delete(const char *full_path, struct dentry *dentry,
 		if (rc == -ENOENT)
 			rc = 0;
 		else if (rc != 0) {
-			rc = -EBUSY;
+			rc = -ETXTBSY;
 			goto undo_rename;
 		}
 		set_bit(CIFS_INO_DELETE_PENDING, &cifsInode->flags);
@@ -1321,13 +1323,15 @@ psx_del_no_retry:
 			cifs_drop_nlink(inode);
 	} else if (rc == -ENOENT) {
 		d_drop(dentry);
-	} else if (rc == -EBUSY) {
+	} else if (rc == -ETXTBSY) {
 		if (server->ops->rename_pending_delete) {
 			rc = server->ops->rename_pending_delete(full_path,
 								dentry, xid);
 			if (rc == 0)
 				cifs_drop_nlink(inode);
 		}
+		if (rc == -ETXTBSY)
+			rc = -EBUSY;
 	} else if ((rc == -EACCES) && (dosattr == 0) && inode) {
 		attrs = kzalloc(sizeof(*attrs), GFP_KERNEL);
 		if (attrs == NULL) {
@@ -1669,7 +1673,7 @@ cifs_do_rename(const unsigned int xid, struct dentry *from_dentry,
 	 * source. Note that cross directory moves do not work with
 	 * rename by filehandle to various Windows servers.
 	 */
-	if (rc == 0 || rc != -EBUSY)
+	if (rc == 0 || rc != -ETXTBSY)
 		goto do_rename_exit;
 
 	/* open-file renames don't work across directories */
@@ -1680,6 +1684,7 @@ cifs_do_rename(const unsigned int xid, struct dentry *from_dentry,
 	oparms.cifs_sb = cifs_sb;
 	/* open the file to be renamed -- we need DELETE perms */
 	oparms.desired_access = DELETE;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = CREATE_NOT_DIR;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = from_path;

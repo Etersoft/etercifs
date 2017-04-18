@@ -81,7 +81,7 @@ enum {
 	Opt_nointr, Opt_intr,
 	Opt_nostrictsync, Opt_strictsync,
 	Opt_serverino, Opt_noserverino,
-	Opt_rwpidforward, Opt_cifsacl, Opt_nocifsacl,
+	Opt_rwpidforward, Opt_wine, Opt_cifsacl, Opt_nocifsacl,
 	Opt_acl, Opt_noacl, Opt_locallease,
 	Opt_sign, Opt_seal, Opt_noac,
 	Opt_fsc, Opt_mfsymlinks,
@@ -159,6 +159,7 @@ static const match_table_t cifs_mount_option_tokens = {
 	{ Opt_serverino, "serverino" },
 	{ Opt_noserverino, "noserverino" },
 	{ Opt_rwpidforward, "rwpidforward" },
+	{ Opt_wine, "wine" },
 	{ Opt_cifsacl, "cifsacl" },
 	{ Opt_nocifsacl, "nocifsacl" },
 	{ Opt_acl, "acl" },
@@ -1423,6 +1424,10 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			break;
 		case Opt_rwpidforward:
 			vol->rwpidforward = 1;
+			break;
+		case Opt_wine:
+			vol->strict_io = 1;
+			vol->mand_lock = 1;
 			break;
 		case Opt_cifsacl:
 			vol->cifs_acl = 1;

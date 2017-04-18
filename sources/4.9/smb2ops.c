@@ -308,6 +308,7 @@ smb3_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -342,6 +343,7 @@ smb2_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -375,6 +377,7 @@ smb2_is_path_accessible(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -955,6 +958,7 @@ smb2_query_dir_first(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = fid;
@@ -1042,6 +1046,7 @@ smb2_queryfs(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -1121,6 +1126,7 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
