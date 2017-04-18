@@ -4,7 +4,7 @@
 %define modname etercifs
 
 Name: etercifs
-Version: 5.5.2
+Version: 5.5.3
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -184,6 +184,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 18 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.3-alt1
+- update 4.9 to correct sources (eterbug #11619)
+
 * Tue Apr 04 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.2-alt1
 - fix build on Fedora 25 and later
 - use eepm instead lsb_release
