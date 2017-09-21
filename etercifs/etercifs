@@ -178,7 +178,7 @@ load_module()
         sleep 2s
         #fi
         echo -n "Removing vanilla kernel module $ORIGMODULENAME... "
-        $RMMOD $ORIGMODULENAME --wait
+        $RMMOD $ORIGMODULENAME
         success
     fi
 
