@@ -4,7 +4,7 @@
 %define modname etercifs
 
 Name: etercifs
-Version: 5.5.3
+Version: 5.5.4
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -87,7 +87,7 @@ cat <<EOF >%buildroot%_sysconfdir/sysconfig/%name.conf
 # this options useful only for wine share using and security=share setting in smb.conf
 #MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,forcemand,direct,nounix
 # wine options since etercifs 4.4.5 enable full wine support
-MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,wine,sec=ntlmv2
+MOUNT_OPTIONS=user=guest,pass=,rw,iocharset=utf8,noperm,wine
 
 # default path for share mounting
 DEFAULT_MOUNTPOINT=/net/sharebase
@@ -184,6 +184,10 @@ fi
 %endif
 
 %changelog
+* Thu Sep 21 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.4-alt1
+- etercifs server: drop --wait from rmmod
+- do not use sec= by default
+
 * Tue Apr 18 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.3-alt1
 - update 4.9 to correct sources (eterbug #11619)
 
