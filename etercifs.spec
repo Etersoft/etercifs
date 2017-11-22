@@ -4,7 +4,7 @@
 %define modname etercifs
 
 Name: etercifs
-Version: 5.5.5
+Version: 5.6.0
 Release: alt1
 
 Summary: Advanced Common Internet File System for Linux with Etersoft extension
@@ -184,6 +184,12 @@ fi
 %endif
 
 %changelog
+* Wed Nov 22 2017 Vitaly Lipatov <lav@altlinux.ru> 5.6.0-alt1
+- add 4.11 (v4.11)
+- add 4.12 (v4.12)
+- add 4.13 (v4.13)
+- add 4.14 (v4.14)
+
 * Wed Nov 22 2017 Vitaly Lipatov <lav@altlinux.ru> 5.5.5-alt1
 - rename centos70 to centos7 (eterbug #11965)
 
