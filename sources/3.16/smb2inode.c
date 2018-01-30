@@ -55,7 +55,6 @@ smb2_open_op_close(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = desired_access;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = create_disposition;
 	oparms.create_options = create_options;
 	oparms.fid = &fid;
@@ -80,6 +79,10 @@ smb2_open_op_close(const unsigned int xid, struct cifs_tcon *tcon,
 		 * Directories are created through parameters in the
 		 * SMB2_open() call.
 		 */
+		break;
+	case SMB2_OP_RMDIR:
+		tmprc = SMB2_rmdir(xid, tcon, fid.persistent_fid,
+				   fid.volatile_fid);
 		break;
 	case SMB2_OP_RENAME:
 		tmprc = SMB2_rename(xid, tcon, fid.persistent_fid,
@@ -192,8 +195,8 @@ smb2_rmdir(const unsigned int xid, struct cifs_tcon *tcon, const char *name,
 	   struct cifs_sb_info *cifs_sb)
 {
 	return smb2_open_op_close(xid, tcon, cifs_sb, name, DELETE, FILE_OPEN,
-				  CREATE_NOT_FILE | CREATE_DELETE_ON_CLOSE,
-				  NULL, SMB2_OP_DELETE);
+				  CREATE_NOT_FILE,
+				  NULL, SMB2_OP_RMDIR);
 }
 
 int
@@ -263,9 +266,15 @@ smb2_set_file_info(struct inode *inode, const char *full_path,
 	struct tcon_link *tlink;
 	int rc;
 
+	if ((buf->CreationTime == 0) && (buf->LastAccessTime == 0) &&
+	    (buf->LastWriteTime == 0) && (buf->ChangeTime) &&
+	    (buf->Attributes == 0))
+		return 0; /* would be a no op, no sense sending this */
+
 	tlink = cifs_sb_tlink(cifs_sb);
 	if (IS_ERR(tlink))
 		return PTR_ERR(tlink);
+
 	rc = smb2_open_op_close(xid, tlink_tcon(tlink), cifs_sb, full_path,
 				FILE_WRITE_ATTRIBUTES, FILE_OPEN, 0, buf,
 				SMB2_OP_SET_INFO);

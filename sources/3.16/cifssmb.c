@@ -98,13 +98,13 @@ cifs_mark_open_files_invalid(struct cifs_tcon *tcon)
 	struct list_head *tmp1;
 
 	/* list all files open on tree connection and mark them invalid */
-	spin_lock(&cifs_file_list_lock);
+	spin_lock(&tcon->open_file_lock);
 	list_for_each_safe(tmp, tmp1, &tcon->openFileList) {
 		open_file = list_entry(tmp, struct cifsFileInfo, tlist);
 		open_file->invalidHandle = true;
 		open_file->oplock_break_cancelled = true;
 	}
-	spin_unlock(&cifs_file_list_lock);
+	spin_unlock(&tcon->open_file_lock);
 	/*
 	 * BB Add call to invalidate_inodes(sb) for all superblocks mounted
 	 * to this tcon.
@@ -720,6 +720,9 @@ CIFSSMBEcho(struct TCP_Server_Info *server)
 	if (rc)
 		return rc;
 
+	if (server->capabilities & CAP_UNICODE)
+		smb->hdr.Flags2 |= SMBFLG2_UNICODE;
+
 	/* set up echo request */
 	smb->hdr.Tid = 0xffff;
 	smb->hdr.WordCount = 1;
@@ -1121,7 +1124,6 @@ psx_create_err:
 	return rc;
 }
 
-#ifdef ETERSOFT_USE_SMB_LEGACY_OPEN
 static __u16 convert_disposition(int disposition)
 {
 	__u16 ofun = 0;
@@ -1165,7 +1167,6 @@ access_flags_to_smbopen_mode(const int access_flags)
 	/* just go for read/write */
 	return SMBOPEN_READWRITE;
 }
-#endif
 
 int
 SMBLegacyOpen(const unsigned int xid, struct cifs_tcon *tcon,
@@ -1174,10 +1175,6 @@ SMBLegacyOpen(const unsigned int xid, struct cifs_tcon *tcon,
 	    int *pOplock, FILE_ALL_INFO *pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
-#ifndef ETERSOFT_USE_SMB_LEGACY_OPEN
-	printk("Etersoft: Do not use SMBLegacyOpen!\n");
-	return -EACCES;
-#else
 	int rc = -EACCES;
 	OPENX_REQ *pSMB = NULL;
 	OPENX_RSP *pSMBr = NULL;
@@ -1276,7 +1273,6 @@ OldOpenRetry:
 	if (rc == -EAGAIN)
 		goto OldOpenRetry;
 	return rc;
-#endif
 }
 
 int
@@ -1354,7 +1350,7 @@ openRetry:
 	if (create_options & CREATE_OPTION_READONLY)
 		req->FileAttributes |= cpu_to_le32(ATTR_READONLY);
 
-	req->ShareAccess = cpu_to_le32(oparms->share_access);
+	req->ShareAccess = cpu_to_le32(FILE_SHARE_ALL);
 	req->CreateDisposition = cpu_to_le32(disposition);
 	req->CreateOptions = cpu_to_le32(create_options & CREATE_OPTIONS_MASK);
 
@@ -1434,6 +1430,8 @@ cifs_readv_discard(struct TCP_Server_Info *server, struct mid_q_entry *mid)
 
 	length = discard_remaining_data(server);
 	dequeue_mid(mid, rdata->result);
+	mid->resp_buf = server->smallbuf;
+	server->smallbuf = NULL;
 	return length;
 }
 
@@ -1549,6 +1547,8 @@ cifs_readv_receive(struct TCP_Server_Info *server, struct mid_q_entry *mid)
 		return cifs_readv_discard(server, mid);
 
 	dequeue_mid(mid, false);
+	mid->resp_buf = server->smallbuf;
+	server->smallbuf = NULL;
 	return length;
 }
 

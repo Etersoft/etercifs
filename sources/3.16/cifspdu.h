@@ -22,14 +22,6 @@
 #ifndef _CIFSPDU_H
 #define _CIFSPDU_H
 
-#ifndef CONFIG_CIFS_XATTR
-#define CONFIG_CIFS_XATTR
-#endif
-
-#ifndef CONFIG_CIFS_POSIX
-#define CONFIG_CIFS_POSIX
-#endif
-
 #include <net/sock.h>
 #include <asm/unaligned.h>
 #include "smbfsctl.h"

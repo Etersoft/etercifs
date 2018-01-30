@@ -228,7 +228,7 @@ SMB3_request_interfaces(const unsigned int xid, struct cifs_tcon *tcon)
 			le64_to_cpu(out_buf->LinkSpeed));
 	} else
 		cifs_dbg(VFS, "error %d on ioctl to get interface list\n", rc);
-
+	kfree(out_buf);
 	return rc;
 }
 #endif /* STATS2 */
@@ -244,7 +244,6 @@ smb3_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -279,7 +278,6 @@ smb2_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -313,7 +311,6 @@ smb2_is_path_accessible(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -643,6 +640,7 @@ smb2_clone_range(const unsigned int xid,
 
 cchunk_out:
 	kfree(pcchunk);
+	kfree(retbuf);
 	return rc;
 }
 
@@ -723,7 +721,6 @@ smb2_query_dir_first(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = fid;
@@ -732,7 +729,7 @@ smb2_query_dir_first(const unsigned int xid, struct cifs_tcon *tcon,
 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL);
 	kfree(utf16_path);
 	if (rc) {
-		cifs_dbg(VFS, "open dir failed\n");
+		cifs_dbg(FYI, "open dir failed rc=%d\n", rc);
 		return rc;
 	}
 
@@ -742,7 +739,7 @@ smb2_query_dir_first(const unsigned int xid, struct cifs_tcon *tcon,
 	rc = SMB2_query_directory(xid, tcon, fid->persistent_fid,
 				  fid->volatile_fid, 0, srch_inf);
 	if (rc) {
-		cifs_dbg(VFS, "query directory failed\n");
+		cifs_dbg(FYI, "query directory failed rc=%d\n", rc);
 		SMB2_close(xid, tcon, fid->persistent_fid, fid->volatile_fid);
 	}
 	return rc;
@@ -811,7 +808,6 @@ smb2_queryfs(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -860,8 +856,11 @@ smb2_set_lease_key(struct inode *inode, struct cifs_fid *fid)
 static void
 smb2_new_lease_key(struct cifs_fid *fid)
 {
-	get_random_bytes(fid->lease_key, SMB2_LEASE_KEY_SIZE);
+	generate_random_uuid(fid->lease_key);
 }
+
+#define SMB2_SYMLINK_STRUCT_SIZE \
+	(sizeof(struct smb2_err_rsp) - 1 + sizeof(struct smb2_symlink_err_rsp))
 
 static int
 smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
@@ -875,7 +874,10 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
 	struct cifs_fid fid;
 	struct smb2_err_rsp *err_buf = NULL;
 	struct smb2_symlink_err_rsp *symlink;
-	unsigned int sub_len, sub_offset;
+	unsigned int sub_len;
+	unsigned int sub_offset;
+	unsigned int print_len;
+	unsigned int print_offset;
 
 	cifs_dbg(FYI, "%s: path: %s\n", __func__, full_path);
 
@@ -885,7 +887,6 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
-	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = FILE_OPEN;
 	oparms.create_options = 0;
 	oparms.fid = &fid;
@@ -897,11 +898,33 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
 		kfree(utf16_path);
 		return -ENOENT;
 	}
+
+	if (le32_to_cpu(err_buf->ByteCount) < sizeof(struct smb2_symlink_err_rsp) ||
+	    get_rfc1002_length(err_buf) + 4 < SMB2_SYMLINK_STRUCT_SIZE) {
+		kfree(utf16_path);
+		return -ENOENT;
+	}
+
 	/* open must fail on symlink - reset rc */
 	rc = 0;
 	symlink = (struct smb2_symlink_err_rsp *)err_buf->ErrorData;
 	sub_len = le16_to_cpu(symlink->SubstituteNameLength);
 	sub_offset = le16_to_cpu(symlink->SubstituteNameOffset);
+	print_len = le16_to_cpu(symlink->PrintNameLength);
+	print_offset = le16_to_cpu(symlink->PrintNameOffset);
+
+	if (get_rfc1002_length(err_buf) + 4 <
+			SMB2_SYMLINK_STRUCT_SIZE + sub_offset + sub_len) {
+		kfree(utf16_path);
+		return -ENOENT;
+	}
+
+	if (get_rfc1002_length(err_buf) + 4 <
+			SMB2_SYMLINK_STRUCT_SIZE + print_offset + print_len) {
+		kfree(utf16_path);
+		return -ENOENT;
+	}
+
 	*target_path = cifs_strndup_from_utf16(
 				(char *)symlink->PathBuffer + sub_offset,
 				sub_len, true, cifs_sb->local_nls);
@@ -1140,6 +1163,7 @@ struct smb_version_operations smb20_operations = {
 	.clear_stats = smb2_clear_stats,
 	.print_stats = smb2_print_stats,
 	.is_oplock_break = smb2_is_valid_oplock_break,
+	.handle_cancelled_mid = smb2_handle_cancelled_mid,
 	.downgrade_oplock = smb2_downgrade_oplock,
 	.need_neg = smb2_need_neg,
 	.negotiate = smb2_negotiate,
@@ -1216,6 +1240,7 @@ struct smb_version_operations smb21_operations = {
 	.clear_stats = smb2_clear_stats,
 	.print_stats = smb2_print_stats,
 	.is_oplock_break = smb2_is_valid_oplock_break,
+	.handle_cancelled_mid = smb2_handle_cancelled_mid,
 	.downgrade_oplock = smb2_downgrade_oplock,
 	.need_neg = smb2_need_neg,
 	.negotiate = smb2_negotiate,
@@ -1293,6 +1318,7 @@ struct smb_version_operations smb30_operations = {
 	.print_stats = smb2_print_stats,
 	.dump_share_caps = smb2_dump_share_caps,
 	.is_oplock_break = smb2_is_valid_oplock_break,
+	.handle_cancelled_mid = smb2_handle_cancelled_mid,
 	.downgrade_oplock = smb2_downgrade_oplock,
 	.need_neg = smb2_need_neg,
 	.negotiate = smb2_negotiate,
