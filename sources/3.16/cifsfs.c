@@ -472,6 +472,9 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 		seq_puts(s, ",mfsymlinks");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_FSCACHE)
 		seq_puts(s, ",fsc");
+	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_STRICT_IO) &&
+	    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL))
+		seq_puts(s, ",wine");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)
 		seq_puts(s, ",nostrictsync");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_PERM)

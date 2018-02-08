@@ -55,6 +55,7 @@ smb2_open_op_close(const unsigned int xid, struct cifs_tcon *tcon,
 
 	oparms.tcon = tcon;
 	oparms.desired_access = desired_access;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.disposition = create_disposition;
 	oparms.create_options = create_options;
 	oparms.fid = &fid;

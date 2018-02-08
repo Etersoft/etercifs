@@ -226,6 +226,7 @@ cifs_do_create(struct inode *inode, struct dentry *direntry, unsigned int xid,
 	FILE_ALL_INFO *buf = NULL;
 	struct inode *newinode = NULL;
 	int disposition;
+	int share_access;
 	struct TCP_Server_Info *server = tcon->ses->server;
 	struct cifs_open_parms oparms;
 
@@ -240,6 +241,7 @@ cifs_do_create(struct inode *inode, struct dentry *direntry, unsigned int xid,
 	}
 
 	if (tcon->unix_ext && cap_unix(tcon->ses) && !tcon->broken_posix_open &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0) &&
 	    (CIFS_UNIX_POSIX_PATH_OPS_CAP &
 			le64_to_cpu(tcon->fsUnixInfo.Capability))) {
 		rc = cifs_posix_open(full_path, &newinode, inode->i_sb, mode,
@@ -324,6 +326,8 @@ cifs_do_create(struct inode *inode, struct dentry *direntry, unsigned int xid,
 	else
 		cifs_dbg(FYI, "Create flag not set in create function\n");
 
+	share_access = cifs_get_share_flags(oflags);
+
 	/*
 	 * BB add processing to set equivalent of mode - e.g. via CreateX with
 	 * ACLs
@@ -353,6 +357,7 @@ cifs_do_create(struct inode *inode, struct dentry *direntry, unsigned int xid,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = desired_access;
+	oparms.share_access = share_access;
 	oparms.create_options = create_options;
 	oparms.disposition = disposition;
 	oparms.path = full_path;
@@ -668,7 +673,6 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, umode_t mode,
 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_UNX_EMUL))
 		goto mknod_out;
 
-
 	cifs_dbg(FYI, "sfu compat create special file\n");
 
 	buf = kmalloc(sizeof(FILE_ALL_INFO), GFP_KERNEL);
@@ -685,6 +689,7 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, umode_t mode,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = GENERIC_WRITE;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = create_options;
 	oparms.disposition = FILE_CREATE;
 	oparms.path = full_path;

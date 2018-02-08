@@ -978,6 +978,7 @@ struct cifs_open_parms {
 	struct cifs_sb_info *cifs_sb;
 	int disposition;
 	int desired_access;
+	int share_access;
 	int create_options;
 	const char *path;
 	struct cifs_fid *fid;
@@ -1024,6 +1025,13 @@ struct cifsFileInfo {
 	struct cifs_search_info srch_inf;
 	struct work_struct oplock_break; /* work for oplock breaks */
 };
+
+#define SHARE_FLAGS_SHIFT 28
+
+static inline int cifs_get_share_flags(unsigned int flags)
+{
+	return (~(flags >> SHARE_FLAGS_SHIFT)) & 7;
+}
 
 struct cifs_io_parms {
 	__u16 netfid;

@@ -913,6 +913,7 @@ static struct cifs_ntsd *get_cifs_acl_by_path(struct cifs_sb_info *cifs_sb,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = READ_CONTROL;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = create_options;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = path;
@@ -982,6 +983,7 @@ int set_cifs_acl(struct cifs_ntsd *pnntsd, __u32 acllen,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = access_flags;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = create_options;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = path;

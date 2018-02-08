@@ -576,6 +576,7 @@ cifs_query_path_info(const unsigned int xid, struct cifs_tcon *tcon,
 		oparms.tcon = tcon;
 		oparms.cifs_sb = cifs_sb;
 		oparms.desired_access = FILE_READ_ATTRIBUTES;
+		oparms.share_access = FILE_SHARE_ALL;
 		oparms.create_options = 0;
 		oparms.disposition = FILE_OPEN;
 		oparms.path = full_path;
@@ -812,6 +813,7 @@ smb_set_file_info(struct inode *inode, const char *full_path,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = SYNCHRONIZE | FILE_WRITE_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = CREATE_NOT_DIR;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = full_path;
@@ -984,6 +986,7 @@ cifs_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = FILE_READ_ATTRIBUTES;
+	oparms.share_access = FILE_SHARE_ALL;
 	oparms.create_options = OPEN_REPARSE_POINT;
 	oparms.disposition = FILE_OPEN;
 	oparms.path = full_path;
